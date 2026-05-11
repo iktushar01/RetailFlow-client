@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+/* Smooth scrolling behavior for the entire app */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* Ensure the body starts at the top */
+body {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset scroll position on route changes */
+#root {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* Ensure main content area scrolls properly */
+main {
+  scroll-behavior: smooth;
+}
+
+/* Fix for scroll containers */
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto {
+  scroll-behavior: smooth;
+}
+
+/* Ensure proper scroll behavior on route changes */
+[data-scroll-container] {
+  scroll-behavior: smooth;
+}
+
+/* Force scroll to top on route changes */
+.route-change {
+  scroll-behavior: auto !important;
+}
