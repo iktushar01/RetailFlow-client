@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Menu, Search, Bell, User, Settings, LogOut, Clock } from 'lucide-react'
+import { Menu, Search, Bell, User, Settings, LogOut, Clock, ChevronDown } from 'lucide-react'
 import { Z_INDEX } from '../../constants/zIndex'
 import { dashboardAPI } from '../../Pages/HomePage/services/dashboardService'
 import { useAuth } from '../../contexts/AuthContext'
@@ -16,35 +16,21 @@ const Header = ({ onMenuClick }) => {
   const [currentTime, setCurrentTime] = useState(new Date())
   const userMenuRef = useRef(null)
 
-  // Fetch notification count
-  useEffect(() => {
-    fetchNotificationCount()
-  }, [])
+  useEffect(() => { fetchNotificationCount() }, [])
 
-  // Update time every second
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setShowUserMenu(false)
       }
     }
-
-    if (showUserMenu) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
+    if (showUserMenu) document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [showUserMenu])
 
   const fetchNotificationCount = async () => {
@@ -52,211 +38,414 @@ const Header = ({ onMenuClick }) => {
       setLoading(true)
       const alerts = await dashboardAPI.getAlerts()
       setNotificationCount(alerts.length)
-    } catch (error) {
-      console.error('Error fetching notification count:', error)
+    } catch {
       setNotificationCount(0)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleNotificationClick = () => {
-    navigate('/dashboard/notifications')
-  }
+  const handleNotificationClick = () => navigate('/dashboard/notifications')
 
   const handleLogout = () => {
     Swal.fire({
-      title: 'Logout',
-      text: 'Are you sure you want to logout?',
+      title: 'Sign out',
+      text: 'Are you sure you want to sign out?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#3B82F6',
-      cancelButtonColor: '#6B7280',
-      confirmButtonText: 'Yes, logout',
-      cancelButtonText: 'Cancel'
+      confirmButtonColor: '#6366f1',
+      cancelButtonColor: '#334155',
+      confirmButtonText: 'Yes, sign out',
+      cancelButtonText: 'Cancel',
+      background: '#0f1117',
+      color: '#e2e8f0'
     }).then((result) => {
       if (result.isConfirmed) {
         logout()
         navigate('/login')
         Swal.fire({
           icon: 'success',
-          title: 'Logged Out',
-          text: 'You have been logged out successfully!',
+          title: 'Signed out',
+          text: 'You have been signed out successfully.',
           timer: 1500,
-          showConfirmButton: false
+          showConfirmButton: false,
+          background: '#0f1117',
+          color: '#e2e8f0'
         })
       }
     })
   }
 
-  const handleProfileClick = () => {
-    setShowUserMenu(false)
-    navigate('/profile')
-  }
-
-  const handleSettingsClick = () => {
-    setShowUserMenu(false)
-    navigate('/settings')
-  }
+  const handleProfileClick = () => { setShowUserMenu(false); navigate('/profile') }
+  const handleSettingsClick = () => { setShowUserMenu(false); navigate('/settings') }
 
   const getPageTitle = () => {
     const path = location.pathname
-    if (path === '/dashboard/overview') return 'Dashboard Overview'
-    if (path === '/dashboard/notifications') return 'Notifications'
-    if (path === '/profile') return 'Profile'
-    if (path === '/settings') return 'Settings'
-    if (path.startsWith('/suppliers')) return 'Suppliers Management'
-    if (path.startsWith('/products')) return 'Products Management'
-    if (path.startsWith('/warehouse')) return 'Warehouse Management'
-    if (path.startsWith('/sales')) return 'Sales & POS'
-    if (path.startsWith('/inventory')) return 'Inventory & Reports'
+    const map = [
+      ['/dashboard/overview', 'Overview'],
+      ['/dashboard/notifications', 'Notifications'],
+      ['/profile', 'Profile'],
+      ['/settings', 'Settings'],
+      ['/suppliers', 'Suppliers'],
+      ['/products', 'Products'],
+      ['/warehouse', 'Warehouse'],
+      ['/sales', 'Sales & POS'],
+      ['/inventory', 'Inventory & Reports'],
+    ]
+    for (const [prefix, label] of map) {
+      if (path === prefix || path.startsWith(prefix + '/')) return label
+    }
     return 'Dashboard'
   }
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
-    })
+  const getBreadcrumb = () => {
+    const path = location.pathname
+    const parts = path.split('/').filter(Boolean)
+    return parts.map(p => p.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()))
   }
 
-  const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
+  const formatTime = (date) =>
+    date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+
+  const formatDate = (date) =>
+    date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+
+  const userInitials = (user?.name || 'Admin').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 px-4 md:px-6 py-4 relative">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          {/* Mobile menu button */}
-          <button
-            onClick={onMenuClick}
-            className="md:hidden p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-          
-          {/* Page Title */}
-          <h1 className="text-xl md:text-2xl font-semibold text-gray-800">{getPageTitle()}</h1>
-        </div>
+    <>
+      <style>{`
+        .header-root {
+          background: #ffffff;
+          border-bottom: 1px solid #f1f5f9;
+          font-family: 'DM Sans', 'Inter', sans-serif;
+        }
+        .header-search-wrap {
+          position: relative;
+        }
+        .header-search-input {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 7px 12px 7px 36px;
+          font-size: 13px;
+          color: #334155;
+          width: 220px;
+          outline: none;
+          transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+          font-family: inherit;
+        }
+        .header-search-input::placeholder { color: #94a3b8; }
+        .header-search-input:focus {
+          border-color: #6366f1;
+          background: #fff;
+          box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+        }
+        .header-search-icon {
+          position: absolute;
+          left: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #94a3b8;
+          pointer-events: none;
+        }
+        .clock-chip {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 6px 12px;
+        }
+        .clock-time {
+          font-size: 13px;
+          font-weight: 600;
+          color: #1e293b;
+          font-family: 'DM Mono', 'Fira Mono', monospace;
+          letter-spacing: 0.02em;
+        }
+        .clock-date {
+          font-size: 11px;
+          color: #94a3b8;
+          font-weight: 500;
+        }
+        .clock-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #22c55e;
+          animation: clockpulse 2s ease-in-out infinite;
+          flex-shrink: 0;
+        }
+        @keyframes clockpulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.8); }
+        }
+        .notif-btn {
+          position: relative;
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #64748b;
+          cursor: pointer;
+          transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .notif-btn:hover {
+          background: #f1f5f9;
+          color: #334155;
+          border-color: #cbd5e1;
+        }
+        .notif-badge {
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          min-width: 18px;
+          height: 18px;
+          background: #ef4444;
+          color: white;
+          font-size: 10px;
+          font-weight: 700;
+          border-radius: 99px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 4px;
+          border: 2px solid #fff;
+        }
+        .user-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          flex-shrink: 0;
+        }
+        .user-trigger {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 4px 8px 4px 4px;
+          border-radius: 10px;
+          border: 1px solid #e2e8f0;
+          background: #f8fafc;
+          cursor: pointer;
+          transition: background 0.15s, border-color 0.15s;
+        }
+        .user-trigger:hover {
+          background: #f1f5f9;
+          border-color: #cbd5e1;
+        }
+        .user-name-chip {
+          font-size: 13px;
+          font-weight: 600;
+          color: #1e293b;
+          max-width: 100px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .dropdown-panel {
+          position: absolute;
+          right: 0;
+          top: calc(100% + 8px);
+          width: 224px;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          box-shadow: 0 8px 32px rgba(15,23,42,0.12), 0 2px 8px rgba(15,23,42,0.06);
+          overflow: hidden;
+          animation: dropIn 0.15s ease-out;
+        }
+        @keyframes dropIn {
+          from { opacity: 0; transform: translateY(-6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-header {
+          padding: 12px 14px 10px;
+          border-bottom: 1px solid #f1f5f9;
+        }
+        .dropdown-user-name {
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #0f172a;
+        }
+        .dropdown-user-email {
+          font-size: 11.5px;
+          color: #94a3b8;
+          margin-top: 1px;
+        }
+        .dropdown-user-role {
+          display: inline-block;
+          margin-top: 5px;
+          font-size: 10.5px;
+          font-weight: 600;
+          color: #6366f1;
+          background: rgba(99,102,241,0.08);
+          border-radius: 4px;
+          padding: 1px 7px;
+          letter-spacing: 0.03em;
+        }
+        .dropdown-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          padding: 9px 14px;
+          font-size: 13px;
+          font-weight: 500;
+          color: #475569;
+          background: none;
+          border: none;
+          cursor: pointer;
+          text-align: left;
+          transition: background 0.12s, color 0.12s;
+          font-family: inherit;
+        }
+        .dropdown-item:hover {
+          background: #f8fafc;
+          color: #1e293b;
+        }
+        .dropdown-item.danger { color: #ef4444; }
+        .dropdown-item.danger:hover { background: #fef2f2; color: #dc2626; }
+        .dropdown-divider {
+          height: 1px;
+          background: #f1f5f9;
+          margin: 2px 0;
+        }
+        .page-title {
+          font-size: 17px;
+          font-weight: 700;
+          color: #0f172a;
+          letter-spacing: -0.02em;
+          font-family: 'DM Sans', sans-serif;
+        }
+        .breadcrumb-wrap {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-top: 1px;
+        }
+        .breadcrumb-item {
+          font-size: 11.5px;
+          color: #94a3b8;
+          font-weight: 500;
+        }
+        .breadcrumb-sep {
+          font-size: 11px;
+          color: #cbd5e1;
+        }
+        .mobile-menu-btn {
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+          background: #f8fafc;
+          color: #64748b;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .mobile-menu-btn:hover { background: #f1f5f9; }
+      `}</style>
 
-        <div className="flex items-center space-x-4">
-          {/* Search */}
-          <div className="hidden md:block relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search..."
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Modern Digital Clock */}
-          <div className="hidden lg:flex items-center gap-3 px-4 py-2.5 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 rounded-xl shadow-lg border border-blue-500/30 relative overflow-hidden group">
-            {/* Animated background glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            
-            {/* Clock icon with pulse animation */}
-            <div className="relative">
-              <Clock className="w-5 h-5 text-blue-400 animate-pulse" />
-              <div className="absolute inset-0 bg-blue-400 blur-sm opacity-50 animate-pulse"></div>
-            </div>
-            
-            {/* Time and Date */}
-            <div className="flex flex-col relative z-10">
-              <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-300 tracking-wider font-mono">
-                {formatTime(currentTime)}
-              </span>
-              <span className="text-xs text-blue-300/70 font-medium">
-                {formatDate(currentTime)}
-              </span>
-            </div>
-            
-            {/* Animated border effect */}
-            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 opacity-20 blur-sm"></div>
-            </div>
-          </div>
-
-          {/* Notifications */}
-          <button 
-            onClick={handleNotificationClick}
-            className="p-2 text-gray-400 hover:text-gray-600 relative transition-colors"
-            title="View notifications"
-          >
-            <Bell className="w-6 h-6" />
-            {notificationCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
-                {notificationCount > 99 ? '99+' : notificationCount}
-              </span>
-            )}
-            {loading && (
-              <div className="absolute -top-1 -right-1 w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            )}
-          </button>
-
-          {/* User Menu */}
-          <div className="relative" ref={userMenuRef}>
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100"
-            >
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
+      <header className="header-root px-5 py-3 relative">
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: mobile menu + title */}
+          <div className="flex items-center gap-3">
+            <button className="md:hidden mobile-menu-btn" onClick={onMenuClick}>
+              <Menu size={18} />
+            </button>
+            <div>
+              <div className="page-title">{getPageTitle()}</div>
+              <div className="breadcrumb-wrap">
+                {getBreadcrumb().map((crumb, i, arr) => (
+                  <React.Fragment key={i}>
+                    <span className="breadcrumb-item">{crumb}</span>
+                    {i < arr.length - 1 && <span className="breadcrumb-sep">/</span>}
+                  </React.Fragment>
+                ))}
               </div>
-              <span className="hidden md:block text-sm font-medium text-gray-700">{user?.name || 'Admin'}</span>
+            </div>
+          </div>
+
+          {/* Right controls */}
+          <div className="flex items-center gap-2.5">
+            {/* Search */}
+            <div className="hidden md:block header-search-wrap">
+              <Search size={14} className="header-search-icon" />
+              <input type="text" placeholder="Search anything..." className="header-search-input" />
+            </div>
+
+            {/* Clock */}
+            <div className="hidden lg:flex clock-chip">
+              <div className="clock-dot" />
+              <div className="flex flex-col">
+                <span className="clock-time">{formatTime(currentTime)}</span>
+                <span className="clock-date">{formatDate(currentTime)}</span>
+              </div>
+            </div>
+
+            {/* Notifications */}
+            <button className="notif-btn" onClick={handleNotificationClick} title="Notifications">
+              <Bell size={16} />
+              {notificationCount > 0 && (
+                <span className="notif-badge">{notificationCount > 99 ? '99+' : notificationCount}</span>
+              )}
+              {loading && (
+                <span className="notif-badge" style={{ background: '#6366f1' }}>
+                  <span style={{ display: 'block', width: 8, height: 8, border: '1.5px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                </span>
+              )}
             </button>
 
-            {/* User Dropdown */}
-            {showUserMenu && (
-              <div 
-                className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-xl border border-gray-200 transform translate-y-0 opacity-100"
-                style={{ zIndex: Z_INDEX.DROPDOWN }}
-              >
-                <div className="py-1">
-                  <div className="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
-                    <p className="font-semibold text-gray-900">{user?.name || 'Admin User'}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{user?.email || 'admin@store-xen.com'}</p>
-                    <p className="text-xs text-blue-600 mt-1 font-medium">{user?.role || 'Administrator'}</p>
+            {/* User menu */}
+            <div className="relative" ref={userMenuRef}>
+              <button className="user-trigger" onClick={() => setShowUserMenu(!showUserMenu)}>
+                <div className="user-avatar">{userInitials}</div>
+                <span className="user-name-chip hidden md:block">{user?.name || 'Admin'}</span>
+                <ChevronDown size={13} style={{ color: '#94a3b8', flexShrink: 0 }} />
+              </button>
+
+              {showUserMenu && (
+                <div className="dropdown-panel" style={{ zIndex: Z_INDEX.DROPDOWN }}>
+                  <div className="dropdown-header">
+                    <div className="dropdown-user-name">{user?.name || 'Admin User'}</div>
+                    <div className="dropdown-user-email">{user?.email || 'admin@store-xen.com'}</div>
+                    <span className="dropdown-user-role">{user?.role || 'Administrator'}</span>
                   </div>
-                  <button 
-                    onClick={handleProfileClick}
-                    className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                  >
-                    <User className="w-4 h-4 mr-3" />
-                    Profile
-                  </button>
-                  <button 
-                    onClick={handleSettingsClick}
-                    className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                  >
-                    <Settings className="w-4 h-4 mr-3" />
-                    Settings
-                  </button>
-                  <div className="border-t border-gray-100 my-1"></div>
-                  <button 
-                    onClick={handleLogout}
-                    className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4 mr-3" />
-                    Sign out
-                  </button>
+                  <div className="py-1">
+                    <button className="dropdown-item" onClick={handleProfileClick}>
+                      <User size={15} /> Profile
+                    </button>
+                    <button className="dropdown-item" onClick={handleSettingsClick}>
+                      <Settings size={15} /> Settings
+                    </button>
+                    <div className="dropdown-divider" />
+                    <button className="dropdown-item danger" onClick={handleLogout}>
+                      <LogOut size={15} /> Sign out
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   )
 }
 
