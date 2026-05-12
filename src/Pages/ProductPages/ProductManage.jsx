@@ -256,7 +256,6 @@ const ProductManage = () => {
           products={products}
           filteredProducts={filteredProducts}
         />
-        />
       </div>
 
       {/* Main Content Area */}

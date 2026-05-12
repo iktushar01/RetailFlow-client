@@ -1,16 +1,32 @@
 import React, { useState } from 'react'
-import { User, Mail, Briefcase, Clock, Calendar, Save, Edit2 } from 'lucide-react'
+import { 
+  User, 
+  Mail, 
+  Briefcase, 
+  Clock, 
+  Calendar, 
+  Save, 
+  Edit2, 
+  ShieldCheck, 
+  X,
+  Camera
+} from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import Swal from 'sweetalert2'
+import { Button } from '../../Components/UI/Button'
+import { cn } from "@/lib/utils"
 
 const ProfilePage = () => {
   const { user, updateUser } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
-  const [formData, setFormData] = useState({
+  
+  const initialFormState = {
     name: user?.name || '',
     email: user?.email || '',
     role: user?.role || ''
-  })
+  }
+
+  const [formData, setFormData] = useState(initialFormState)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -23,180 +39,173 @@ const ProfilePage = () => {
     setIsEditing(false)
     Swal.fire({
       icon: 'success',
-      title: 'Profile Updated',
-      text: 'Your profile has been updated successfully!',
-      confirmButtonColor: '#3B82F6'
+      title: 'Success!',
+      text: 'Profile configuration updated.',
+      confirmButtonColor: 'oklch(var(--primary))'
     })
   }
 
   const handleCancel = () => {
-    setFormData({
-      name: user?.name || '',
-      email: user?.email || '',
-      role: user?.role || ''
-    })
+    setFormData(initialFormState)
     setIsEditing(false)
   }
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
     })
   }
 
+  const InputField = ({ label, icon: Icon, name, type = "text", disabled = false, placeholder }) => (
+    <div className="space-y-1.5">
+      <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+        {label}
+      </label>
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+          <Icon className={cn(
+            "h-4 w-4 transition-colors",
+            isEditing && !disabled ? "text-primary" : "text-muted-foreground/50"
+          )} />
+        </div>
+        <input
+          type={type}
+          name={name}
+          value={formData[name]}
+          onChange={handleChange}
+          disabled={!isEditing || disabled}
+          placeholder={placeholder}
+          className={cn(
+            "block w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border transition-all duration-200",
+            isEditing && !disabled 
+              ? "bg-background border-primary/30 ring-2 ring-primary/5 focus:ring-primary/20 focus:border-primary outline-none" 
+              : "bg-muted/30 border-transparent text-foreground cursor-not-allowed"
+          )}
+        />
+      </div>
+    </div>
+  )
+
   return (
-    <div className=" mx-auto space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-            <p className="text-gray-600 mt-1">Manage your account information</p>
-          </div>
-          {!isEditing && (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              <Edit2 className="w-4 h-4" />
-              <span>Edit Profile</span>
+    <div className="max-w-4xl mx-auto space-y-8 pb-12 animate-in fade-in duration-500">
+      {/* Dynamic Hero Section */}
+      <div className="relative overflow-hidden bg-card border rounded-3xl p-8 shadow-sm">
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+        
+        <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+          {/* Avatar with Camera Overlay */}
+          <div className="relative group">
+            <div className="w-32 h-32 bg-gradient-to-tr from-primary to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-300">
+              <User className="w-16 h-16 text-primary-foreground -rotate-3 group-hover:rotate-0 transition-transform duration-300" />
+            </div>
+            <button className="absolute -bottom-2 -right-2 p-2 bg-background border rounded-xl shadow-lg hover:scale-110 transition-transform text-muted-foreground hover:text-primary">
+              <Camera className="w-4 h-4" />
             </button>
-          )}
+          </div>
+
+          <div className="flex-1 text-center md:text-left space-y-2">
+            <div className="flex flex-col md:flex-row md:items-center gap-3">
+              <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase italic leading-none">
+                {user?.name || 'User Profile'}
+              </h1>
+              <div className="flex justify-center md:justify-start">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-widest">
+                  {user?.role || 'Access Restricted'}
+                </span>
+              </div>
+            </div>
+            <p className="text-muted-foreground font-mono text-sm tracking-tight">@{user?.username || 'unknown_entity'}</p>
+          </div>
+
+          <div className="shrink-0">
+            {!isEditing ? (
+              <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2 rounded-xl">
+                <Edit2 className="w-4 h-4" /> Edit Profile
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button onClick={handleCancel} variant="ghost" className="h-10 w-10 p-0 rounded-xl">
+                  <X className="w-4 h-4" />
+                </Button>
+                <Button onClick={handleSubmit} className="gap-2 rounded-xl px-6">
+                  <Save className="w-4 h-4" /> Save
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Profile Card */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-        {/* Avatar Section */}
-        <div className="flex items-center space-x-6 mb-8 pb-8 border-b border-gray-200">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-            <User className="w-12 h-12 text-white" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-900">{user?.name}</h2>
-            <p className="text-gray-600">{user?.username}</p>
-            <p className="text-sm text-gray-500 mt-1">{user?.role}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Details Form */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-card border rounded-3xl p-8 shadow-sm">
+            <div className="flex items-center gap-2 mb-8">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              <h3 className="font-bold text-sm uppercase tracking-widest">Account Identity</h3>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputField 
+                  label="Display Name" 
+                  icon={User} 
+                  name="name" 
+                  placeholder="Operational Handle"
+                />
+                <InputField 
+                  label="Email Link" 
+                  icon={Mail} 
+                  name="email" 
+                  type="email" 
+                  placeholder="contact@system.com"
+                />
+                <InputField 
+                  label="System Role" 
+                  icon={Briefcase} 
+                  name="role" 
+                  disabled 
+                />
+              </div>
+            </form>
           </div>
         </div>
 
-        {/* Profile Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
+        {/* Sidebar Info */}
+        <div className="space-y-6">
+          <div className="bg-card border rounded-3xl p-6 shadow-sm">
+            <h4 className="font-bold text-[11px] uppercase tracking-widest text-muted-foreground mb-6">
+              Activity Metrics
+            </h4>
+            
+            <div className="space-y-5">
+              <div className="flex items-start gap-4">
+                <div className="p-2 bg-muted rounded-lg shrink-0">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tighter">Username ID</p>
+                  <p className="text-sm font-mono">{user?.username}</p>
+                </div>
               </div>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                disabled={!isEditing}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-700"
-                placeholder="Your full name"
-              />
-            </div>
-          </div>
 
-          {/* Email Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
+              <div className="flex items-start gap-4">
+                <div className="p-2 bg-muted rounded-lg shrink-0">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tighter">Access Log</p>
+                  <p className="text-sm">{formatDate(user?.loginTime)}</p>
+                </div>
               </div>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={!isEditing}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-700"
-                placeholder="your.email@example.com"
-              />
-            </div>
-          </div>
 
-          {/* Role Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Role
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Briefcase className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                name="role"
-                value={formData.role}
-                disabled
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
-              />
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          {isEditing && (
-            <div className="flex items-center space-x-4 pt-4">
-              <button
-                type="submit"
-                className="flex items-center space-x-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                <Save className="w-4 h-4" />
-                <span>Save Changes</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-        </form>
-      </div>
-
-      {/* Account Information */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b border-gray-100">
-            <div className="flex items-center space-x-3">
-              <Calendar className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="text-sm font-medium text-gray-700">Username</p>
-                <p className="text-sm text-gray-600">{user?.username}</p>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center justify-between py-3 border-b border-gray-100">
-            <div className="flex items-center space-x-3">
-              <Clock className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="text-sm font-medium text-gray-700">Last Login</p>
-                <p className="text-sm text-gray-600">{formatDate(user?.loginTime)}</p>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center justify-between py-3">
-            <div className="flex items-center space-x-3">
-              <Briefcase className="w-5 h-5 text-gray-400" />
-              <div>
-                <p className="text-sm font-medium text-gray-700">Account Type</p>
-                <p className="text-sm text-gray-600">Administrator Account</p>
+              <div className="pt-4 mt-4 border-t border-dashed">
+                <div className="flex items-center gap-2 text-[10px] text-green-600 font-bold uppercase">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                  Account Status: Active
+                </div>
               </div>
             </div>
           </div>
@@ -207,4 +216,3 @@ const ProfilePage = () => {
 }
 
 export default ProfilePage
-
