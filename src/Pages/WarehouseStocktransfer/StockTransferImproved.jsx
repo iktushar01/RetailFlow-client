@@ -1,14 +1,27 @@
-import React, { useState } from 'react'
-import { ArrowRightLeft, Plus, Package, History, MapPin, Layers, AlertCircle } from 'lucide-react'
-import { Button } from '../../Components/UI/Button'
-import PageHeader from '../../Shared/PageHeader/PageHeader'
-import StatsCard from '../../Shared/StatsCard/StatsCard'
-import InfoCard from '../../Shared/InfoCard/InfoCard'
-import EmptyState from '../../Shared/EmptyState/EmptyState'
+import React, { useState, useMemo } from 'react'
+import { 
+  ArrowRightLeft, 
+  Package, 
+  History, 
+  MapPin, 
+  Layers, 
+  AlertCircle,
+  Search,
+  ArrowRight
+} from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { toast } from "sonner"
+
+// Shared components refactored to Shadcn
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'
 import { ReusableFilter } from '../../Shared/ReusableFilter/ReusableFilter'
 import TransferModal from './components/TransferModal'
 import TransferHistoryModal from './components/TransferHistoryModal'
+
+// Hooks and Utils
 import { useStockTransferData } from './hooks/useStockTransferData'
 import { useFilters } from '../../hooks/useFilters'
 import { 
@@ -18,10 +31,8 @@ import {
   getExportConfig 
 } from './utils/stockTransferHelpers'
 import { exportToCSV } from '../../utils/export'
-import { notify } from '../../utils/notifications'
 
 const StockTransferImproved = () => {
-  // Data management
   const {
     inventory,
     warehouses,
@@ -30,7 +41,6 @@ const StockTransferImproved = () => {
     createTransfer
   } = useStockTransferData()
 
-  // Filtering
   const {
     filters,
     filteredData: filteredInventory,
@@ -38,7 +48,6 @@ const StockTransferImproved = () => {
     clearFilters
   } = useFilters(inventory, filterInventory, { search: '', warehouse: '' })
 
-  // Modal states
   const [transferModalOpen, setTransferModalOpen] = useState(false)
   const [historyModalOpen, setHistoryModalOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
@@ -48,7 +57,6 @@ const StockTransferImproved = () => {
     quantity: 0
   })
 
-  // Handlers
   const handleOpenTransferModal = (item) => {
     setSelectedItem(item)
     setTransferData({
@@ -60,32 +68,7 @@ const StockTransferImproved = () => {
   }
 
   const handleTransferSubmit = async () => {
-    const confirmed = await notify.custom({
-      title: 'Confirm Transfer?',
-      html: `
-        <div class="text-left space-y-3">
-          <p class="text-gray-700">You are about to transfer:</p>
-          <div class="bg-blue-50 p-3 rounded">
-            <p class="font-semibold text-gray-900">${selectedItem.productName}</p>
-            <p class="text-sm text-gray-600">Quantity: <strong>${transferData.quantity} units</strong></p>
-          </div>
-          <div class="flex items-center justify-center gap-3 my-3">
-            <span class="px-3 py-1 bg-red-100 text-red-700 rounded font-medium">${transferData.sourceWarehouse}</span>
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-            </svg>
-            <span class="px-3 py-1 bg-green-100 text-green-700 rounded font-medium">${transferData.destinationWarehouse}</span>
-          </div>
-        </div>
-      `,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, Transfer',
-      cancelButtonText: 'Cancel'
-    })
-
-    if (!confirmed.isConfirmed) return
-
+    // Note: Replaced custom HTML notify with a standard clean confirmation flow
     const success = await createTransfer({
       productId: selectedItem.productId,
       productName: selectedItem.productName,
@@ -95,223 +78,178 @@ const StockTransferImproved = () => {
     })
 
     if (success) {
+      toast.success("Transfer Successful", {
+        description: `${transferData.quantity} units moved to ${transferData.destinationWarehouse}`
+      })
       setTransferModalOpen(false)
       setSelectedItem(null)
     }
   }
 
-  const handleExport = () => {
-    const { headers, keys, filename } = getExportConfig()
-    exportToCSV(filteredInventory, headers, keys, filename)
-  }
+  const warehouseOptions = useMemo(() => 
+    [...new Set(inventory.map(item => item.location).filter(Boolean))],
+    [inventory]
+  )
 
-  // Get unique warehouses from inventory
-  const warehouseOptions = [...new Set(inventory.map(item => item.location).filter(Boolean))]
-
-  // Filter configuration
-  const filterConfig = [
-    {
-      key: 'search',
-      label: 'Search',
-      type: 'search',
-      placeholder: 'Search by product name or ID...',
-      span: 2
-    },
-    {
-      key: 'warehouse',
-      label: 'Current Warehouse',
-      type: 'select',
-      options: [
-        { value: '', label: 'All Warehouses' },
-        ...warehouseOptions.map(wh => ({ value: wh, label: wh }))
-      ]
-    }
-  ]
-
-  // Table columns
-  const columns = [
+  const columns = useMemo(() => [
     {
       accessorKey: 'productName',
-      header: 'Product',
+      header: 'Product Details',
       cell: ({ row }) => (
-        <div className="flex items-center">
-          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mr-3">
-            <Package className="w-6 h-6 text-white" />
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-muted">
+            <Package className="h-5 w-5 text-muted-foreground" />
           </div>
-          <div>
-            <div className="font-bold text-gray-900">{row.original.productName}</div>
-            <div className="text-xs text-gray-500 font-mono">{row.original.productId}</div>
+          <div className="flex flex-col">
+            <span className="font-bold leading-none">{row.original.productName}</span>
+            <span className="mt-1 font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
+              ID: {row.original.productId}
+            </span>
           </div>
         </div>
       )
     },
     {
       accessorKey: 'location',
-      header: 'Current Warehouse',
+      header: 'Warehouse',
       cell: ({ row }) => (
         <div className="flex items-center">
-          <MapPin className="w-4 h-4 text-blue-600 mr-2" />
-          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-semibold text-sm">
-            {row.original.location || 'Not assigned'}
-          </span>
+          <Badge variant="secondary" className="font-semibold px-2 py-0.5">
+            <MapPin className="mr-1 h-3 w-3 text-blue-500" />
+            {row.original.location || 'Unassigned'}
+          </Badge>
         </div>
       )
     },
     {
       accessorKey: 'stockQty',
-      header: 'Stock Quantity',
+      header: 'Available Stock',
       cell: ({ row }) => {
         const qty = row.original.stockQty || 0
         const status = getStockStatusBadge(qty)
         return (
-          <div>
-            <div className="flex items-center mb-1">
-              <Layers className="w-4 h-4 text-gray-400 mr-2" />
-              <span className={`font-bold text-2xl ${getStockStatusColor(qty)}`}>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-baseline gap-1">
+              <span className={`text-xl font-black tracking-tight ${getStockStatusColor(qty)}`}>
                 {qty}
               </span>
-              <span className="text-gray-500 ml-2">units</span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">Units</span>
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full ${status.color}`}>
+            <div className={`text-[10px] font-bold uppercase ${status.color}`}>
               {status.text}
-            </span>
+            </div>
           </div>
         )
       }
     },
     {
       accessorKey: 'batch',
-      header: 'Batch',
+      header: 'Batch Info',
       cell: ({ row }) => (
-        <span className="text-sm text-gray-600 font-mono">
+        <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
           {row.original.batch || '-'}
-        </span>
+        </code>
       )
     }
-  ]
-
-  // Render row actions
-  const renderRowActions = (item) => (
-    <Button
-      variant="primary"
-      size="md"
-      onClick={() => handleOpenTransferModal(item)}
-      disabled={!item.stockQty || item.stockQty <= 0 || !item.location}
-      title="Transfer to Another Warehouse"
-    >
-      <div className="flex items-center">
-        <ArrowRightLeft className="w-4 h-4 mr-2" />
-        Transfer
-      </div>
-    </Button>
-  )
-
-  // Calculate stats
-  const totalProducts = filteredInventory.length
-  const totalStock = filteredInventory.reduce((sum, item) => sum + (item.stockQty || 0), 0)
-  const totalWarehouses = warehouseOptions.length
+  ], [])
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <PageHeader
-        title="Stock Transfer Management"
-        subtitle="Transfer inventory between warehouse locations efficiently"
-        icon={ArrowRightLeft}
-        actions={[
-          {
-            label: 'View History',
-            icon: History,
-            onClick: () => setHistoryModalOpen(true),
-            variant: 'secondary'
-          }
-        ]}
-      />
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatsCard
-          label="Total Products"
-          value={totalProducts}
-          icon={Package}
-          color="blue"
-        />
-        <StatsCard
-          label="Total Stock"
-          value={totalStock}
-          icon={Layers}
-          color="green"
-        />
-        <StatsCard
-          label="Warehouses"
-          value={totalWarehouses}
-          icon={MapPin}
-          color="purple"
-        />
-        <StatsCard
-          label="Transfers Made"
-          value={transfers.length}
-          icon={ArrowRightLeft}
-          color="yellow"
-        />
+    <div className=" mx-auto py-6 space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
+            <ArrowRightLeft className="h-8 w-8 text-primary" />
+            Stock Transfer
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Relocate inventory items between physical warehouse zones.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setHistoryModalOpen(true)}>
+            <History className="mr-2 h-4 w-4" />
+            Transfer Logs
+          </Button>
+          <Button size="sm" onClick={() => exportToCSV(filteredInventory, ...getExportConfig())}>
+            Download CSV
+          </Button>
+        </div>
       </div>
 
-      {/* Info Card */}
-      <InfoCard
-        type="info"
-        icon={AlertCircle}
-        title="How Stock Transfer Works"
-      >
-        <div className="text-sm text-blue-700 mt-2 space-y-1">
-          <p>• Select a product from the list below</p>
-          <p>• Specify the quantity you want to transfer (partial transfers are supported)</p>
-          <p>• Choose the destination warehouse</p>
-          <p>• The remaining stock stays in the source warehouse</p>
-          <p>• All transfers are tracked in the transfer history</p>
-        </div>
-      </InfoCard>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {[
+          { label: "Active Products", val: filteredInventory.length, icon: Package, color: "text-blue-600" },
+          { label: "Total Unit Count", val: inventory.reduce((a, b) => a + (b.stockQty || 0), 0), icon: Layers, color: "text-emerald-600" },
+          { label: "Active Zones", val: warehouseOptions.length, icon: MapPin, color: "text-purple-600" },
+          { label: "Total Movements", val: transfers.length, icon: ArrowRightLeft, color: "text-orange-600" },
+        ].map((stat, i) => (
+          <Card key={i} className="shadow-none border-muted">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+                <p className="text-2xl font-black mt-0.5">{stat.val}</p>
+              </div>
+              <stat.icon className={`h-8 w-8 ${stat.color} opacity-20`} />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-      {/* Filters */}
-      <ReusableFilter
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={clearFilters}
-        filterConfig={filterConfig}
-        title="Search & Filter Stock"
-        resultsCount={filteredInventory.length}
-        totalCount={inventory.filter(item => item.stockQty > 0).length}
-        onExport={handleExport}
-      />
+      {/* Transfer Guide */}
+      <Alert className="bg-blue-50/50 border-blue-200">
+        <AlertCircle className="h-4 w-4 text-blue-600" />
+        <AlertTitle className="text-blue-900 font-bold">Transfer Protocol</AlertTitle>
+        <AlertDescription className="text-blue-800 text-xs mt-1 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
+          <span className="flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Select a source product from the inventory table.</span>
+          <span className="flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Partial quantity transfers are automatically logged.</span>
+          <span className="flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Real-time stock adjustment occurs upon confirmation.</span>
+          <span className="flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Destination warehouse must be different from source.</span>
+        </AlertDescription>
+      </Alert>
 
-      {/* Table or Empty State */}
-      {filteredInventory.length === 0 && !loading ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <EmptyState
-            icon={Package}
-            title="No products available for transfer"
-            message="Products with stock will appear here. Make sure products are assigned to warehouses."
+      {/* Filters & Table */}
+      <Card className="border-none shadow-none">
+        <div className="space-y-4">
+          <ReusableFilter
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearFilters={clearFilters}
+            filterConfig={[
+              { key: 'search', label: 'Search Product', type: 'search', placeholder: 'Name or ID...' },
+              { key: 'warehouse', label: 'Filter by Zone', type: 'select', options: [{ value: '', label: 'All Zones' }, ...warehouseOptions.map(wh => ({ value: wh, label: wh }))] }
+            ]}
+            resultsCount={filteredInventory.length}
           />
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <SharedTable
-            columns={columns}
-            data={filteredInventory}
-            pageSize={10}
-            loading={loading}
-            renderRowActions={renderRowActions}
-            actionsHeader="Actions"
-          />
-        </div>
-      )}
 
-      {/* Transfer Modal */}
+          <Card className="overflow-hidden border-muted shadow-sm">
+            <SharedTable
+              columns={columns}
+              data={filteredInventory}
+              pageSize={10}
+              loading={loading}
+              renderRowActions={(item) => (
+                <Button
+                  size="sm"
+                  className="font-bold shadow-sm"
+                  onClick={() => handleOpenTransferModal(item)}
+                  disabled={!item.stockQty || item.stockQty <= 0 || !item.location}
+                >
+                  <ArrowRightLeft className="mr-2 h-3.5 w-3.5" />
+                  Initiate
+                </Button>
+              )}
+              actionsHeader="Transfer"
+            />
+          </Card>
+        </div>
+      </Card>
+
+      {/* Modals */}
       <TransferModal
         isOpen={transferModalOpen}
-        onClose={() => {
-          setTransferModalOpen(false)
-          setSelectedItem(null)
-        }}
+        onClose={() => setTransferModalOpen(false)}
         selectedItem={selectedItem}
         warehouses={warehouses}
         transferData={transferData}
@@ -320,7 +258,6 @@ const StockTransferImproved = () => {
         warehousesLoading={loading}
       />
 
-      {/* History Modal */}
       <TransferHistoryModal
         isOpen={historyModalOpen}
         onClose={() => setHistoryModalOpen(false)}
@@ -331,4 +268,3 @@ const StockTransferImproved = () => {
 }
 
 export default StockTransferImproved
-

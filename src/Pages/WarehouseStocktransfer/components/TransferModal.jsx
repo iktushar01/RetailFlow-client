@@ -1,14 +1,42 @@
 import React from 'react'
-import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import { Button } from '../../../Components/UI/Button'
-import InfoCard from '../../../Shared/InfoCard/InfoCard'
-import { ArrowRightLeft, Package, MapPin, Layers, AlertCircle } from 'lucide-react'
-import { validateTransferForm } from '../utils/stockTransferHelpers'
-import { notify } from '../../../utils/notifications'
+import { 
+  ArrowRightLeft, 
+  Package, 
+  MapPin, 
+  Layers, 
+  AlertCircle,
+  TrendingDown,
+  TrendingUp,
+  Info
+} from 'lucide-react'
 
-/**
- * Stock Transfer Modal Component
- */
+// Shadcn UI Components
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Label } from "@/components/ui/label"
+import { Card } from "@/components/ui/card"
+
+// Utils
+import { validateTransferForm } from '../utils/stockTransferHelpers'
+import { toast } from "sonner"
+
 const TransferModal = ({
   isOpen,
   onClose,
@@ -24,10 +52,11 @@ const TransferModal = ({
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Validate form
     const validation = validateTransferForm(transferData, selectedItem.stockQty)
     if (!validation.isValid) {
-      notify.warning('Validation Error', validation.errors.join('\n'))
+      toast.warning('Validation Error', {
+        description: validation.errors.join('\n')
+      })
       return
     }
 
@@ -37,214 +66,163 @@ const TransferModal = ({
   const remainingStock = selectedItem.stockQty - transferData.quantity
 
   return (
-    <SharedModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Transfer Stock Between Warehouses"
-      size="large"
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Product Info Card */}
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border-2 border-blue-200">
-          <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center">
-            <Package className="w-5 h-5 mr-2 text-blue-600" />
-            Product Information
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Product Name</p>
-              <p className="font-semibold text-gray-900">{selectedItem.productName}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Product ID</p>
-              <p className="font-mono text-sm text-gray-700">{selectedItem.productId}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Current Location</p>
-              <p className="font-semibold text-blue-700">{selectedItem.location}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Available Stock</p>
-              <p className="font-bold text-2xl text-green-600">{selectedItem.stockQty} units</p>
-            </div>
-            {selectedItem.batch && (
-              <div className="col-span-2">
-                <p className="text-sm text-gray-600 mb-1">Batch Number</p>
-                <p className="font-mono text-sm text-gray-700">{selectedItem.batch}</p>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl overflow-hidden p-0">
+        <DialogHeader className="p-6 pb-0">
+          <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
+            <ArrowRightLeft className="w-6 h-6 text-primary" />
+            Stock Transfer
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-6 p-6">
+          {/* Header Stats Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="p-4 bg-muted/30 border-dashed shadow-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-background rounded-lg border">
+                  <Package className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Selected Item</p>
+                  <p className="font-bold text-sm truncate max-w-[200px]">{selectedItem.productName}</p>
+                </div>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Transfer Form */}
-        <div className="grid grid-cols-1 gap-6">
-          {/* Source Warehouse (Read-only) */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-              <MapPin className="w-4 h-4 mr-2" />
-              From Warehouse
-            </label>
-            <input
-              type="text"
-              value={transferData.sourceWarehouse}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-semibold text-lg"
-              disabled
-              readOnly
-            />
+            </Card>
+            <Card className="p-4 bg-muted/30 border-dashed shadow-none">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-background rounded-lg border text-emerald-600">
+                  <Layers className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Available At Source</p>
+                  <p className="font-bold text-sm">{selectedItem.stockQty} Units</p>
+                </div>
+              </div>
+            </Card>
           </div>
 
-          {/* Destination Warehouse */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-              <MapPin className="w-4 h-4 mr-2" />
-              To Warehouse <span className="text-red-500 ml-1">*</span>
-            </label>
-            <select
-              value={transferData.destinationWarehouse}
-              onChange={(e) => setTransferData({ ...transferData, destinationWarehouse: e.target.value })}
-              disabled={warehousesLoading}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-100 disabled:cursor-not-allowed font-medium text-lg"
-              required
+          <Separator />
+
+          {/* Logistics Form */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Source Warehouse
+              </Label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  value={selectedItem.location} 
+                  disabled 
+                  className="pl-10 bg-muted/50 font-semibold"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-wider">
+                Destination Warehouse <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={transferData.destinationWarehouse}
+                onValueChange={(val) => setTransferData({ ...transferData, destinationWarehouse: val })}
+                disabled={warehousesLoading}
+              >
+                <SelectTrigger className="w-full font-medium">
+                  <SelectValue placeholder="Select target location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {warehouses
+                    .filter(wh => wh.name !== selectedItem.location)
+                    .map(wh => (
+                      <SelectItem key={wh._id} value={wh.name}>
+                        {wh.name}
+                      </SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label className="text-xs font-bold uppercase tracking-wider">
+                Quantity to Move <span className="text-destructive">*</span>
+              </Label>
+              <div className="flex items-center gap-4">
+                <div className="relative flex-1">
+                  <Input
+                    type="number"
+                    value={transferData.quantity || ''}
+                    onChange={(e) => setTransferData({ ...transferData, quantity: parseInt(e.target.value) || 0 })}
+                    className="text-lg font-bold"
+                    max={selectedItem.stockQty}
+                  />
+                  <Badge variant="secondary" className="absolute right-2 top-2 h-6">Units</Badge>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase">Remaining After</p>
+                  <p className={`text-sm font-black ${remainingStock < 0 ? 'text-destructive' : 'text-foreground'}`}>
+                    {remainingStock} Units
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dynamic Preview Section */}
+          {transferData.destinationWarehouse && transferData.quantity > 0 && (
+            <Card className="bg-primary/5 border-primary/20 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1 text-center space-y-1">
+                  <p className="text-[10px] font-bold text-primary uppercase">{selectedItem.location}</p>
+                  <div className="flex items-center justify-center gap-1 text-destructive font-bold">
+                    <TrendingDown className="w-4 h-4" />
+                    <span>-{transferData.quantity}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <div className="h-px w-12 bg-primary/30" />
+                  <ArrowRightLeft className="w-5 h-5 text-primary my-1" />
+                  <div className="h-px w-12 bg-primary/30" />
+                </div>
+
+                <div className="flex-1 text-center space-y-1">
+                  <p className="text-[10px] font-bold text-primary uppercase">{transferData.destinationWarehouse}</p>
+                  <div className="flex items-center justify-center gap-1 text-emerald-600 font-bold">
+                    <TrendingUp className="w-4 h-4" />
+                    <span>+{transferData.quantity}</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          <Alert className="bg-muted/50 border-none">
+            <Info className="h-4 w-4 text-muted-foreground" />
+            <AlertDescription className="text-[11px] text-muted-foreground leading-relaxed">
+              This movement will be recorded in the global audit log. Ensure the physical stock movement 
+              matches this digital entry to maintain inventory integrity.
+            </AlertDescription>
+          </Alert>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={!transferData.destinationWarehouse || !transferData.quantity || transferData.quantity <= 0 || remainingStock < 0}
+              className="px-8 font-bold shadow-lg shadow-primary/20"
             >
-              <option value="">
-                {warehousesLoading ? 'Loading warehouses...' : 'Select destination warehouse'}
-              </option>
-              {warehouses.length > 0 ? (
-                warehouses
-                  .filter(wh => wh.name !== selectedItem.location)
-                  .map(wh => (
-                    <option key={wh._id} value={wh.name}>
-                      {wh.name} {wh.location ? `- ${wh.location}` : ''}
-                    </option>
-                  ))
-              ) : (
-                !warehousesLoading && (
-                  <option value="" disabled>
-                    No warehouses available
-                  </option>
-                )
-              )}
-            </select>
-            <p className="text-xs text-gray-500 mt-2">
-              {warehousesLoading 
-                ? 'Loading available warehouses...' 
-                : warehouses.length > 0 
-                  ? `${warehouses.filter(wh => wh.name !== selectedItem.location).length} destination(s) available`
-                  : 'No warehouses available - please add warehouses first'
-              }
-            </p>
-          </div>
-
-          {/* Quantity */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-              <Layers className="w-4 h-4 mr-2" />
-              Transfer Quantity <span className="text-red-500 ml-1">*</span>
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                min="1"
-                max={selectedItem.stockQty}
-                value={transferData.quantity}
-                onChange={(e) => setTransferData({ ...transferData, quantity: parseInt(e.target.value) || 0 })}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 font-bold text-lg"
-                placeholder={`Enter quantity (max: ${selectedItem.stockQty})`}
-                required
-              />
-              <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
-                units
-              </span>
-            </div>
-            <div className="flex justify-between mt-2">
-              <p className="text-xs text-gray-600">
-                Available: <strong className="text-green-600">{selectedItem.stockQty} units</strong>
-              </p>
-              {transferData.quantity > 0 && (
-                <p className="text-xs text-gray-600">
-                  Remaining: <strong className={remainingStock >= 10 ? 'text-green-600' : 'text-red-600'}>
-                    {remainingStock} units
-                  </strong>
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Transfer Preview */}
-        {transferData.destinationWarehouse && transferData.quantity > 0 && (
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border-2 border-green-200">
-            <h4 className="font-bold text-green-900 mb-4 flex items-center text-lg">
-              <AlertCircle className="w-5 h-5 mr-2" />
-              Transfer Preview
-            </h4>
-            <div className="flex items-center justify-between">
-              <div className="text-center flex-1">
-                <p className="text-gray-700 font-semibold mb-2">{transferData.sourceWarehouse}</p>
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <p className="text-sm text-gray-600 mb-1">Current Stock</p>
-                  <p className="font-bold text-2xl text-gray-900">{selectedItem.stockQty}</p>
-                  <p className="text-sm text-red-600 font-semibold mt-2">
-                    After: {remainingStock} units
-                  </p>
-                </div>
-              </div>
-              
-              <div className="mx-6 flex flex-col items-center">
-                <ArrowRightLeft className="w-10 h-10 text-green-600 animate-pulse" />
-                <p className="text-sm font-bold text-green-700 mt-2">
-                  {transferData.quantity} units
-                </p>
-              </div>
-              
-              <div className="text-center flex-1">
-                <p className="text-gray-700 font-semibold mb-2">{transferData.destinationWarehouse}</p>
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <p className="text-sm text-gray-600 mb-1">Will Receive</p>
-                  <p className="font-bold text-2xl text-green-600">+{transferData.quantity}</p>
-                  <p className="text-sm text-green-600 font-semibold mt-2">
-                    New stock added
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Info Alert */}
-        <InfoCard
-          type="info"
-          icon={AlertCircle}
-          title="Transfer Information"
-          message="The transfer will move the specified quantity from the source warehouse to the destination warehouse. This action is tracked in the transfer history."
-        />
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button
-            type="button"
-            variant="secondary"
-            size="lg"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            disabled={!transferData.destinationWarehouse || !transferData.quantity || transferData.quantity <= 0}
-          >
-            <div className="flex items-center">
-              <ArrowRightLeft className="w-5 h-5 mr-2" />
               Confirm Transfer
-            </div>
-          </Button>
-        </div>
-      </form>
-    </SharedModal>
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
 export default TransferModal
-

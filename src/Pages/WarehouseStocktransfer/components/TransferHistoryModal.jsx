@@ -1,112 +1,147 @@
 import React from 'react'
-import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import EmptyState from '../../../Shared/EmptyState/EmptyState'
-import { History, ArrowRightLeft, Package, Clock, MapPin, CheckCircle } from 'lucide-react'
+import { 
+  History, 
+  ArrowRightLeft, 
+  Package, 
+  Clock, 
+  MapPin, 
+  CheckCircle,
+  ArrowRight,
+  Inbox
+} from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Card } from "@/components/ui/card"
 import { formatTransferDate } from '../utils/stockTransferHelpers'
 
 /**
- * Transfer History Modal Component
+ * Transfer History Modal Component refactored with Shadcn UI
  */
-const TransferHistoryModal = ({ isOpen, onClose, transfers }) => {
+const TransferHistoryModal = ({ isOpen, onClose, transfers = [] }) => {
   return (
-    <SharedModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Transfer History"
-      size="large"
-    >
-      <div className="space-y-4">
-        {transfers.length === 0 ? (
-          <EmptyState
-            icon={History}
-            title="No transfer history"
-            message="Stock transfers will appear here once you create them"
-          />
-        ) : (
-          <div className="max-h-[600px] overflow-y-auto space-y-4">
-            {transfers.map((transfer, index) => (
-              <div
-                key={transfer._id || index}
-                className="bg-gradient-to-r from-white to-gray-50 p-6 rounded-lg border-2 border-gray-200 hover:border-blue-300 hover:shadow-md transition-all"
-              >
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                      <ArrowRightLeft className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-lg text-gray-900 mb-1">
-                        {transfer.productName}
-                      </h4>
-                      <p className="text-sm text-gray-600 font-mono">
-                        ID: {transfer.productId}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      transfer.status === 'Completed' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {transfer.status || 'Completed'}
-                    </span>
-                    <p className="text-xs text-gray-500 mt-2 flex items-center">
-                      <Clock className="w-3 h-3 mr-1" />
-                      {formatTransferDate(transfer.createdAt)}
-                    </p>
-                  </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="p-6 pb-2">
+          <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
+            <History className="w-6 h-6 text-primary" />
+            Transfer History
+          </DialogTitle>
+          <DialogDescription>
+            A detailed log of all stock movements across your warehouse locations.
+          </DialogDescription>
+        </DialogHeader>
+
+        <Separator />
+
+        <ScrollArea className="flex-1 p-6">
+          <div className="space-y-6">
+            {transfers.length === 0 ? (
+              <Card className="flex flex-col items-center justify-center py-12 border-dashed shadow-none bg-muted/30">
+                <div className="bg-background rounded-full p-4 mb-4 shadow-sm border">
+                  <Inbox className="w-8 h-8 text-muted-foreground" />
                 </div>
-
-                {/* Transfer Details */}
-                <div className="grid grid-cols-3 gap-4">
-                  {/* From */}
-                  <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                    <p className="text-xs text-red-600 font-semibold mb-2 flex items-center">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      FROM
-                    </p>
-                    <p className="font-bold text-gray-900">{transfer.sourceWarehouse}</p>
-                  </div>
-
-                  {/* Quantity */}
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <p className="text-xs text-blue-600 font-semibold mb-2 flex items-center">
-                      <Package className="w-3 h-3 mr-1" />
-                      QUANTITY
-                    </p>
-                    <p className="font-bold text-2xl text-blue-700">
-                      {transfer.quantity}
-                      <span className="text-sm font-normal ml-1">units</span>
-                    </p>
-                  </div>
-
-                  {/* To */}
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <p className="text-xs text-green-600 font-semibold mb-2 flex items-center">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      TO
-                    </p>
-                    <p className="font-bold text-gray-900">{transfer.destinationWarehouse}</p>
-                  </div>
+                <h3 className="text-lg font-semibold text-foreground">No records found</h3>
+                <p className="text-sm text-muted-foreground text-center max-w-[250px]">
+                  Stock transfers will appear here once you initiate your first movement.
+                </p>
+              </Card>
+            ) : (
+              transfers.map((transfer, index) => (
+                <div key={transfer._id || index} className="relative">
+                  <TransferCard transfer={transfer} />
+                  {/* Subtle connector line for timeline effect */}
+                  {index !== transfers.length - 1 && (
+                    <div className="absolute left-[26px] -bottom-6 w-0.5 h-6 bg-border" />
+                  )}
                 </div>
-
-                {/* Success Indicator */}
-                {transfer.status === 'Completed' && (
-                  <div className="mt-4 flex items-center text-green-600 text-sm">
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    <span className="font-medium">Transfer completed successfully</span>
-                  </div>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </div>
-        )}
+        </ScrollArea>
+        
+        <div className="p-4 border-t bg-muted/20 text-center">
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+            Showing {transfers.length} movement records
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+/**
+ * Sub-component for individual transfer entries
+ */
+const TransferCard = ({ transfer }) => {
+  const isCompleted = transfer.status === 'Completed' || !transfer.status
+
+  return (
+    <Card className="overflow-hidden border-border/60 hover:border-primary/40 transition-colors shadow-sm">
+      <div className="p-5">
+        {/* Upper section: Product Info & Meta */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <ArrowRightLeft className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h4 className="font-bold text-base leading-tight text-foreground">
+                {transfer.productName}
+              </h4>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] font-mono font-bold bg-muted px-1.5 py-0.5 rounded text-muted-foreground uppercase">
+                  #{transfer.productId?.slice(-8) || 'N/A'}
+                </span>
+                <span className="text-muted-foreground">·</span>
+                <span className="text-[11px] text-muted-foreground flex items-center">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {formatTransferDate(transfer.createdAt)}
+                </span>
+              </div>
+            </div>
+          </div>
+          <Badge 
+            variant={isCompleted ? "success" : "outline"}
+            className={isCompleted ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : ""}
+          >
+            {transfer.status || 'Completed'}
+          </Badge>
+        </div>
+
+        {/* Lower section: Logistics visualization */}
+        <div className="flex items-center gap-2 bg-muted/30 rounded-lg p-3 border border-border/40">
+          <div className="flex-1 text-center">
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-tighter mb-1">Source</p>
+            <p className="text-xs font-bold truncate">{transfer.sourceWarehouse}</p>
+          </div>
+          
+          <div className="flex flex-col items-center px-4 shrink-0">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <span className="h-px w-4 bg-border" />
+              <div className="bg-primary/10 px-2 py-0.5 rounded text-[10px] font-black text-primary">
+                {transfer.quantity}
+              </div>
+              <span className="h-px w-4 bg-border" />
+            </div>
+            <ArrowRight className="w-3 h-3 text-muted-foreground" />
+          </div>
+
+          <div className="flex-1 text-center">
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-tighter mb-1">Destination</p>
+            <p className="text-xs font-bold truncate">{transfer.destinationWarehouse}</p>
+          </div>
+        </div>
       </div>
-    </SharedModal>
+    </Card>
   )
 }
 
 export default TransferHistoryModal
-
