@@ -1,88 +1,144 @@
 import React from 'react'
-import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import {
+  Bar,
+  BarChart as RechartsBarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+} from 'recharts'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../Components/UI/Card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "../../Components/UI/Chart"
+import { cn } from "@/lib/utils"
 
 /**
- * Reusable Bar Chart Component
- * @param {Array} data - Array of data objects
- * @param {Array} bars - Array of bar configurations [{dataKey, fill, name}]
- * @param {String} xAxisKey - Key for X-axis data
- * @param {Number} height - Chart height (default: 300)
- * @param {Boolean} showGrid - Show grid lines (default: true)
- * @param {Boolean} showLegend - Show legend (default: true)
+ * SharedBarChart Component (Shadcn + Recharts)
+ * Automatically adapts to light/dark mode via index.css variables.
  */
-const BarChart = ({
+const SharedBarChart = ({
   data = [],
-  bars = [],
+  bars = [], // [{dataKey, fill, label}]
   xAxisKey = 'name',
-  height = 300,
+  title,
+  description,
+  height = 350,
   showGrid = true,
   showLegend = true,
-  layout = 'horizontal'
+  layout = 'horizontal',
+  className,
 }) => {
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white px-4 py-3 rounded-lg shadow-lg border border-slate-200">
-          <p className="text-sm font-semibold text-slate-700 mb-2">{label}</p>
-          {payload.map((entry, index) => (
-            <div key={index} className="flex items-center gap-2 text-sm">
-              <div 
-                className="w-3 h-3 rounded" 
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-slate-600">{entry.name}:</span>
-              <span className="font-semibold text-slate-900">{entry.value.toLocaleString()}</span>
-            </div>
-          ))}
-        </div>
-      )
-    }
-    return null
-  }
+  // Map bars to Shadcn Chart Config
+  const chartConfig = React.useMemo(() => {
+    const config = {}
+    bars.forEach((bar) => {
+      config[bar.dataKey] = {
+        label: bar.label || bar.name || bar.dataKey,
+        color: bar.fill || "hsl(var(--primary))",
+      }
+    })
+    return config
+  }, [bars])
 
   if (!data || data.length === 0) {
     return (
-      <div 
-        style={{ height }} 
-        className="flex items-center justify-center text-slate-400 text-sm"
-      >
-        No data available
-      </div>
+      <Card className={cn("flex items-center justify-center border-dashed", className)} style={{ height }}>
+        <p className="text-sm text-muted-foreground">No data available</p>
+      </Card>
     )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <RechartsBarChart
-        data={data}
-        layout={layout}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />}
-        <XAxis 
-          dataKey={xAxisKey} 
-          stroke="#64748b"
-          style={{ fontSize: '12px' }}
-        />
-        <YAxis 
-          stroke="#64748b"
-          style={{ fontSize: '12px' }}
-        />
-        <Tooltip content={<CustomTooltip />} />
-        {showLegend && <Legend wrapperStyle={{ fontSize: '12px' }} />}
-        {bars.map((bar, index) => (
-          <Bar
-            key={index}
-            dataKey={bar.dataKey}
-            fill={bar.fill || '#3b82f6'}
-            name={bar.name || bar.dataKey}
-            radius={[4, 4, 0, 0]}
-          />
-        ))}
-      </RechartsBarChart>
-    </ResponsiveContainer>
+    <Card className={cn("bg-card text-card-foreground shadow-sm", className)}>
+      {(title || description) && (
+        <CardHeader>
+          {title && <CardTitle className="text-base font-semibold">{title}</CardTitle>}
+          {description && <CardDescription>{description}</CardDescription>}
+        </CardHeader>
+      )}
+      <CardContent className="pt-4">
+        <ChartContainer 
+          config={chartConfig} 
+          className={cn("w-full", `h-[${height}px]`)}
+          style={{ height: height }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <RechartsBarChart
+              data={data}
+              layout={layout}
+              margin={{ 
+                top: 5, 
+                right: 10, 
+                left: layout === 'horizontal' ? -20 : 0, 
+                bottom: 0 
+              }}
+            >
+              {showGrid && (
+                <CartesianGrid 
+                  vertical={layout === 'vertical'} 
+                  horizontal={layout === 'horizontal'}
+                  strokeDasharray="3 3" 
+                  className="stroke-border" 
+                />
+              )}
+
+              <XAxis
+                type={layout === 'horizontal' ? 'category' : 'number'}
+                dataKey={layout === 'horizontal' ? xAxisKey : undefined}
+                hide={layout === 'vertical'}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs font-medium fill-muted-foreground"
+              />
+
+              <YAxis
+                type={layout === 'horizontal' ? 'number' : 'category'}
+                dataKey={layout === 'vertical' ? xAxisKey : undefined}
+                hide={layout === 'horizontal'}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs font-medium fill-muted-foreground"
+              />
+
+              <ChartTooltip 
+                cursor={{ fill: "var(--muted)", opacity: 0.4 }}
+                content={<ChartTooltipContent indicator="dashed" />} 
+              />
+
+              {showLegend && (
+                <ChartLegend content={<ChartLegendContent />} className="pt-4" />
+              )}
+
+              {bars.map((bar) => (
+                <Bar
+                  key={bar.dataKey}
+                  dataKey={bar.dataKey}
+                  fill={bar.fill || "var(--color-primary)"}
+                  name={bar.name || bar.dataKey}
+                  // Top-only rounding for horizontal, Right-only for vertical
+                  radius={layout === 'horizontal' ? [4, 4, 0, 0] : [0, 4, 4, 0]}
+                  barSize={layout === 'vertical' ? 20 : undefined}
+                />
+              ))}
+            </RechartsBarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   )
 }
 
-export default BarChart
-
+export default SharedBarChart

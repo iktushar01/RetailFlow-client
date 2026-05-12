@@ -1,98 +1,152 @@
 import React from 'react'
-import { AreaChart as RechartsAreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import {
+  Area,
+  AreaChart as RechartsAreaChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+} from 'recharts'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../../Components/UI/Card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "../../Components/UI/Chart"
+import { cn } from "@/lib/utils"
 
 /**
- * Reusable Area Chart Component
- * @param {Array} data - Array of data objects
- * @param {Array} areas - Array of area configurations [{dataKey, stroke, fill, name}]
- * @param {String} xAxisKey - Key for X-axis data
- * @param {Number} height - Chart height (default: 300)
- * @param {Boolean} showGrid - Show grid lines (default: true)
- * @param {Boolean} showLegend - Show legend (default: true)
+ * Reusable Area Chart Component (Shadcn + Recharts)
+ * Uses OKLCH variables for theme consistency.
  */
-const AreaChart = ({
+const SharedAreaChart = ({
   data = [],
-  areas = [],
+  areas = [], // [{dataKey, stroke, label}]
   xAxisKey = 'name',
-  height = 300,
+  title,
+  description,
+  height = 350,
   showGrid = true,
   showLegend = true,
-  stackId = null
+  stackId = null,
+  className,
 }) => {
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white px-4 py-3 rounded-lg shadow-lg border border-slate-200">
-          <p className="text-sm font-semibold text-slate-700 mb-2">{label}</p>
-          {payload.map((entry, index) => (
-            <div key={index} className="flex items-center gap-2 text-sm">
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-slate-600">{entry.name}:</span>
-              <span className="font-semibold text-slate-900">{entry.value.toLocaleString()}</span>
-            </div>
-          ))}
-        </div>
-      )
-    }
-    return null
-  }
+  // Shadcn Chart Configuration
+  // Map your areas to the chart config for automated legend/label handling
+  const chartConfig = React.useMemo(() => {
+    const config = {}
+    areas.forEach((area) => {
+      config[area.dataKey] = {
+        label: area.label || area.name || area.dataKey,
+        color: area.stroke || "hsl(var(--primary))",
+      }
+    })
+    return config
+  }, [areas])
 
   if (!data || data.length === 0) {
     return (
-      <div 
-        style={{ height }} 
-        className="flex items-center justify-center text-slate-400 text-sm"
-      >
-        No data available
-      </div>
+      <Card className={cn("flex flex-col items-center justify-center border-dashed", className)} style={{ height }}>
+        <p className="text-sm text-muted-foreground">No data available to display</p>
+      </Card>
     )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <RechartsAreaChart
-        data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
-        <defs>
-          {areas.map((area, index) => (
-            <linearGradient key={index} id={`color${index}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={area.stroke || '#3b82f6'} stopOpacity={0.8}/>
-              <stop offset="95%" stopColor={area.stroke || '#3b82f6'} stopOpacity={0.1}/>
-            </linearGradient>
-          ))}
-        </defs>
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />}
-        <XAxis 
-          dataKey={xAxisKey} 
-          stroke="#64748b"
-          style={{ fontSize: '12px' }}
-        />
-        <YAxis 
-          stroke="#64748b"
-          style={{ fontSize: '12px' }}
-        />
-        <Tooltip content={<CustomTooltip />} />
-        {showLegend && <Legend wrapperStyle={{ fontSize: '12px' }} />}
-        {areas.map((area, index) => (
-          <Area
-            key={index}
-            type="monotone"
-            dataKey={area.dataKey}
-            stroke={area.stroke || '#3b82f6'}
-            fill={`url(#color${index})`}
-            fillOpacity={1}
-            name={area.name || area.dataKey}
-            stackId={area.stackId || stackId}
-          />
-        ))}
-      </RechartsAreaChart>
-    </ResponsiveContainer>
+    <Card className={cn("bg-card text-card-foreground shadow-sm", className)}>
+      {(title || description) && (
+        <CardHeader>
+          {title && <CardTitle className="text-base font-semibold tracking-tight">{title}</CardTitle>}
+          {description && <CardDescription>{description}</CardDescription>}
+        </CardHeader>
+      )}
+      <CardContent className="pt-4">
+        <ChartContainer 
+          config={chartConfig} 
+          className={cn("w-full", `h-[${height}px]`)}
+          style={{ height: height }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <RechartsAreaChart
+              data={data}
+              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+            >
+              <defs>
+                {areas.map((area, index) => (
+                  <linearGradient key={index} id={`fill_${area.dataKey}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop 
+                      offset="5%" 
+                      stopColor={area.stroke || "var(--color-primary)"} 
+                      stopOpacity={0.3}
+                    />
+                    <stop 
+                      offset="95%" 
+                      stopColor={area.stroke || "var(--color-primary)"} 
+                      stopOpacity={0}
+                    />
+                  </linearGradient>
+                ))}
+              </defs>
+
+              {showGrid && (
+                <CartesianGrid 
+                  vertical={false} 
+                  strokeDasharray="3 3" 
+                  className="stroke-border" 
+                />
+              )}
+
+              <XAxis
+                dataKey={xAxisKey}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs font-medium fill-muted-foreground"
+              />
+
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs font-medium fill-muted-foreground"
+              />
+
+              <ChartTooltip 
+                cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
+                content={<ChartTooltipContent indicator="dot" />} 
+              />
+
+              {showLegend && (
+                <ChartLegend content={<ChartLegendContent />} className="pt-4" />
+              )}
+
+              {areas.map((area) => (
+                <Area
+                  key={area.dataKey}
+                  type="monotone"
+                  dataKey={area.dataKey}
+                  stroke={area.stroke || "hsl(var(--primary))"}
+                  fill={`url(#fill_${area.dataKey})`}
+                  strokeWidth={2}
+                  stackId={area.stackId || stackId}
+                  dot={false}
+                  activeDot={{ r: 4, strokeWidth: 0 }}
+                />
+              ))}
+            </RechartsAreaChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   )
 }
 
-export default AreaChart
-
+export default SharedAreaChart

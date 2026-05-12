@@ -1,35 +1,54 @@
 import React from 'react'
 import { Button } from '../../Components/UI/Button'
+import { cn } from "@/lib/utils"
 
 /**
- * Reusable Empty State Component
- * @param {JSX.Element} icon - Icon component
- * @param {string} title - Empty state title
- * @param {string} message - Empty state message
- * @param {Object} action - Action button config {label, onClick, icon}
+ * Shared EmptyState Component (Shadcn UI)
+ * @param {JSX.Element} icon - Lucide or custom icon component
+ * @param {string} title - Main headline
+ * @param {string} message - Supporting description
+ * @param {Object} action - Action config {label, onClick, icon, variant}
  */
-const EmptyState = ({ icon: Icon, title, message, action }) => {
+const EmptyState = ({ 
+  icon: Icon, 
+  title, 
+  message, 
+  action,
+  className 
+}) => {
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+    <div className={cn(
+      "flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in zoom-in duration-300",
+      className
+    )}>
+      {/* Icon Container */}
       {Icon && (
-        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-          <Icon className="w-10 h-10 text-gray-400" />
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted mb-6">
+          <Icon className="h-10 w-10 text-muted-foreground/60" strokeWidth={1.5} />
         </div>
       )}
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+
+      {/* Text Content */}
+      <h3 className="text-xl font-semibold tracking-tight text-foreground mb-2">
+        {title}
+      </h3>
+      
       {message && (
-        <p className="text-sm text-gray-600 max-w-md mb-6">{message}</p>
+        <p className="text-sm text-muted-foreground max-w-[420px] mb-8 leading-relaxed">
+          {message}
+        </p>
       )}
+
+      {/* Action Button */}
       {action && (
         <Button
-          variant={action.variant || 'primary'}
-          size={action.size || 'md'}
+          variant={action.variant || "default"}
+          size={action.size || "lg"}
           onClick={action.onClick}
+          className="shadow-sm gap-2"
         >
-          <div className="flex items-center">
-            {action.icon && <action.icon className="w-5 h-5 mr-2" />}
-            {action.label}
-          </div>
+          {action.icon && <action.icon className="h-4 w-4" />}
+          {action.label}
         </Button>
       )}
     </div>
@@ -37,4 +56,3 @@ const EmptyState = ({ icon: Icon, title, message, action }) => {
 }
 
 export default EmptyState
-

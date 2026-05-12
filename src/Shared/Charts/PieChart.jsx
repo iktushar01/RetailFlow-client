@@ -1,119 +1,111 @@
 import React from 'react'
-import { PieChart as RechartsPieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import {
+  Pie,
+  PieChart as RechartsPieChart,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../Components/UI/Card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "../../Components/UI/Chart"
+import { cn } from "@/lib/utils"
 
 /**
- * Reusable Pie Chart Component
- * @param {Array} data - Array of data objects [{name, value}]
- * @param {Array} colors - Array of color hex codes
- * @param {Number} height - Chart height (default: 300)
- * @param {Boolean} showLegend - Show legend (default: true)
- * @param {String} dataKey - Key for data values (default: 'value')
- * @param {String} nameKey - Key for names (default: 'name')
+ * SharedPieChart Component (Shadcn + Recharts)
+ * Supports Pie and Donut variants.
  */
-const PieChart = ({
+const SharedPieChart = ({
   data = [],
-  colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'],
-  height = 300,
+  title,
+  description,
+  height = 350,
   showLegend = true,
-  dataKey = 'value',
-  nameKey = 'name',
-  innerRadius = 0,
-  outerRadius = 80
+  dataKey = "value",
+  nameKey = "name",
+  innerRadius = 0, // Set to > 0 for a Donut chart (e.g., "60%")
+  className,
 }) => {
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0]
-      return (
-        <div className="bg-white px-4 py-3 rounded-lg shadow-lg border border-slate-200">
-          <p className="text-sm font-semibold text-slate-700 mb-1">{data.name}</p>
-          <div className="flex items-center gap-2 text-sm">
-            <div 
-              className="w-3 h-3 rounded-full" 
-              style={{ backgroundColor: data.payload.fill }}
-            />
-            <span className="text-slate-600">Value:</span>
-            <span className="font-semibold text-slate-900">{data.value.toLocaleString()}</span>
-          </div>
-          {data.payload.percentage && (
-            <p className="text-xs text-slate-500 mt-1">
-              {data.payload.percentage}%
-            </p>
-          )}
-        </div>
-      )
-    }
-    return null
-  }
-
-  const RADIAN = Math.PI / 180
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5
-    const x = cx + radius * Math.cos(-midAngle * RADIAN)
-    const y = cy + radius * Math.sin(-midAngle * RADIAN)
-
-    return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
-        dominantBaseline="central"
-        className="text-xs font-semibold"
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    )
-  }
+  // Map data to Shadcn Chart Config for legend and color sync
+  const chartConfig = React.useMemo(() => {
+    const config = {}
+    data.forEach((item, index) => {
+      config[item[nameKey]] = {
+        label: item[nameKey],
+        // Dynamically assigns theme colors (chart-1, chart-2, etc.)
+        color: `hsl(var(--chart-${(index % 5) + 1}))`,
+      }
+    })
+    return config
+  }, [data, nameKey])
 
   if (!data || data.length === 0) {
     return (
-      <div 
-        style={{ height }} 
-        className="flex items-center justify-center text-slate-400 text-sm"
-      >
-        No data available
-      </div>
+      <Card className={cn("flex items-center justify-center border-dashed", className)} style={{ height }}>
+        <p className="text-sm text-muted-foreground">No data available</p>
+      </Card>
     )
   }
 
-  // Calculate percentages
-  const total = data.reduce((sum, item) => sum + item[dataKey], 0)
-  const dataWithPercentage = data.map(item => ({
-    ...item,
-    percentage: ((item[dataKey] / total) * 100).toFixed(1)
-  }))
-
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <RechartsPieChart>
-        <Pie
-          data={dataWithPercentage}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          label={renderCustomizedLabel}
-          outerRadius={outerRadius}
-          innerRadius={innerRadius}
-          fill="#8884d8"
-          dataKey={dataKey}
-          nameKey={nameKey}
+    <Card className={cn("bg-card text-card-foreground shadow-sm flex flex-col", className)}>
+      {(title || description) && (
+        <CardHeader className="items-center pb-0">
+          {title && <CardTitle className="text-base font-semibold">{title}</CardTitle>}
+          {description && <CardDescription>{description}</CardDescription>}
+        </CardHeader>
+      )}
+      <CardContent className="flex-1 pb-0">
+        <ChartContainer
+          config={chartConfig}
+          className={cn("mx-auto aspect-square", `max-h-[${height}px]`)}
+          style={{ height: height }}
         >
-          {dataWithPercentage.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-          ))}
-        </Pie>
-        <Tooltip content={<CustomTooltip />} />
-        {showLegend && (
-          <Legend 
-            verticalAlign="bottom" 
-            height={36}
-            wrapperStyle={{ fontSize: '12px' }}
-          />
-        )}
-      </RechartsPieChart>
-    </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height="100%">
+            <RechartsPieChart>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Pie
+                data={data}
+                dataKey={dataKey}
+                nameKey={nameKey}
+                innerRadius={innerRadius}
+                strokeWidth={5}
+                // Adds a slight gap between segments using the background color
+                stroke="hsl(var(--background))"
+              >
+                {data.map((_, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={`var(--color-${data[index][nameKey].replace(/\s+/g, '-')})`} 
+                    className="hover:opacity-80 transition-opacity"
+                  />
+                ))}
+              </Pie>
+              {showLegend && (
+                <ChartLegend
+                  content={<ChartLegendContent nameKey={nameKey} />}
+                  className="-translate-y-2 flex-wrap gap-2 [&>div]:justify-center"
+                />
+              )}
+            </RechartsPieChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   )
 }
 
-export default PieChart
-
+export default SharedPieChart

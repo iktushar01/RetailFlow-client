@@ -1,91 +1,138 @@
 import React from 'react'
-import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import {
+  Line,
+  LineChart as RechartsLineChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+} from 'recharts'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../Components/UI/Card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "../../Components/UI/Chart"
+import { cn } from "@/lib/utils"
 
 /**
- * Reusable Line Chart Component
- * @param {Array} data - Array of data objects
- * @param {Array} lines - Array of line configurations [{dataKey, stroke, name}]
- * @param {String} xAxisKey - Key for X-axis data
- * @param {Number} height - Chart height (default: 300)
- * @param {Boolean} showGrid - Show grid lines (default: true)
- * @param {Boolean} showLegend - Show legend (default: true)
+ * SharedLineChart Component (Shadcn + Recharts)
+ * Theme-aware component using OKLCH variables.
  */
-const LineChart = ({
+const SharedLineChart = ({
   data = [],
-  lines = [],
+  lines = [], // [{dataKey, stroke, label}]
   xAxisKey = 'name',
-  height = 300,
+  title,
+  description,
+  height = 350,
   showGrid = true,
   showLegend = true,
   strokeWidth = 2,
-  dot = true
+  dot = false, // Defaulting to false for a cleaner modern look
+  className,
 }) => {
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white px-4 py-3 rounded-lg shadow-lg border border-slate-200">
-          <p className="text-sm font-semibold text-slate-700 mb-2">{label}</p>
-          {payload.map((entry, index) => (
-            <div key={index} className="flex items-center gap-2 text-sm">
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-slate-600">{entry.name}:</span>
-              <span className="font-semibold text-slate-900">{entry.value.toLocaleString()}</span>
-            </div>
-          ))}
-        </div>
-      )
-    }
-    return null
-  }
+  // Generate Shadcn Chart Config
+  const chartConfig = React.useMemo(() => {
+    const config = {}
+    lines.forEach((line) => {
+      config[line.dataKey] = {
+        label: line.label || line.name || line.dataKey,
+        color: line.stroke || "hsl(var(--primary))",
+      }
+    })
+    return config
+  }, [lines])
 
   if (!data || data.length === 0) {
     return (
-      <div 
-        style={{ height }} 
-        className="flex items-center justify-center text-slate-400 text-sm"
-      >
-        No data available
-      </div>
+      <Card className={cn("flex items-center justify-center border-dashed", className)} style={{ height }}>
+        <p className="text-sm text-muted-foreground">No data available</p>
+      </Card>
     )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <RechartsLineChart
-        data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
-        {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />}
-        <XAxis 
-          dataKey={xAxisKey} 
-          stroke="#64748b"
-          style={{ fontSize: '12px' }}
-        />
-        <YAxis 
-          stroke="#64748b"
-          style={{ fontSize: '12px' }}
-        />
-        <Tooltip content={<CustomTooltip />} />
-        {showLegend && <Legend wrapperStyle={{ fontSize: '12px' }} />}
-        {lines.map((line, index) => (
-          <Line
-            key={index}
-            type="monotone"
-            dataKey={line.dataKey}
-            stroke={line.stroke || '#3b82f6'}
-            strokeWidth={strokeWidth}
-            name={line.name || line.dataKey}
-            dot={dot}
-            activeDot={{ r: 6 }}
-          />
-        ))}
-      </RechartsLineChart>
-    </ResponsiveContainer>
+    <Card className={cn("bg-card text-card-foreground shadow-sm", className)}>
+      {(title || description) && (
+        <CardHeader>
+          {title && <CardTitle className="text-base font-semibold leading-none">{title}</CardTitle>}
+          {description && <CardDescription>{description}</CardDescription>}
+        </CardHeader>
+      )}
+      <CardContent className="pt-4">
+        <ChartContainer 
+          config={chartConfig} 
+          className={cn("w-full", `h-[${height}px]`)}
+          style={{ height: height }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <RechartsLineChart
+              data={data}
+              margin={{ top: 5, right: 10, left: -20, bottom: 0 }}
+            >
+              {showGrid && (
+                <CartesianGrid 
+                  vertical={false} 
+                  strokeDasharray="3 3" 
+                  className="stroke-border" 
+                />
+              )}
+
+              <XAxis
+                dataKey={xAxisKey}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs font-medium fill-muted-foreground"
+              />
+
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                className="text-xs font-medium fill-muted-foreground"
+              />
+
+              <ChartTooltip 
+                content={<ChartTooltipContent />} 
+              />
+
+              {showLegend && (
+                <ChartLegend content={<ChartLegendContent />} className="pt-4" />
+              )}
+
+              {lines.map((line) => (
+                <Line
+                  key={line.dataKey}
+                  type="monotone"
+                  dataKey={line.dataKey}
+                  stroke={line.stroke || "var(--color-primary)"}
+                  strokeWidth={strokeWidth}
+                  name={line.name || line.dataKey}
+                  dot={dot}
+                  activeDot={{
+                    r: 4,
+                    strokeWidth: 0,
+                    fill: line.stroke || "hsl(var(--primary))"
+                  }}
+                  animationDuration={1000}
+                />
+              ))}
+            </RechartsLineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   )
 }
 
-export default LineChart
-
+export default SharedLineChart

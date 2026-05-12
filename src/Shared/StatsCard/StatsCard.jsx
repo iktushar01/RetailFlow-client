@@ -1,44 +1,55 @@
 import React from 'react'
+import { Card, CardContent } from "../../Components/UI/Card"
+import { cn } from "@/lib/utils"
 
 /**
- * Reusable Statistics Card Component
- * @param {string} label - Stat label
- * @param {string|number} value - Stat value
- * @param {JSX.Element} icon - Icon component
- * @param {string} color - Color theme: 'blue', 'green', 'purple', 'yellow', 'red'
- * @param {string} trend - Optional trend indicator
+ * Reusable Statistics Card Component (Shadcn + OKLCH)
  */
-const StatsCard = ({ label, value, icon: Icon, color = 'blue', trend }) => {
-  const colorStyles = {
-    blue: 'text-blue-600 bg-blue-100',
-    green: 'text-green-600 bg-green-100',
-    purple: 'text-purple-600 bg-purple-100',
-    yellow: 'text-yellow-600 bg-yellow-100',
-    red: 'text-red-600 bg-red-100',
-    gray: 'text-gray-600 bg-gray-100'
+const StatsCard = ({ label, value, icon: Icon, variant = 'default', trend, className }) => {
+  
+  // Mapping variants to semantic Shadcn/Tailwind classes
+  const variantStyles = {
+    default: 'text-primary bg-primary/10',
+    blue: 'text-blue-500 bg-blue-500/10',
+    green: 'text-green-500 bg-green-500/10',
+    purple: 'text-purple-500 bg-purple-500/10',
+    yellow: 'text-yellow-500 bg-yellow-500/10',
+    red: 'text-destructive bg-destructive/10',
+    gray: 'text-muted-foreground bg-muted',
   }
 
-  const iconStyle = colorStyles[color]
+  const iconStyle = variantStyles[variant] || variantStyles.default
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-xs text-gray-600 font-medium mb-1">{label}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
-          {trend && (
-            <p className="text-xs text-gray-500 mt-1">{trend}</p>
+    <Card className={cn("overflow-hidden transition-all hover:shadow-md border-border bg-card", className)}>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between space-x-4">
+          <div className="flex-1 space-y-1">
+            <p className="text-sm font-medium text-muted-foreground leading-none">
+              {label}
+            </p>
+            <div className="text-2xl font-bold tracking-tight text-foreground">
+              {value}
+            </div>
+            {trend && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                {trend}
+              </p>
+            )}
+          </div>
+          
+          {Icon && (
+            <div className={cn(
+              "flex h-12 w-12 items-center justify-center rounded-xl transition-colors",
+              iconStyle
+            )}>
+              <Icon className="h-6 w-6" strokeWidth={2.5} />
+            </div>
           )}
         </div>
-        {Icon && (
-          <div className={`w-12 h-12 rounded-lg ${iconStyle} flex items-center justify-center`}>
-            <Icon className="w-6 h-6" />
-          </div>
-        )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 
 export default StatsCard
-
