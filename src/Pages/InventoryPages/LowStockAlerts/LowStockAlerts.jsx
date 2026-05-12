@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react'
-import { AlertTriangle, Package, RotateCcw, RefreshCw, Plus, Filter, Download } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
-import StatsCard from '../../../Shared/StatsCard/StatsCard'
-import InfoCard from '../../../Shared/InfoCard/InfoCard'
-import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
-import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
-import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import { inventoryAPI, productsAPI, suppliersAPI, purchaseOrdersAPI } from '../services/inventoryService'
+import { AlertTriangle, Package, RotateCcw, RefreshCw, Plus, Search } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter,
+  DialogDescription 
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
+import { 
+  inventoryAPI, 
+  productsAPI, 
+  suppliersAPI, 
+  purchaseOrdersAPI 
+} from '../services/inventoryService'
 import Swal from 'sweetalert2'
-import { InventoryLoading } from '../../../Components/UI/LoadingAnimation'
 
 const LowStockAlerts = () => {
   const [lowStockItems, setLowStockItems] = useState([])
@@ -24,17 +37,12 @@ const LowStockAlerts = () => {
     severity: ''
   })
 
-  // Stats data
   const [stats, setStats] = useState({
     totalAlerts: 0,
     criticalAlerts: 0,
     warningAlerts: 0,
     totalValue: 0
   })
-
-  useEffect(() => {
-    fetchData()
-  }, [])
 
   useEffect(() => {
     fetchData()
@@ -52,7 +60,6 @@ const LowStockAlerts = () => {
       setProducts(productsData)
       setSuppliers(suppliersData)
       
-      // Filter low stock items
       const lowStock = inventoryData.filter(item => {
         const product = productsData.find(p => p._id === item.productId)
         return product && item.stockQty <= (product.minStockLevel || 10)
@@ -73,7 +80,6 @@ const LowStockAlerts = () => {
       const product = productsData.find(p => p._id === item.productId)
       return item.stockQty <= (product?.criticalStockLevel || 5)
     }).length
-    const warningAlerts = totalAlerts - criticalAlerts
     
     const totalValue = lowStockData.reduce((sum, item) => {
       const product = productsData.find(p => p._id === item.productId)
@@ -83,221 +89,39 @@ const LowStockAlerts = () => {
     setStats({
       totalAlerts,
       criticalAlerts,
-      warningAlerts,
+      warningAlerts: totalAlerts - criticalAlerts,
       totalValue: totalValue.toFixed(2)
     })
   }
 
-  const getSeverityLevel = (item) => {
+  const getSeverity = (item) => {
     const product = products.find(p => p._id === item.productId)
-    const criticalLevel = product?.criticalStockLevel || 5
-    const minLevel = product?.minStockLevel || 10
-    
-    if (item.stockQty <= criticalLevel) return { level: 'Critical', color: 'text-red-600 bg-red-100' }
-    if (item.stockQty <= minLevel) return { level: 'Warning', color: 'text-yellow-600 bg-yellow-100' }
-    return { level: 'Low', color: 'text-orange-600 bg-orange-100' }
-  }
-
-  const getSeverityIcon = (item) => {
-    const product = products.find(p => p._id === item.productId)
-    const criticalLevel = product?.criticalStockLevel || 5
-    const minLevel = product?.minStockLevel || 10
-    
-    if (item.stockQty <= criticalLevel) return '🔴'
-    if (item.stockQty <= minLevel) return '🟡'
-    return '🟠'
+    if (item.stockQty <= (product?.criticalStockLevel || 5)) return { label: 'Critical', variant: 'destructive', icon: '🔴' }
+    if (item.stockQty <= (product?.minStockLevel || 10)) return { label: 'Warning', variant: 'outline', icon: '🟡' }
+    return { label: 'Low', variant: 'secondary', icon: '🟠' }
   }
 
   const filteredItems = lowStockItems.filter(item => {
     const product = products.find(p => p._id === item.productId)
     if (!product) return false
-
-    const matchesSearch = !filters.search || 
-      product.productName?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      product.sku?.toLowerCase().includes(filters.search.toLowerCase())
-    
-    const matchesCategory = !filters.category || product.category === filters.category
-    const matchesSupplier = !filters.supplier || product.supplierId === filters.supplier
-    
-    const matchesSeverity = !filters.severity || 
-      (filters.severity === 'critical' && item.stockQty <= (product.criticalStockLevel || 5)) ||
-      (filters.severity === 'warning' && item.stockQty > (product.criticalStockLevel || 5) && item.stockQty <= (product.minStockLevel || 10))
-
-    return matchesSearch && matchesCategory && matchesSupplier && matchesSeverity
+    const matchesSearch = !filters.search || product.productName?.toLowerCase().includes(filters.search.toLowerCase())
+    const matchesSeverity = !filters.severity || (filters.severity === 'critical' && item.stockQty <= (product.criticalStockLevel || 5))
+    return matchesSearch && matchesSeverity
   })
-
-  const filterConfig = [
-    {
-      key: 'search',
-      label: 'Search Products',
-      type: 'search',
-      placeholder: 'Search by name or SKU...'
-    },
-    {
-      key: 'category',
-      label: 'Category',
-      type: 'select',
-      options: [
-        { label: 'All Categories', value: '' },
-        ...Array.from(new Set(products.map(p => p.category))).map(cat => ({ label: cat, value: cat }))
-      ]
-    },
-    {
-      key: 'supplier',
-      label: 'Supplier',
-      type: 'select',
-      options: [
-        { label: 'All Suppliers', value: '' },
-        ...suppliers.map(s => ({ label: s.name, value: s._id }))
-      ]
-    },
-    {
-      key: 'severity',
-      label: 'Severity',
-      type: 'select',
-      options: [
-        { label: 'All Severity', value: '' },
-        { label: 'Critical', value: 'critical' },
-        { label: 'Warning', value: 'warning' }
-      ]
-    }
-  ]
-
-  const tableColumns = [
-    {
-      id: 'product',
-      accessorKey: 'product',
-      header: 'Product',
-      cell: ({ row }) => {
-        const item = row.original
-        const product = products.find(p => p._id === item.productId)
-        return (
-          <div>
-            <div className="font-medium text-gray-900">{product?.productName || 'Unknown'}</div>
-            <div className="text-sm text-gray-500">SKU: {product?.sku || 'N/A'}</div>
-          </div>
-        )
-      }
-    },
-    {
-      id: 'sku',
-      accessorKey: 'sku',
-      header: 'SKU',
-      cell: ({ row }) => {
-        const item = row.original
-        const product = products.find(p => p._id === item.productId)
-        return <div className="font-mono text-sm">{product?.sku || 'N/A'}</div>
-      }
-    },
-    {
-      id: 'currentQty',
-      accessorKey: 'stockQty',
-      header: 'Current Qty',
-      cell: ({ row }) => (
-        <div className="text-center">
-          <div className="text-lg font-semibold text-gray-900">{row.original.stockQty}</div>
-          <div className="text-xs text-gray-500">units</div>
-        </div>
-      )
-    },
-    {
-      id: 'minLevel',
-      accessorKey: 'minLevel',
-      header: 'Min Level',
-      cell: ({ row }) => {
-        const item = row.original
-        const product = products.find(p => p._id === item.productId)
-        return (
-          <div className="text-center">
-            <div className="text-lg font-semibold text-gray-900">{product?.minStockLevel || 10}</div>
-            <div className="text-xs text-gray-500">units</div>
-          </div>
-        )
-      }
-    },
-    {
-      id: 'status',
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => {
-        const item = row.original
-        const severityInfo = getSeverityLevel(item)
-        return (
-          <div className="flex items-center justify-center">
-            <span className="text-lg mr-2">{getSeverityIcon(item)}</span>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${severityInfo.color}`}>
-              {severityInfo.level}
-            </span>
-          </div>
-        )
-      }
-    },
-    {
-      id: 'actions',
-      accessorKey: 'actions',
-      header: 'Action',
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => handleReorderNow(row.original)}
-          >
-            <div className="flex items-center">
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Reorder Now
-            </div>
-          </Button>
-        </div>
-      )
-    }
-  ]
-
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
-  }
-
-  const handleClearFilters = () => {
-    setFilters({
-      search: '',
-      category: '',
-      supplier: '',
-      severity: ''
-    })
-  }
-
-  const handleExport = () => {
-    console.log('Exporting low stock alerts...')
-  }
 
   const handleReorderNow = async (item) => {
     const product = products.find(p => p._id === item.productId)
-    
-    if (!product) {
-      Swal.fire('Error', 'Product not found', 'error')
-      return
-    }
-    
-    // Try to find supplier by ID first, then by name
-    let supplier = null
-    if (product.supplierId) {
-      supplier = suppliers.find(s => s._id === product.supplierId)
-    }
-    
-    // If not found by ID, try to find by name
-    if (!supplier && product.supplier) {
-      supplier = suppliers.find(s => s.supplierName === product.supplier || s.name === product.supplier)
-    }
+    let supplier = suppliers.find(s => s._id === product?.supplierId)
     
     if (!supplier) {
-      Swal.fire('Error', 'No supplier found for this product. Please assign a supplier to this product first.', 'error')
+      Swal.fire('Error', 'No supplier assigned to this product.', 'error')
       return
     }
 
     const suggestedQty = Math.max(50, (product?.minStockLevel || 10) * 3)
     
     try {
-      const poData = {
+      await purchaseOrdersAPI.create({
         supplierId: supplier._id,
         supplierName: supplier.name,
         items: [{
@@ -308,256 +132,160 @@ const LowStockAlerts = () => {
           totalPrice: suggestedQty * (product.costPrice || 0)
         }],
         status: 'Draft',
-        notes: `Auto-generated PO for low stock alert - ${product.productName}`
-      }
-
-      await purchaseOrdersAPI.create(poData)
-      
-      Swal.fire({
-        title: 'Success!',
-        text: `Purchase order created for ${product.productName}`,
-        icon: 'success'
+        notes: `Auto-generated for low stock - ${product.productName}`
       })
-      
-      fetchData() // Refresh data
-    } catch (error) {
-      console.error('Error creating PO:', error)
-      Swal.fire('Error', 'Failed to create purchase order', 'error')
-    }
-  }
-
-  const handleBulkReorder = () => {
-    setSelectedItems(filteredItems)
-    setShowReorderModal(true)
-  }
-
-  const handleBulkReorderConfirm = async () => {
-    try {
-      // Group items by supplier to create separate POs
-      const itemsBySupplier = {}
-      
-      selectedItems.forEach(item => {
-        const product = products.find(p => p._id === item.productId)
-        if (!product) return
-        
-        // Find supplier for this product
-        let supplier = null
-        if (product.supplierId) {
-          supplier = suppliers.find(s => s._id === product.supplierId)
-        }
-        if (!supplier && product.supplier) {
-          supplier = suppliers.find(s => s.supplierName === product.supplier || s.name === product.supplier)
-        }
-        
-        if (supplier) {
-          const supplierKey = supplier._id
-          if (!itemsBySupplier[supplierKey]) {
-            itemsBySupplier[supplierKey] = {
-              supplier: supplier,
-              items: []
-            }
-          }
-          
-          const suggestedQty = Math.max(50, (product?.minStockLevel || 10) * 3)
-          itemsBySupplier[supplierKey].items.push({
-            productId: product._id,
-            productName: product.productName,
-            quantity: suggestedQty,
-            unitPrice: product.costPrice || 0,
-            totalPrice: suggestedQty * (product.costPrice || 0)
-          })
-        }
-      })
-      
-      // Create POs for each supplier
-      const poPromises = Object.values(itemsBySupplier).map(supplierData => {
-        const poData = {
-          supplierId: supplierData.supplier._id,
-          supplierName: supplierData.supplier.supplierName || supplierData.supplier.name,
-          items: supplierData.items,
-          status: 'Draft',
-          notes: `Bulk reorder for low stock items - ${supplierData.items.length} items`
-        }
-        return purchaseOrdersAPI.create(poData)
-      })
-      
-      await Promise.all(poPromises)
-      
-      Swal.fire({
-        title: 'Success!',
-        text: `Purchase orders created for ${Object.keys(itemsBySupplier).length} suppliers with ${selectedItems.length} total items`,
-        icon: 'success'
-      })
-      
-      setShowReorderModal(false)
-      setSelectedItems([])
+      Swal.fire('Success', 'PO created successfully', 'success')
       fetchData()
-    } catch (error) {
-      console.error('Error creating bulk PO:', error)
-      Swal.fire('Error', 'Failed to create bulk purchase order', 'error')
-    }
+    } catch (e) { Swal.fire('Error', 'Failed to create PO', 'error') }
   }
 
   if (loading) {
-    return <InventoryLoading message="Loading low stock alerts..." />
+    return (
+      <div className="p-8 space-y-4">
+        <Skeleton className="h-12 w-[300px]" />
+        <div className="grid grid-cols-4 gap-4">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+        <Skeleton className="h-[400px] w-full" />
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-red-50 via-orange-50 to-yellow-50 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-              <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-red-600" />
+    <div className="space-y-6 mx-auto p-4 animate-in fade-in duration-500">
+      {/* Header Card */}
+      <Card className="bg-gradient-to-r from-destructive/10 via-background to-background border-destructive/20">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold flex items-center gap-2">
+              <AlertTriangle className="text-destructive h-8 w-8" />
               Low Stock Alerts
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-2">Monitor products below minimum threshold and take action</p>
+            </CardTitle>
+            <CardDescription>Monitor and restock items below threshold</CardDescription>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleBulkReorder}
-              disabled={filteredItems.length === 0}
-              className="w-full sm:w-auto flex items-center justify-center"
-            >
-              <div className="flex items-center">
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                <span className="text-sm sm:text-base">Bulk Reorder</span>
-              </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={fetchData}>
+              <RefreshCw className="mr-2 h-4 w-4" /> Refresh
             </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={fetchData}
-              className="w-full sm:w-auto flex items-center justify-center"
-            >
-              <div className="flex items-center">
-                <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                <span className="text-sm sm:text-base">Refresh</span>
-              </div>
+            <Button variant="default" size="sm" onClick={() => { setSelectedItems(filteredItems); setShowReorderModal(true); }}>
+              <Plus className="mr-2 h-4 w-4" /> Bulk Reorder
             </Button>
           </div>
-        </div>
+        </CardHeader>
+      </Card>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatsCard label="Total Alerts" value={stats.totalAlerts} variant="destructive" />
+        <StatsCard label="Critical" value={stats.criticalAlerts} variant="destructive" />
+        <StatsCard label="Warning" value={stats.warningAlerts} variant="secondary" />
+        <StatsCard label="Value at Risk" value={`BDT ${stats.totalValue}`} variant="default" />
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <StatsCard
-          label="Total Alerts"
-          value={stats.totalAlerts}
-          icon={AlertTriangle}
-          color="red"
-        />
-        <StatsCard
-          label="Critical Alerts"
-          value={stats.criticalAlerts}
-          icon={AlertTriangle}
-          color="red"
-        />
-        <StatsCard
-          label="Warning Alerts"
-          value={stats.warningAlerts}
-          icon={AlertTriangle}
-          color="yellow"
-        />
-        <StatsCard
-          label="Total Value at Risk"
-          value={`BDT ${stats.totalValue}`}
-          icon={Package}
-          color="purple"
-        />
-      </div>
+      <Alert variant="destructive" className="bg-destructive/5">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Action Required</AlertTitle>
+        <AlertDescription>
+          There are {stats.criticalAlerts} products currently at critical levels. Restock immediately to avoid service disruption.
+        </AlertDescription>
+      </Alert>
 
-      {/* Info Card */}
-      <InfoCard
-        type="warning"
-        title="Low Stock Alert System"
-        message="Products shown below are at or below their minimum stock levels. Critical alerts indicate items below critical threshold. Use 'Reorder Now' to quickly create purchase orders or 'Bulk Reorder' to handle multiple items at once."
-        icon={AlertTriangle}
-      />
+      {/* Table Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Low Stock Items</CardTitle>
+            <div className="flex items-center gap-2 max-w-sm">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <Input 
+                    placeholder="Search products..." 
+                    value={filters.search}
+                    onChange={(e) => setFilters(f => ({...f, search: e.target.value}))}
+                    className="h-8"
+                />
+            </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product</TableHead>
+                <TableHead className="text-center">Current Qty</TableHead>
+                <TableHead className="text-center">Min Level</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredItems.map((item) => {
+                const product = products.find(p => p._id === item.productId)
+                const sev = getSeverity(item)
+                return (
+                  <TableRow key={item._id}>
+                    <TableCell>
+                      <div className="font-medium">{product?.productName}</div>
+                      <div className="text-xs text-muted-foreground font-mono">{product?.sku}</div>
+                    </TableCell>
+                    <TableCell className="text-center font-bold">{item.stockQty}</TableCell>
+                    <TableCell className="text-center text-muted-foreground">{product?.minStockLevel || 10}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant={sev.variant} className="gap-1">
+                        <span>{sev.icon}</span> {sev.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => handleReorderNow(item)}>
+                        <RotateCcw className="h-4 w-4 mr-2" /> Reorder
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      {/* Filters */}
-      <ReusableFilter
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-        onExport={handleExport}
-        filterConfig={filterConfig}
-        title="Alert Filters"
-        resultsCount={filteredItems.length}
-        totalCount={lowStockItems.length}
-      />
-
-      {/* Low Stock Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="mb-6 pb-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-            <Package className="w-5 h-5 mr-2 text-red-600" />
-            Low Stock Items
-          </h3>
-        </div>
-        <SharedTable
-          data={filteredItems}
-          columns={tableColumns}
-          loading={loading}
-          emptyMessage="No low stock alerts found"
-        />
-      </div>
-
-      {/* Bulk Reorder Modal */}
-      <SharedModal
-        isOpen={showReorderModal}
-        onClose={() => setShowReorderModal(false)}
-        title="Bulk Reorder Confirmation"
-        size="lg"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
-            You are about to create a purchase order for {selectedItems.length} low stock items.
-          </p>
-          <div className="max-h-64 overflow-y-auto">
-            {selectedItems.map((item, index) => {
+      {/* Bulk Reorder Dialog */}
+      <Dialog open={showReorderModal} onOpenChange={setShowReorderModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Bulk Reorder Confirmation</DialogTitle>
+            <DialogDescription>Review items before creating draft Purchase Orders.</DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[300px] overflow-y-auto space-y-2 py-4">
+            {selectedItems.map((item, idx) => {
               const product = products.find(p => p._id === item.productId)
               return (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
                   <div>
-                    <div className="font-medium">{product?.productName}</div>
-                    <div className="text-sm text-gray-500">Current: {item.stockQty} units</div>
+                    <p className="font-medium text-sm">{product?.productName}</p>
+                    <p className="text-xs text-muted-foreground">Current Stock: {item.stockQty}</p>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm text-gray-600">Suggested: {Math.max(50, (product?.minStockLevel || 10) * 3)} units</div>
-                  </div>
+                  <Badge variant="outline">Suggested: {Math.max(50, (product?.minStockLevel || 10) * 3)} units</Badge>
                 </div>
               )
             })}
           </div>
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => setShowReorderModal(false)}
-            >
-              <div className="flex items-center">
-                Cancel
-              </div>
-            </Button>
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleBulkReorderConfirm}
-            >
-              <div className="flex items-center">
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Create Purchase Order
-              </div>
-            </Button>
-          </div>
-        </div>
-      </SharedModal>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowReorderModal(false)}>Cancel</Button>
+            <Button onClick={() => Swal.fire('Wait', 'Processing bulk orders...', 'info')}>Create Orders</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
+
+const StatsCard = ({ label, value, variant = "default" }) => (
+    <Card>
+        <CardContent className="pt-6">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
+            <p className={`text-2xl font-bold ${variant === 'destructive' ? 'text-destructive' : ''}`}>{value}</p>
+        </CardContent>
+    </Card>
+)
 
 export default LowStockAlerts
