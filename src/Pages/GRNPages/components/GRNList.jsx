@@ -1,8 +1,10 @@
 import React from 'react'
-import { Eye, Edit, Trash2, CheckCircle } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
-import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
+import { Eye, Edit, Trash2, CheckCircle, Calendar, Hash } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { SharedTable } from '@/Shared/SharedTable/SharedTable'
 import { formatDate, getStatusColor } from '../utils/grnHelpers'
+import { cn } from "@/lib/utils"
 
 const GRNList = ({ 
   grns = [], 
@@ -16,35 +18,36 @@ const GRNList = ({
   
   const columns = React.useMemo(() => [
     {
-      header: 'GRN Number',
+      header: 'GRN Details',
       accessorKey: 'grnNumber',
       cell: ({ row }) => (
-        <div className="flex items-center">
-          <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-          <span className="font-semibold text-gray-900 font-mono">
-            {row.original.grnNumber}
-          </span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary mr-2" />
+            <span className="font-bold text-sm tracking-tight font-mono text-foreground">
+              {row.original.grnNumber}
+            </span>
+          </div>
+          <div className="flex items-center text-[10px] text-muted-foreground ml-3.5">
+            <Hash className="w-3 h-3 mr-1" />
+            <span>PO: {row.original.poNumber || 'N/A'}</span>
+          </div>
         </div>
       )
     },
     {
-      header: 'PO Number',
-      accessorKey: 'poNumber',
-      cell: ({ row }) => (
-        <span className="font-mono text-gray-700">
-          {row.original.poNumber || 'N/A'}
-        </span>
-      )
-    },
-    {
       header: 'Supplier',
-      accessorKey: 'supplier',
+      accessorKey: 'supplierId',
       cell: ({ row }) => {
         const supplier = suppliers.find(s => s._id === row.original.supplierId)
         return (
-          <div>
-            <p className="font-medium text-gray-900">{supplier?.supplierName || 'N/A'}</p>
-            <p className="text-xs text-gray-500">{supplier?.email || ''}</p>
+          <div className="max-w-[200px] truncate">
+            <p className="font-semibold text-sm text-foreground leading-tight">
+              {supplier?.supplierName || 'Unknown Supplier'}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {supplier?.email || 'No email provided'}
+            </p>
           </div>
         )
       }
@@ -53,111 +56,109 @@ const GRNList = ({
       header: 'Received Date',
       accessorKey: 'receivedDate',
       cell: ({ row }) => (
-        <div className="flex items-center">
-          <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Calendar className="w-3.5 h-3.5 mr-2 opacity-70" />
           {formatDate(row.original.receivedDate)}
         </div>
       )
     },
     {
-      header: 'Items',
+      header: 'Quantity',
       accessorKey: 'items',
-      cell: ({ row }) => (
-        <div className="text-center">
-          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-semibold text-sm">
-            {row.original.items?.length || 0}
-          </span>
-        </div>
-      )
-    },
-    {
-      header: 'Total Received',
-      accessorKey: 'totalReceived',
       cell: ({ row }) => {
-        const totalReceived = row.original.items?.reduce((sum, item) => sum + (item.receivedQty || 0), 0) || 0
+        const itemCount = row.original.items?.length || 0
+        const totalQty = row.original.items?.reduce((sum, item) => sum + (item.receivedQty || 0), 0) || 0
+        
         return (
-          <span className="font-semibold text-green-600">
-            {totalReceived}
-          </span>
+          <div className="flex flex-col items-center gap-1">
+            <Badge variant="secondary" className="font-bold">
+              {itemCount} {itemCount === 1 ? 'Item' : 'Items'}
+            </Badge>
+            <span className="text-[10px] font-medium text-green-600 uppercase tracking-wider">
+              Total: {totalQty}
+            </span>
+          </div>
         )
       }
     },
     {
       header: 'Status',
       accessorKey: 'status',
-      cell: ({ row }) => (
-        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(row.original.status)}`}>
-          {row.original.status}
-        </span>
-      )
+      cell: ({ row }) => {
+        const status = row.original.status;
+        // Map your helper colors to Shadcn-like utility classes
+        const statusStyle = getStatusColor(status); 
+        
+        return (
+          <Badge 
+            variant="outline" 
+            className={cn("font-bold capitalize border-2", statusStyle)}
+          >
+            {status}
+          </Badge>
+        )
+      }
     }
   ], [suppliers])
 
-  const renderRowActions = (grn) => (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => onView(grn)}
-        title="View Details"
-      >
-        <div className="flex items-center">
-          <Eye className="w-4 h-4 mr-1" />
-          <span>View</span>
-        </div>
-      </Button>
-      
-      {/* Only allow edit for Partially Received GRNs */}
-      {grn.status === 'Partially Received' && (
+  const renderRowActions = (grn) => {
+    const isApproved = grn.status === 'Approved';
+    const isPartial = grn.status === 'Partially Received';
+    const isFull = grn.status === 'Fully Received';
+
+    return (
+      <div className="flex items-center justify-end gap-1.5">
         <Button
-          variant="edit"
+          variant="ghost"
           size="sm"
-          onClick={() => onEdit(grn)}
-          title="Edit GRN"
+          className="h-8 px-2"
+          onClick={() => onView(grn)}
         >
-          <div className="flex items-center">
-            <Edit className="w-4 h-4 mr-1" />
-            <span>Edit</span>
-          </div>
+          <Eye className="w-4 h-4 mr-1.5 text-muted-foreground" />
+          View
         </Button>
-      )}
-      
-      {/* Show Approve button for both Partially and Fully Received GRNs */}
-      {(grn.status === 'Partially Received' || grn.status === 'Fully Received') && (
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => onApprove(grn)}
-          title={grn.status === 'Fully Received' ? "Approve GRN - All items received" : "Approve GRN - Partial receipt"}
-        >
-          <div className="flex items-center">
-            <CheckCircle className="w-4 h-4 mr-1" />
-            <span>Approve</span>
-          </div>
-        </Button>
-      )}
-      
-      {/* Allow delete only if not approved */}
-      {grn.status !== 'Approved' && (
-        <Button
-          variant="delete"
-          size="sm"
-          onClick={() => onDelete(grn)}
-          title="Delete GRN"
-        >
-          <div className="flex items-center">
-            <Trash2 className="w-4 h-4 mr-1" />
-            <span>Delete</span>
-          </div>
-        </Button>
-      )}
-    </div>
-  )
+        
+        {isPartial && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-2 border-blue-200 hover:bg-blue-50 hover:text-blue-700 text-blue-600"
+            onClick={() => onEdit(grn)}
+          >
+            <Edit className="w-4 h-4 mr-1.5" />
+            Edit
+          </Button>
+        )}
+        
+        {(isPartial || isFull) && (
+          <Button
+            variant="default"
+            size="sm"
+            className="h-8 px-2 bg-green-600 hover:bg-green-700"
+            onClick={() => onApprove(grn)}
+          >
+            <CheckCircle className="w-4 h-4 mr-1.5" />
+            Approve
+          </Button>
+        )}
+        
+        {!isApproved && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={() => onDelete(grn)}
+          >
+            <Trash2 className="w-4 h-4 mr-1.5" />
+            Delete
+          </Button>
+        )}
+      </div>
+    )
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
       <SharedTable
         columns={columns}
         data={grns}
@@ -165,10 +166,11 @@ const GRNList = ({
         loading={loading}
         renderRowActions={renderRowActions}
         actionsHeader="Actions"
+        // These classes are passed if your SharedTable supports container styling
+        className="border-none shadow-none" 
       />
     </div>
   )
 }
 
 export default GRNList
-

@@ -1,215 +1,191 @@
 import React from 'react'
-import { Plus, Trash2 } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
+import { Package, Inbox, AlertCircle } from 'lucide-react'
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { getItemStatus } from '../utils/grnHelpers'
+import { cn } from "@/lib/utils"
 
 const GRNItemsTable = ({ 
   items = [], 
-  products = [], 
   readOnly = false,
   onItemChange
 }) => {
   
+  const totalOrdered = items.reduce((sum, item) => sum + (item.orderedQty || 0), 0)
+  const totalReceived = items.reduce((sum, item) => sum + (item.receivedQty || 0), 0)
+  const completionRate = totalOrdered > 0 ? Math.round((totalReceived / totalOrdered) * 100) : 0
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-md font-semibold text-gray-900 flex items-center">
-          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-          Product Items
-          <span className="ml-2 text-sm text-gray-500">({items.length} items)</span>
-        </h3>
+    <div className="space-y-4">
+      {/* Header Section */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Package className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold leading-none">Product Items</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Managing {items.length} line items
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="overflow-x-auto border border-gray-200 rounded-lg">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                #
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Product Name
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Ordered Qty
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Already Received
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Remaining
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Received Qty
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Batch Number
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Expiry Date
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+      {/* Shadcn Table */}
+      <div className="rounded-md border bg-card">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-[50px] font-bold">#</TableHead>
+              <TableHead className="font-bold">Product Name</TableHead>
+              <TableHead className="text-center font-bold">Ordered</TableHead>
+              <TableHead className="text-center font-bold whitespace-nowrap">Prev. Recv</TableHead>
+              <TableHead className="text-center font-bold">Remaining</TableHead>
+              <TableHead className="text-center font-bold min-w-[120px]">Current Recv</TableHead>
+              <TableHead className="font-bold">Batch #</TableHead>
+              <TableHead className="font-bold">Expiry Date</TableHead>
+              <TableHead className="text-center font-bold">Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {items.length === 0 ? (
-              <tr>
-                <td colSpan="9" className="px-4 py-12 text-center">
-                  <div className="flex flex-col items-center justify-center space-y-3">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 font-medium">No items selected</p>
-                      <p className="text-gray-400 text-sm">Select a Purchase Order to see items</p>
-                    </div>
+              <TableRow>
+                <TableCell colSpan={9} className="h-48 text-center">
+                  <div className="flex flex-col items-center justify-center text-muted-foreground">
+                    <Inbox className="w-10 h-10 mb-2 opacity-20" />
+                    <p className="font-medium text-sm">No items found</p>
+                    <p className="text-xs">Select a Purchase Order to populate items</p>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               items.map((item, index) => {
                 const itemStatus = getItemStatus(item)
-                const remainingQty = item.remainingQty !== undefined ? item.remainingQty : item.orderedQty
+                const remainingQty = item.remainingQty ?? item.orderedQty
                 const alreadyReceived = item.alreadyReceived || 0
+
                 return (
-                  <tr key={item.id || index} className="hover:bg-blue-50/30 transition-colors duration-200">
-                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-                        {item.productName || 'N/A'}
+                  <TableRow key={item.id || index} className="group transition-colors">
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      {(index + 1).toString().padStart(2, '0')}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex flex-col">
+                        <span>{item.productName || 'N/A'}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase">SKU: {item.productId?.slice(-6)}</span>
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-center">
-                      <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full font-semibold">
-                        {item.orderedQty || 0}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-center">
-                      <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full font-semibold">
-                        {alreadyReceived}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-center">
-                      <span className={`px-3 py-1 rounded-full font-semibold ${
-                        remainingQty === 0 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-orange-100 text-orange-800'
-                      }`}>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="outline">{item.orderedQty || 0}</Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="secondary" className="bg-secondary/50">{alreadyReceived}</Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge 
+                        className={cn(
+                          "font-bold",
+                          remainingQty === 0 ? "bg-green-500/10 text-green-600 border-green-200" : "bg-orange-500/10 text-orange-600 border-orange-200"
+                        )}
+                        variant="outline"
+                      >
                         {remainingQty}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-center">
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
                       {readOnly ? (
-                        <span className={`px-3 py-1 rounded-full font-semibold ${
-                          item.receivedQty === item.orderedQty 
-                            ? 'bg-green-100 text-green-800' 
-                            : item.receivedQty > 0 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {item.receivedQty || 0}
-                        </span>
+                        <span className="font-bold">{item.receivedQty || 0}</span>
                       ) : (
-                        <input
+                        <Input
                           type="number"
                           min="0"
                           max={remainingQty}
                           value={item.receivedQty || 0}
                           onChange={(e) => {
-                            const value = parseInt(e.target.value) || 0
-                            const maxValue = Math.min(value, remainingQty)
-                            onItemChange(item.id || index, 'receivedQty', maxValue)
+                            const val = Math.min(parseInt(e.target.value) || 0, remainingQty)
+                            onItemChange(item.id || index, 'receivedQty', val)
                           }}
                           disabled={remainingQty === 0}
-                          className="w-24 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center font-semibold disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          placeholder={remainingQty === 0 ? 'Full' : '0'}
+                          className="w-20 mx-auto h-8 text-center font-bold"
                         />
                       )}
-                    </td>
-                    <td className="px-4 py-3 text-sm">
+                    </TableCell>
+                    <TableCell>
                       {readOnly ? (
-                        <span className="text-gray-700">{item.batch || 'N/A'}</span>
+                        <span className="text-sm">{item.batch || '-'}</span>
                       ) : (
-                        <input
-                          type="text"
+                        <Input
+                          placeholder="Batch"
                           value={item.batch || ''}
                           onChange={(e) => onItemChange(item.id || index, 'batch', e.target.value)}
-                          placeholder="Optional"
-                          className="w-32 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                          className="h-8 text-xs min-w-[100px]"
                         />
                       )}
-                    </td>
-                    <td className="px-4 py-3 text-sm">
+                    </TableCell>
+                    <TableCell>
                       {readOnly ? (
-                        <span className="text-gray-700">
-                          {item.expiry ? new Date(item.expiry).toLocaleDateString() : 'N/A'}
+                        <span className="text-sm">
+                          {item.expiry ? new Date(item.expiry).toLocaleDateString() : '-'}
                         </span>
                       ) : (
-                        <input
+                        <Input
                           type="date"
                           value={item.expiry || ''}
-                          onChange={(e) => onItemChange(item.id || index, 'expiry', e.target.value)}
                           min={new Date().toISOString().split('T')[0]}
-                          className="w-40 px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                          onChange={(e) => onItemChange(item.id || index, 'expiry', e.target.value)}
+                          className="h-8 text-xs min-w-[130px]"
                         />
                       )}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-center">
-                      <span className={`text-xs font-semibold ${itemStatus.color}`}>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge className={cn("text-[10px] px-2 py-0", itemStatus.color)}>
                         {itemStatus.status}
-                      </span>
-                    </td>
-                  </tr>
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
                 )
               })
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
+      {/* Footer / Summary Info */}
       {items.length > 0 && (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-6">
-              <div>
-                <span className="text-gray-600">Total Items:</span>
-                <span className="ml-2 font-bold text-gray-900">{items.length}</span>
-              </div>
-              <div>
-                <span className="text-gray-600">Total Ordered:</span>
-                <span className="ml-2 font-bold text-gray-900">
-                  {items.reduce((sum, item) => sum + (item.orderedQty || 0), 0)}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl border bg-muted/30">
+          <div className="flex gap-6 items-center">
+             <div className="text-center">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Items</p>
+                <p className="text-sm font-bold">{items.length}</p>
+             </div>
+             <div className="text-center">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Total Ordered</p>
+                <p className="text-sm font-bold">{totalOrdered}</p>
+             </div>
+             <div className="text-center">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Current Receipt</p>
+                <p className="text-sm font-bold text-primary">{totalReceived}</p>
+             </div>
+          </div>
+          <div className="flex items-center justify-end gap-3">
+             <span className="text-xs font-bold text-muted-foreground uppercase">Completion Status</span>
+             <div className="flex items-center gap-2">
+                <span className={cn(
+                  "text-sm font-black",
+                  completionRate === 100 ? "text-green-600" : "text-primary"
+                )}>
+                  {completionRate}%
                 </span>
-              </div>
-              <div>
-                <span className="text-gray-600">Total Received:</span>
-                <span className="ml-2 font-bold text-blue-600">
-                  {items.reduce((sum, item) => sum + (item.receivedQty || 0), 0)}
-                </span>
-              </div>
-            </div>
-            <div>
-              <span className="text-gray-600">Completion:</span>
-              <span className="ml-2 font-bold text-green-600">
-                {items.reduce((sum, item) => sum + (item.orderedQty || 0), 0) > 0
-                  ? Math.round(
-                      (items.reduce((sum, item) => sum + (item.receivedQty || 0), 0) /
-                        items.reduce((sum, item) => sum + (item.orderedQty || 0), 0)) *
-                        100
-                    )
-                  : 0}
-                %
-              </span>
-            </div>
+             </div>
           </div>
         </div>
       )}
@@ -218,4 +194,3 @@ const GRNItemsTable = ({
 }
 
 export default GRNItemsTable
-

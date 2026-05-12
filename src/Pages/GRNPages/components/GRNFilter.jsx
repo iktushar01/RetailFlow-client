@@ -1,5 +1,5 @@
-import React from 'react'
-import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
+import { ReusableFilter } from '@/Shared/ReusableFilter/ReusableFilter';
+import React from 'react';
 
 const GRNFilter = ({ 
   filters, 
@@ -21,7 +21,7 @@ const GRNFilter = ({
       label: 'Status',
       placeholder: 'All Statuses',
       options: [
-        { value: '', label: 'All Status' },
+        { value: 'all', label: 'All Status' }, // Shadcn Select works best with non-empty strings
         { value: 'Pending', label: '🟡 Pending' },
         { value: 'Partially Received', label: '🟠 Partially Received' },
         { value: 'Received', label: '🟢 Received' },
@@ -34,7 +34,7 @@ const GRNFilter = ({
       label: 'Supplier',
       placeholder: 'All Suppliers',
       options: [
-        { value: '', label: 'All Suppliers' },
+        { value: 'all', label: 'All Suppliers' },
         ...suppliers.map(supplier => ({
           value: supplier._id,
           label: supplier.supplierName
@@ -45,54 +45,41 @@ const GRNFilter = ({
       type: 'date',
       key: 'dateFrom',
       label: 'Date From',
-      placeholder: 'Start Date'
     },
     {
       type: 'date',
       key: 'dateTo',
       label: 'Date To',
-      placeholder: 'End Date'
     }
-  ]
+  ];
 
   const handleClearFilters = () => {
     onFilterChange({
-      status: '',
-      supplier: '',
+      status: 'all',
+      supplier: 'all',
       poNumber: '',
-      dateFrom: '',
-      dateTo: '',
+      dateFrom: undefined,
+      dateTo: undefined,
       search: ''
-    })
-  }
+    });
+  };
 
   const handleExport = () => {
-    // TODO: Implement export functionality
-    console.log('Export GRN data')
-  }
-
-  const handleFilterChangeInternal = (key, value) => {
-    onFilterChange({
-      ...filters,
-      [key]: value
-    })
-  }
+    console.log('Export GRN data');
+  };
 
   return (
     <ReusableFilter
       filters={filters}
-      onFilterChange={handleFilterChangeInternal}
+      onFilterChange={(key, value) => onFilterChange({ ...filters, [key]: value })}
       onClearFilters={handleClearFilters}
       onExport={handleExport}
       filterConfig={filterConfig}
       title="Filter Goods Receive Notes"
-      showExport={true}
-      showClear={true}
       resultsCount={resultsCount}
       totalCount={totalCount}
     />
-  )
-}
+  );
+};
 
-export default GRNFilter
-
+export default GRNFilter;
