@@ -1,8 +1,23 @@
-import React from 'react'
-import { Eye, AlertTriangle, MapPin, Package, Calendar, Hash } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
-import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
-import { formatDate, getStockStatusColor, getStockStatusText, getExpiryStatus } from '../utils/inventoryHelpers'
+import React, { useMemo } from 'react'
+import { Eye, MapPin, Package, Calendar, Hash, Inbox } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  formatDate,
+  getStockStatusColor,
+  getStockStatusText,
+  getExpiryStatus
+} from '../utils/inventoryHelpers'
 
 const ProductInventoryList = ({ 
   inventory = [], 
@@ -10,33 +25,27 @@ const ProductInventoryList = ({
   onView
 }) => {
   
-  // Flatten the product-centric data into individual location rows
-  const flattenedData = React.useMemo(() => {
+  // Flatten product locations into individual rows for the table
+  const flattenedData = useMemo(() => {
     const flattened = []
     
     inventory.forEach(product => {
-      // Handle both old and new data structures
       const locations = product.locations || []
       
       locations.forEach(location => {
         flattened.push({
           ...product,
           ...location,
-          // Ensure product info is available for each location row
-          productName: product.productName || 'Unknown Product',
-          sku: product.sku || 'N/A',
-          category: product.category || 'Uncategorized',
-          costPrice: product.costPrice || 0,
-          sellingPrice: product.sellingPrice || 0,
-          // Ensure location-specific data is properly mapped
-          quantity: location.quantity || 0,
-          location: location.location || 'Unknown Location',
-          batch: location.batch || 'N/A',
-          expiry: location.expiry || 'N/A',
-          status: location.status || 'Unknown',
-          lastUpdated: location.lastUpdated || product.updatedAt || product.createdAt,
-          barcode: location.barcode || product.barcode || '',
-          qrCode: location.qrCode || product.qrCode || ''
+          // Explicit mapping to prevent naming collisions
+          displayProductName: product.productName || 'Unknown Product',
+          displaySku: product.sku || 'N/A',
+          displayCategory: product.category || 'Uncategorized',
+          rowQuantity: location.quantity || 0,
+          rowLocation: location.location || 'Unknown Location',
+          rowBatch: location.batch || 'N/A',
+          rowExpiry: location.expiry || 'N/A',
+          rowStatus: location.status || 'Unknown',
+          rowLastUpdated: location.lastUpdated || product.updatedAt || product.createdAt,
         })
       })
     })
@@ -44,171 +53,149 @@ const ProductInventoryList = ({
     return flattened
   }, [inventory])
 
-  const columns = React.useMemo(() => [
-    {
-      id: 'product',
-      header: 'Product Name',
-      accessorKey: 'productName',
-      cell: ({ row }) => (
-        <div>
-          <p className="font-medium text-gray-900">{row.original.productName}</p>
-          <p className="text-xs text-gray-500">{row.original.category || 'N/A'}</p>
-        </div>
-      )
-    },
-    {
-      id: 'sku',
-      header: 'SKU / Product ID',
-      accessorKey: 'sku',
-      cell: ({ row }) => (
-        <div>
-          <p className="font-mono text-sm text-gray-700">{row.original.sku || 'N/A'}</p>
-          <p className="text-xs text-gray-500">{row.original.productId?.slice(-8) || 'N/A'}</p>
-        </div>
-      )
-    },
-    {
-      id: 'batch',
-      header: 'Batch No',
-      accessorKey: 'batch',
-      cell: ({ row }) => (
-        <div className="flex items-center">
-          <Hash className="w-4 h-4 text-gray-400 mr-1" />
-          <span className="font-mono text-sm text-gray-700">
-            {row.original.batch || 'N/A'}
-          </span>
-        </div>
-      )
-    },
-    {
-      id: 'expiry',
-      header: 'Expiry Date',
-      accessorKey: 'expiry',
-      cell: ({ row }) => {
-        const expiryStatus = getExpiryStatus(row.original.expiry)
-        return (
-          <div className="flex items-center">
-            <Calendar className="w-4 h-4 text-gray-400 mr-1" />
-            <div>
-              <p className="text-sm text-gray-700">
-                {row.original.expiry || 'N/A'}
-              </p>
-              {expiryStatus && (
-                <span className={`text-xs px-1 py-0.5 rounded ${expiryStatus.color}`}>
-                  {expiryStatus.status}
-                </span>
-              )}
-            </div>
-          </div>
-        )
-      }
-    },
-    {
-      id: 'quantity',
-      header: 'Quantity',
-      accessorKey: 'quantity',
-      cell: ({ row }) => {
-        const quantity = row.original.quantity || 0
-        const colorClass = quantity === 0 ? 'text-red-600' : quantity <= 10 ? 'text-yellow-600' : 'text-green-600'
-        
-        return (
-          <div className="flex items-center">
-            <Package className="w-4 h-4 text-gray-400 mr-1" />
-            <span className={`font-semibold ${colorClass}`}>
-              {quantity}
-            </span>
-          </div>
-        )
-      }
-    },
-    {
-      id: 'location',
-      header: 'Location',
-      accessorKey: 'location',
-      cell: ({ row }) => (
-        <div className="flex items-center">
-          <MapPin className="w-4 h-4 text-gray-400 mr-1" />
-          <span className="text-sm text-gray-700">
-            {row.original.location || 'Unknown Location'}
-          </span>
-        </div>
-      )
-    },
-    {
-      id: 'status',
-      header: 'Status',
-      accessorKey: 'status',
-      cell: ({ row }) => {
-        const status = row.original.status || 'Unknown'
-        const colorClass = getStockStatusColor(status)
-        const statusText = getStockStatusText(status)
-        
-        return (
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
-            {statusText}
-          </span>
-        )
-      }
-    },
-    {
-      id: 'lastUpdated',
-      header: 'Last Updated',
-      accessorKey: 'lastUpdated',
-      cell: ({ row }) => (
-        <div className="text-sm text-gray-500">
-          {formatDate(row.original.lastUpdated)}
-        </div>
-      )
-    },
-    {
-      id: 'actions',
-      header: 'ACTIONS',
-      accessorKey: 'actions',
-      cell: ({ row }) => (
-        <div className="flex items-center">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onView(row.original)}
-          >
-            <div className="flex items-center">
-              <Eye className="w-4 h-4 mr-1" />
-              View
-            </div>
-          </Button>
-        </div>
-      )
-    }
-  ], [onView])
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2 text-gray-600">Loading inventory...</span>
+      <div className="space-y-3">
+        <Skeleton className="h-10 w-full" />
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full" />
+        ))}
       </div>
     )
   }
 
   if (flattenedData.length === 0) {
     return (
-      <div className="text-center py-8">
-        <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No inventory found</h3>
-        <p className="text-gray-500">No products with inventory data available.</p>
-      </div>
+      <Card className="flex flex-col items-center justify-center py-12 border-dashed">
+        <div className="bg-muted rounded-full p-4 mb-4">
+          <Inbox className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground">No inventory found</h3>
+        <p className="text-sm text-muted-foreground max-w-xs text-center">
+          There are currently no products with assigned locations or stock levels.
+        </p>
+      </Card>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-      <SharedTable
-        data={flattenedData}
-        columns={columns}
-        loading={loading}
-        emptyMessage="No inventory data available"
-      />
-    </div>
+    <Card className="border-border shadow-sm overflow-hidden">
+      <Table>
+        <TableHeader className="bg-muted/50">
+          <TableRow>
+            <TableHead className="w-[300px]">Product</TableHead>
+            <TableHead>Batch & SKU</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead>Expiry</TableHead>
+            <TableHead className="text-center">Stock</TableHead>
+            <TableHead className="text-center">Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {flattenedData.map((item, index) => {
+            const expiryInfo = getExpiryStatus(item.rowExpiry)
+            const qtyColor = item.rowQuantity === 0 
+              ? 'text-destructive' 
+              : item.rowQuantity <= 10 
+                ? 'text-amber-600' 
+                : 'text-emerald-600'
+
+            return (
+              <TableRow key={`${item.productId}-${index}`} className="group transition-colors hover:bg-muted/30">
+                {/* Product & Category */}
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-foreground line-clamp-1">
+                      {item.displayProductName}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      {item.displayCategory}
+                    </span>
+                  </div>
+                </TableCell>
+
+                {/* SKU & Batch */}
+                <TableCell>
+                  <div className="space-y-1">
+                    <div className="flex items-center text-xs font-mono text-muted-foreground">
+                      <Hash className="w-3 h-3 mr-1 opacity-70" />
+                      {item.displaySku}
+                    </div>
+                    <div className="inline-flex items-center px-1.5 py-0.5 rounded border bg-background text-[10px] font-medium uppercase">
+                      Batch: {item.rowBatch}
+                    </div>
+                  </div>
+                </TableCell>
+
+                {/* Location */}
+                <TableCell>
+                  <div className="flex items-center text-sm text-foreground">
+                    <MapPin className="w-3.5 h-3.5 mr-1.5 text-blue-500" />
+                    {item.rowLocation}
+                  </div>
+                </TableCell>
+
+                {/* Expiry */}
+                <TableCell>
+                  <div className="flex flex-col">
+                    <div className="flex items-center text-sm">
+                      <Calendar className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+                      {item.rowExpiry}
+                    </div>
+                    {expiryInfo && (
+                      <span className={`text-[10px] font-bold mt-0.5 ${expiryInfo.color}`}>
+                        {expiryInfo.status.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
+
+                {/* Quantity */}
+                <TableCell className="text-center">
+                  <div className="flex flex-col items-center">
+                    <span className={`text-lg font-black tracking-tighter ${qtyColor}`}>
+                      {item.rowQuantity}
+                    </span>
+                    <span className="text-[9px] uppercase font-bold opacity-50">Units</span>
+                  </div>
+                </TableCell>
+
+                {/* Status Badge */}
+                <TableCell className="text-center">
+                  <Badge 
+                    variant="outline" 
+                    className={`whitespace-nowrap shadow-sm border ${getStockStatusColor(item.rowQuantity, 10)}`}
+                  >
+                    {getStockStatusText(item.rowQuantity, 10)}
+                  </Badge>
+                </TableCell>
+
+                {/* Action */}
+                <TableCell className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 hover:bg-blue-500/10 hover:text-blue-600 transition-all"
+                    onClick={() => onView(item)}
+                  >
+                    <Eye className="w-4 h-4 mr-1.5" />
+                    <span className="font-medium">Details</span>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
+      
+      {/* Footer info for traceability */}
+      <div className="bg-muted/30 px-4 py-2 border-t">
+        <p className="text-[10px] text-muted-foreground text-center italic">
+          Showing {flattenedData.length} stock allocations across multiple warehouse zones.
+        </p>
+      </div>
+    </Card>
   )
 }
 

@@ -1,8 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import { RefreshCw, Package, AlertTriangle, TrendingUp, XCircle, Clock, Info } from 'lucide-react'
-import Swal from 'sweetalert2'
-import { Button } from '../../Components/UI/Button'
-import StatsCard from '../../Shared/StatsCard/StatsCard'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { RefreshCw, Package, AlertTriangle, TrendingUp, XCircle, Clock, Info, Eye, Boxes } from 'lucide-react'
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+
 import ProductInventoryList from './components/ProductInventoryList'
 import InventoryFilter from './components/InventoryFilter'
 import { inventoryAPI, productsAPI } from './services/inventoryService'
@@ -12,8 +24,9 @@ export const InStockProductPages = () => {
   const [inventory, setInventory] = useState([])
   const [products, setProducts] = useState([])
   const [fetchLoading, setFetchLoading] = useState(false)
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
-  // Filter state
   const [filters, setFilters] = useState({
     search: '',
     category: '',
@@ -22,360 +35,237 @@ export const InStockProductPages = () => {
     location: ''
   })
 
-  // Fetch data on mount
-  useEffect(() => {
-    fetchAllData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const fetchAllData = async () => {
-    await Promise.all([
-      fetchInventory(),
-      fetchProducts()
-    ])
-  }
-
-  const fetchInventory = async () => {
+  const fetchInventory = useCallback(async () => {
     try {
       setFetchLoading(true)
       const data = await inventoryAPI.getProducts()
-      console.log("=== FETCHED PRODUCT-CENTRIC INVENTORY ===");
-      console.log("Total products found:", data.length);
-      if (data.length > 0) {
-        console.log("Sample product data:", data[0]);
-        console.log("Locations for first product:", data[0].locations);
-      }
       setInventory(data || [])
     } catch (error) {
-      console.error('Error fetching inventory:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch inventory. Please try again.',
-        confirmButtonColor: '#3B82F6'
+      toast.error("Fetch Error", {
+        description: "Failed to load inventory. Please check your connection."
       })
     } finally {
       setFetchLoading(false)
     }
-  }
+  }, [])
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const data = await productsAPI.getAll()
       setProducts(data || [])
     } catch (error) {
       console.error('Error fetching products:', error)
     }
-  }
+  }, [])
 
-  // Filter handler
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters)
-  }
+  const fetchAllData = useCallback(async () => {
+    await Promise.all([fetchInventory(), fetchProducts()])
+  }, [fetchInventory, fetchProducts])
 
-  // Get unique categories from products
+  useEffect(() => {
+    fetchAllData()
+  }, [fetchAllData])
+
   const categories = useMemo(() => {
     const cats = products.map(p => p.category).filter(Boolean)
     return [...new Set(cats)]
   }, [products])
 
-  // Filtered and sorted inventory (now product-centric)
   const filteredInventory = useMemo(() => {
-    const filtered = inventory.filter(product => {
-      // Search filter
-      if (filters.search && typeof filters.search === 'string') {
+    return inventory.filter(product => {
+      if (filters.search) {
         const searchLower = filters.search.toLowerCase()
         if (!product.productName?.toLowerCase().includes(searchLower) && 
-            !product.sku?.toLowerCase().includes(searchLower)) {
-          return false
-        }
+            !product.sku?.toLowerCase().includes(searchLower)) return false
       }
+      if (filters.category && product.category !== filters.category) return false
+      
+      // Multi-location logic for Stock/Expiry status
+      if (filters.stockStatus || filters.expiryStatus || filters.location) {
+        return product.locations.some(loc => {
+          const stockQty = loc.quantity || 0
+          const lowStockThreshold = 10
+          
+          let matchesStock = true
+          if (filters.stockStatus === 'out-of-stock') matchesStock = stockQty === 0
+          else if (filters.stockStatus === 'low-stock') matchesStock = stockQty > 0 && stockQty <= lowStockThreshold
+          else if (filters.stockStatus === 'in-stock') matchesStock = stockQty > lowStockThreshold
 
-      // Category filter
-      if (filters.category) {
-        if (product.category !== filters.category) {
-          return false
-        }
-      }
+          let matchesExpiry = true
+          if (filters.expiryStatus) {
+            const exp = getExpiryStatus(loc.expiry)
+            if (filters.expiryStatus === 'expired') matchesExpiry = exp?.status === 'Expired'
+            else if (filters.expiryStatus === 'expiring-soon') matchesExpiry = exp?.status === 'Expiring Soon'
+            else if (filters.expiryStatus === 'valid') matchesExpiry = exp?.status === 'Valid'
+          }
 
-      // Stock status filter - check if any location matches
-      if (filters.stockStatus) {
-        const hasMatchingLocation = product.locations.some(location => {
-          const stockQty = location.quantity || 0
-          const lowStockThreshold = 10 // Default threshold
+          let matchesLoc = true
+          if (filters.location) matchesLoc = loc.location?.toLowerCase().includes(filters.location.toLowerCase())
 
-          if (filters.stockStatus === 'out-of-stock' && stockQty === 0) return true
-          if (filters.stockStatus === 'low-stock' && stockQty > 0 && stockQty <= lowStockThreshold) return true
-          if (filters.stockStatus === 'in-stock' && stockQty > lowStockThreshold) return true
-          return false
+          return matchesStock && matchesExpiry && matchesLoc
         })
-        
-        if (!hasMatchingLocation) return false
       }
-
-      // Expiry status filter - check if any location matches
-      if (filters.expiryStatus) {
-        const hasMatchingLocation = product.locations.some(location => {
-          const expiryStatus = getExpiryStatus(location.expiry)
-          if (!expiryStatus) return false
-
-          if (filters.expiryStatus === 'expired' && expiryStatus.status === 'Expired') return true
-          if (filters.expiryStatus === 'expiring-soon' && expiryStatus.status === 'Expiring Soon') return true
-          if (filters.expiryStatus === 'valid' && expiryStatus.status === 'Valid') return true
-          return false
-        })
-        
-        if (!hasMatchingLocation) return false
-      }
-
-      // Location filter - check if any location matches
-      if (filters.location && typeof filters.location === 'string') {
-        const locationLower = filters.location.toLowerCase()
-        const hasMatchingLocation = product.locations.some(location => 
-          location.location?.toLowerCase().includes(locationLower)
-        )
-        
-        if (!hasMatchingLocation) return false
-      }
-
       return true
-    })
-
-    // Sort by product name
-    return filtered.sort((a, b) => a.productName.localeCompare(b.productName))
+    }).sort((a, b) => a.productName.localeCompare(b.productName))
   }, [inventory, filters])
 
-  // Calculate summary stats (now product-centric)
   const stats = useMemo(() => {
     const totalProducts = inventory.length
-    
-    // Calculate total stock across all locations
-    const totalStock = inventory.reduce((sum, product) => {
-      return sum + product.locations.reduce((locationSum, location) => {
-        return locationSum + (location.quantity || 0)
-      }, 0)
-    }, 0)
-    
-    // Count products with low stock in any location
-    const lowStock = inventory.filter(product => {
-      return product.locations.some(location => {
-        const stockQty = location.quantity || 0
-        const lowStockThreshold = 10 // Default threshold
-        return stockQty > 0 && stockQty <= lowStockThreshold
-      })
-    }).length
-
-    // Count products that are out of stock in all locations
-    const outOfStock = inventory.filter(product => {
-      return product.locations.every(location => (location.quantity || 0) === 0)
-    }).length
-    
-    // Count products with expiring items in any location
-    const expiring = inventory.filter(product => {
-      return product.locations.some(location => {
-        const expiryStatus = getExpiryStatus(location.expiry)
-        return expiryStatus && (expiryStatus.status === 'Expired' || expiryStatus.status === 'Expiring Soon')
-      })
-    }).length
+    const totalStock = inventory.reduce((s, p) => s + p.locations.reduce((ls, l) => ls + (l.quantity || 0), 0), 0)
+    const lowStock = inventory.filter(p => p.locations.some(l => (l.quantity || 0) > 0 && (l.quantity || 0) <= 10)).length
+    const outOfStock = inventory.filter(p => p.locations.every(l => (l.quantity || 0) === 0)).length
+    const expiring = inventory.filter(p => p.locations.some(l => {
+      const st = getExpiryStatus(l.expiry)
+      return st?.status === 'Expired' || st?.status === 'Expiring Soon'
+    })).length
 
     return { totalProducts, totalStock, lowStock, outOfStock, expiring }
   }, [inventory])
 
   const handleView = (locationItem) => {
-    // Find the product this location belongs to
     const product = inventory.find(p => p.productId === locationItem.productId)
-    const expiryStatus = getExpiryStatus(locationItem.expiry)
-
-    // Safely get product name
-    const productName = locationItem.productName || product?.productName || 'Unknown Product'
-    
-    // Safely get product details
-    const productSku = locationItem.sku || product?.sku || 'N/A'
-    const productCategory = locationItem.category || product?.category || 'Uncategorized'
-    const productBatch = locationItem.batch || 'N/A'
-    const productExpiry = locationItem.expiry || 'N/A'
-    const productLocation = locationItem.location || 'Unknown Location'
-    const productQuantity = locationItem.quantity || 0
-    const productStatus = locationItem.status || 'Unknown'
-    const lastUpdated = locationItem.lastUpdated || product?.updatedAt || product?.createdAt
-
-    Swal.fire({
-      title: `<div class="flex items-center justify-center"><svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>${productName}</div>`,
-      html: `
-        <div class="text-left space-y-4 max-h-96 overflow-y-auto">
-          <div class="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <p class="text-gray-600 font-semibold">Product ID</p>
-              <p class="text-gray-900 font-mono text-xs">${locationItem.productId || 'N/A'}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 font-semibold">SKU</p>
-              <p class="text-gray-900 font-mono">${productSku}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 font-semibold">Category</p>
-              <p class="text-gray-900">${productCategory}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 font-semibold">Batch Number</p>
-              <p class="text-gray-900 font-mono">${productBatch}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 font-semibold">Expiry Date</p>
-              <p class="text-gray-900">${productExpiry !== 'N/A' ? formatDate(productExpiry).split(',')[0] : 'N/A'}</p>
-              ${expiryStatus ? `<p class="${expiryStatus.color} text-xs font-semibold">${expiryStatus.status}</p>` : ''}
-            </div>
-            <div>
-              <p class="text-gray-600 font-semibold">Location</p>
-              <p class="text-gray-900">${productLocation}</p>
-            </div>
-          </div>
-          
-          <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <div class="text-center">
-              <p class="text-sm text-gray-600">Current Stock Quantity</p>
-              <p class="text-4xl font-bold text-blue-600 mt-2">${productQuantity}</p>
-              <p class="text-xs text-gray-500 mt-1">units available</p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <p class="text-gray-600 font-semibold">Last Updated</p>
-              <p class="text-gray-900 text-xs">${formatDate(lastUpdated)}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 font-semibold">Status</p>
-              <p class="text-gray-900">${productStatus}</p>
-            </div>
-          </div>
-
-          ${product ? `
-            <div class="bg-gray-50 p-3 rounded-lg">
-              <p class="text-xs text-gray-600 font-semibold mb-2">Product Details</p>
-              <p class="text-sm text-gray-700">Price: <strong>BDT ${product.sellingPrice ? parseFloat(product.sellingPrice).toFixed(2) : 'N/A'}</strong></p>
-              <p class="text-sm text-gray-700">Cost Price (Avg PO): <strong>BDT ${product.costPrice ? parseFloat(product.costPrice).toFixed(2) : 'N/A'}</strong></p>
-              ${product.description ? `<p class="text-sm text-gray-700 mt-2">${product.description}</p>` : ''}
-            </div>
-          ` : ''}
-
-          ${product && product.locations && product.locations.length > 1 ? `
-            <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-              <p class="text-xs text-gray-600 font-semibold mb-2">All Locations for this Product:</p>
-              <div class="space-y-1">
-                ${product.locations.map(loc => `
-                  <div class="flex justify-between text-xs">
-                    <span class="text-gray-600">${loc.location || 'Unknown Location'}</span>
-                    <span class="font-medium ${(loc.quantity || 0) > 0 ? 'text-green-600' : 'text-red-600'}">${loc.quantity || 0} units</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          ` : ''}
-        </div>
-      `,
-      width: '700px',
-      confirmButtonColor: '#3B82F6',
-      confirmButtonText: 'Close'
-    })
+    setSelectedItem({ ...locationItem, parentProduct: product })
+    setIsDetailsOpen(true)
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto py-6 space-y-6">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+      <Card className="border-none shadow-md bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-purple-500/5">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl sm:text-3xl font-bold flex items-center tracking-tight">
               <Package className="w-8 h-8 mr-3 text-blue-600" />
-              Inhouse Products / Warehouse Stock
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Manage and monitor warehouse inventory
-            </p>
-            
-            
+              Warehouse Inventory
+            </CardTitle>
+            <CardDescription className="text-muted-foreground text-base">
+              Monitor real-time stock levels, batches, and warehouse locations.
+            </CardDescription>
           </div>
-
-          <Button 
-            variant="secondary" 
-            size="md"
-            onClick={fetchAllData}
-            disabled={fetchLoading}
-            loading={fetchLoading}
-            className="flex items-center"
-          >
-            <div className="flex items-center">
-              <RefreshCw className="w-5 h-5 mr-2" />
-              <span>Refresh</span>
-            </div>
+          <Button variant="outline" onClick={fetchAllData} disabled={fetchLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
+            Refresh Data
           </Button>
-        </div>
+        </CardHeader>
+      </Card>
+
+      {/* Info Alert */}
+      <Alert variant="info" className="bg-blue-500/5 border-blue-500/20">
+        <Info className="h-5 w-5 text-blue-600" />
+        <AlertTitle className="font-semibold text-blue-900 dark:text-blue-200">Inventory Insight</AlertTitle>
+        <AlertDescription className="text-blue-800 dark:text-blue-300">
+          Stock levels are automatically synchronized with Goods Received Notes (GRN).
+        </AlertDescription>
+      </Alert>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {[
+          { label: "Products", val: stats.totalProducts, icon: Boxes, color: "text-slate-600" },
+          { label: "Total Units", val: stats.totalStock, icon: TrendingUp, color: "text-blue-600" },
+          { label: "Low Stock", val: stats.lowStock, icon: AlertTriangle, color: "text-amber-600" },
+          { label: "Out of Stock", val: stats.outOfStock, icon: XCircle, color: "text-destructive" },
+          { label: "Expiring Soon", val: stats.expiring, icon: Clock, color: "text-purple-600" },
+        ].map((stat, idx) => (
+          <Card key={idx} className="shadow-sm">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                <p className="text-2xl font-bold">{stat.val}</p>
+              </div>
+              <stat.icon className={`w-8 h-8 ${stat.color} opacity-20`} />
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Info Card */}
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 flex items-start gap-3">
-        <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-        <div>
-          <p className="text-sm font-semibold text-blue-900">Warehouse Inventory Management</p>
-          <p className="text-sm text-blue-700 mt-1">
-            Monitor all products in your warehouse with real-time stock levels, batch tracking, expiry dates, 
-            and location information. Stock is automatically updated through GRN entries.
-          </p>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
-        <StatsCard
-          label="Total Products"
-          value={stats.totalProducts}
-          icon={Package}
-          color="gray"
-        />
-        <StatsCard
-          label="Total Stock"
-          value={stats.totalStock}
-          icon={TrendingUp}
-          color="blue"
-        />
-        <StatsCard
-          label="Low Stock"
-          value={stats.lowStock}
-          icon={AlertTriangle}
-          color="yellow"
-        />
-        <StatsCard
-          label="Out of Stock"
-          value={stats.outOfStock}
-          icon={XCircle}
-          color="red"
-        />
-        <StatsCard
-          label="Expiring Soon"
-          value={stats.expiring}
-          icon={Clock}
-          color="purple"
-        />
-      </div>
-
-      {/* Filter Section */}
       <InventoryFilter
         filters={filters}
-        onFilterChange={handleFilterChange}
+        onFilterChange={setFilters}
         categories={categories}
         resultsCount={filteredInventory.length}
         totalCount={inventory.length}
       />
 
-      {/* Product Inventory List */}
       <ProductInventoryList
         inventory={filteredInventory}
         loading={fetchLoading}
         onView={handleView}
       />
+
+      {/* Product Details Dialog */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Package className="w-5 h-5 text-blue-600" /> 
+              {selectedItem?.productName || 'Product Details'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedItem && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <DetailItem label="SKU" value={selectedItem.sku || selectedItem.parentProduct?.sku} mono />
+                <DetailItem label="Category" value={selectedItem.category || selectedItem.parentProduct?.category} />
+                <DetailItem label="Batch #" value={selectedItem.batch} mono />
+                <DetailItem label="Location" value={selectedItem.location} />
+              </div>
+
+              <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-6 text-center">
+                <p className="text-sm font-medium text-blue-600 uppercase tracking-widest">Available Stock</p>
+                <p className="text-5xl font-extrabold text-blue-700 my-2">{selectedItem.quantity || 0}</p>
+                <p className="text-xs text-muted-foreground uppercase">Units in current location</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="p-3 bg-muted/30">
+                  <p className="text-xs font-semibold text-muted-foreground">EXPIRY DATE</p>
+                  <p className="text-sm font-medium">{selectedItem.expiry ? formatDate(selectedItem.expiry).split(',')[0] : 'N/A'}</p>
+                  {getExpiryStatus(selectedItem.expiry) && (
+                    <Badge variant="outline" className={`mt-1 ${getExpiryStatus(selectedItem.expiry).color}`}>
+                      {getExpiryStatus(selectedItem.expiry).status}
+                    </Badge>
+                  )}
+                </Card>
+                <Card className="p-3 bg-muted/30">
+                  <p className="text-xs font-semibold text-muted-foreground">UNIT PRICE</p>
+                  <p className="text-sm font-medium">BDT {selectedItem.parentProduct?.sellingPrice || 'N/A'}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase mt-1">Selling Price</p>
+                </Card>
+              </div>
+
+              {selectedItem.parentProduct?.locations?.length > 1 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
+                    <Boxes className="w-3 h-3" /> Distribution Across All Locations
+                  </p>
+                  <ScrollArea className="h-24 border rounded-md p-2">
+                    {selectedItem.parentProduct.locations.map((loc, i) => (
+                      <div key={i} className="flex justify-between text-sm py-1 border-b last:border-0">
+                        <span className="text-muted-foreground">{loc.location}</span>
+                        <span className="font-semibold">{(loc.quantity || 0)} units</span>
+                      </div>
+                    ))}
+                  </ScrollArea>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setIsDetailsOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
+
+const DetailItem = ({ label, value, mono }) => (
+  <div>
+    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">{label}</p>
+    <p className={`text-sm font-medium ${mono ? 'font-mono' : ''}`}>{value || 'N/A'}</p>
+  </div>
+)
 
 export default InStockProductPages

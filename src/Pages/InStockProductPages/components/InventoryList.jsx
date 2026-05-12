@@ -1,8 +1,29 @@
 import React from 'react'
-import { Eye, AlertTriangle } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
-import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
-import { formatDate, getStockStatusColor, getStockStatusText, getExpiryStatus } from '../utils/inventoryHelpers'
+import { Eye, AlertTriangle, MapPin, Calendar, Layers } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Card } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { 
+  formatDate, 
+  getStockStatusColor, 
+  getStockStatusText, 
+  getExpiryStatus 
+} from '../utils/inventoryHelpers'
 
 const InventoryList = ({ 
   inventory = [], 
@@ -10,165 +31,154 @@ const InventoryList = ({
   loading = false,
   onView
 }) => {
-  
-  const columns = React.useMemo(() => [
-    {
-      header: 'Product Name',
-      accessorKey: 'productName',
-      cell: ({ row }) => {
-        const product = products.find(p => p._id === row.original.productId)
-        return (
-          <div>
-            <p className="font-medium text-gray-900">{row.original.productName}</p>
-            <p className="text-xs text-gray-500">{product?.category || 'N/A'}</p>
-          </div>
-        )
-      }
-    },
-    {
-      header: 'SKU / Product ID',
-      accessorKey: 'productId',
-      cell: ({ row }) => {
-        const product = products.find(p => p._id === row.original.productId)
-        return (
-          <div>
-            <p className="font-mono text-sm text-gray-700">{product?.sku || 'N/A'}</p>
-            <p className="text-xs text-gray-500">{row.original.productId.slice(-8)}</p>
-          </div>
-        )
-      }
-    },
-    {
-      header: 'Batch No',
-      accessorKey: 'batch',
-      cell: ({ row }) => (
-        <span className="font-mono text-sm text-gray-700">
-          {row.original.batch || 'N/A'}
-        </span>
-      )
-    },
-    {
-      header: 'Expiry Date',
-      accessorKey: 'expiry',
-      cell: ({ row }) => {
-        const expiryStatus = getExpiryStatus(row.original.expiry)
-        return (
-          <div className="flex flex-col">
-            <span className="text-sm text-gray-700">
-              {row.original.expiry ? formatDate(row.original.expiry).split(',')[0] : 'N/A'}
-            </span>
-            {expiryStatus && (
-              <span className={`text-xs ${expiryStatus.color}`}>
-                {expiryStatus.status === 'Expired' ? 'Expired!' : 
-                 expiryStatus.status === 'Expiring Soon' ? `${expiryStatus.days}d left` : ''}
-              </span>
-            )}
-          </div>
-        )
-      }
-    },
-    {
-      header: 'Quantity',
-      accessorKey: 'stockQty',
-      cell: ({ row }) => {
-        const stockQty = row.original.stockQty || 0
-        const product = products.find(p => p._id === row.original.productId)
-        const lowStockThreshold = product?.lowStockThreshold || 10
-        
-        return (
-          <div className="text-center">
-            <span className={`px-3 py-1 rounded-full font-bold text-lg ${
-              stockQty === 0 ? 'text-red-600' : 
-              stockQty <= lowStockThreshold ? 'text-yellow-600' : 
-              'text-green-600'
-            }`}>
-              {stockQty}
-            </span>
-          </div>
-        )
-      }
-    },
-    {
-      header: 'Location',
-      accessorKey: 'location',
-      cell: ({ row }) => (
-        <div className="flex items-center">
-          <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          {row.original.location || 'Main Warehouse'}
-        </div>
-      )
-    },
-    {
-      header: 'Status',
-      accessorKey: 'status',
-      cell: ({ row }) => {
-        const stockQty = row.original.stockQty || 0
-        const product = products.find(p => p._id === row.original.productId)
-        const lowStockThreshold = product?.lowStockThreshold || 10
-        const statusText = getStockStatusText(stockQty, lowStockThreshold)
-        const statusColor = getStockStatusColor(stockQty, lowStockThreshold)
-        
-        return (
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColor}`}>
-            {statusText}
-          </span>
-        )
-      }
-    },
-    {
-      header: 'Last Updated',
-      accessorKey: 'updatedAt',
-      cell: ({ row }) => (
-        <span className="text-sm text-gray-600">
-          {formatDate(row.original.updatedAt)}
-        </span>
-      )
-    }
-  ], [products])
 
-  const renderRowActions = (item) => {
-    const expiryStatus = getExpiryStatus(item.expiry)
-    const isExpiring = expiryStatus && (expiryStatus.status === 'Expired' || expiryStatus.status === 'Expiring Soon')
-    
+  if (loading) {
     return (
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onView(item)}
-          title="View Details"
-        >
-          <div className="flex items-center">
-            <Eye className="w-4 h-4 mr-1" />
-            <span>View</span>
-          </div>
-        </Button>
-        
-        {isExpiring && (
-          <div className="flex items-center text-red-600" title={`${expiryStatus.status}`}>
-            <AlertTriangle className="w-4 h-4" />
-          </div>
-        )}
-      </div>
+      <Card className="p-6">
+        <div className="space-y-3">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      </Card>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <SharedTable
-        columns={columns}
-        data={inventory}
-        pageSize={10}
-        loading={loading}
-        renderRowActions={renderRowActions}
-        actionsHeader="Actions"
-      />
-    </div>
+    <Card className="border-border shadow-sm overflow-hidden">
+      <Table>
+        <TableHeader className="bg-muted/50">
+          <TableRow>
+            <TableHead className="font-bold">Product Information</TableHead>
+            <TableHead className="font-bold">Inventory Details</TableHead>
+            <TableHead className="font-bold text-center">Stock Level</TableHead>
+            <TableHead className="font-bold">Location & Date</TableHead>
+            <TableHead className="font-bold text-center">Status</TableHead>
+            <TableHead className="font-bold text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {inventory.length > 0 ? (
+            inventory.map((item) => {
+              const product = products.find(p => p._id === item.productId)
+              const expiryStatus = getExpiryStatus(item.expiry)
+              const stockQty = item.stockQty || 0
+              const lowStockThreshold = product?.lowStockThreshold || 10
+              const isExpiring = expiryStatus && (expiryStatus.status === 'Expired' || expiryStatus.status === 'Expiring Soon')
+
+              return (
+                <TableRow key={item._id} className="hover:bg-muted/30 transition-colors">
+                  {/* Product Info Column */}
+                  <TableCell>
+                    <div className="flex flex-col space-y-1">
+                      <span className="font-bold text-foreground leading-none">
+                        {item.productName}
+                      </span>
+                      <div className="flex items-center gap-2">
+                         <Badge variant="secondary" className="text-[10px] h-4 px-1 uppercase tracking-tighter">
+                            {product?.category || 'Uncategorized'}
+                         </Badge>
+                         <span className="font-mono text-xs text-muted-foreground italic">
+                            SKU: {product?.sku || 'N/A'}
+                         </span>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Batch & Expiry Column */}
+                  <TableCell>
+                    <div className="flex flex-col space-y-1">
+                      <div className="flex items-center gap-1.5 text-xs">
+                        <Layers className="w-3 h-3 text-muted-foreground" />
+                        <span className="font-mono font-medium">{item.batch || 'N/A'}</span>
+                      </div>
+                      <div className={`flex items-center gap-1.5 text-xs ${isExpiring ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
+                        <Calendar className="w-3 h-3" />
+                        <span>{item.expiry ? formatDate(item.expiry).split(',')[0] : 'No Expiry'}</span>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Stock Quantity Column */}
+                  <TableCell className="text-center">
+                    <span className={`text-xl font-black tracking-tighter ${
+                      stockQty === 0 ? 'text-destructive' : 
+                      stockQty <= lowStockThreshold ? 'text-amber-500' : 
+                      'text-emerald-600'
+                    }`}>
+                      {stockQty}
+                    </span>
+                    <p className="text-[10px] text-muted-foreground uppercase font-semibold">Units</p>
+                  </TableCell>
+
+                  {/* Location Column */}
+                  <TableCell>
+                    <div className="flex flex-col space-y-1 text-xs">
+                      <div className="flex items-center text-muted-foreground">
+                        <MapPin className="w-3 h-3 mr-1" />
+                        {item.location || 'Main Warehouse'}
+                      </div>
+                      <span className="text-[10px] opacity-70">Updated: {formatDate(item.updatedAt)}</span>
+                    </div>
+                  </TableCell>
+
+                  {/* Status Badge Column */}
+                  <TableCell className="text-center">
+                    <Badge 
+                      variant="outline" 
+                      className={`capitalize shadow-sm ${getStockStatusColor(stockQty, lowStockThreshold)}`}
+                    >
+                      {getStockStatusText(stockQty, lowStockThreshold)}
+                    </Badge>
+                  </TableCell>
+
+                  {/* Actions Column */}
+                  <TableCell className="text-right">
+                    <TooltipProvider>
+                      <div className="flex justify-end items-center gap-2">
+                        {isExpiring && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="bg-destructive/10 p-1.5 rounded-full animate-pulse">
+                                <AlertTriangle className="w-4 h-4 text-destructive" />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-destructive text-destructive-foreground">
+                              {expiryStatus.status}: {expiryStatus.days} days left
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                              onClick={() => onView(item)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Detailed View</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TooltipProvider>
+                  </TableCell>
+                </TableRow>
+              )
+            })
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center text-muted-foreground font-medium">
+                No inventory items found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </Card>
   )
 }
 
 export default InventoryList
-
