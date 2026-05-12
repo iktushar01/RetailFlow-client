@@ -1,8 +1,29 @@
 import React, { useState, useEffect } from 'react'
-import { User, CreditCard, CheckCircle, Clock, XCircle, History } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
+import { User, CreditCard, CheckCircle, Clock, Plus, History, Receipt } from 'lucide-react'
 import CustomerHistory from './CustomerHistory'
 import Swal from 'sweetalert2'
+
+// Shadcn UI Components
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
 
 const PaymentSection = ({ 
   customers, 
@@ -22,13 +43,17 @@ const PaymentSection = ({
 
   const paymentMethods = ['Cash', 'Card', 'bKash', 'Nagad', 'Rocket', 'Bank Transfer']
 
-  // Listen for open modal event
   useEffect(() => {
     const handleOpenModal = () => {
       if (cartItems.length > 0) {
         setIsOpen(true)
       } else {
-        Swal.fire('Empty Cart', 'Please add items to cart before checkout', 'warning')
+        Swal.fire({
+          title: 'Empty Cart',
+          text: 'Please add items to cart before checkout',
+          icon: 'warning',
+          confirmButtonColor: 'hsl(var(--primary))'
+        })
       }
     }
 
@@ -51,256 +76,198 @@ const PaymentSection = ({
     }
   }
 
-  if (!isOpen) return null
-
   return (
     <>
-      {/* Modal Overlay */}
-      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        {/* Modal Content */}
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-          {/* Modal Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">Checkout</h2>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <XCircle className="w-6 h-6" />
-            </button>
-          </div>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden gap-0">
+          <DialogHeader className="p-6 pb-0">
+            <div className="flex items-center gap-2 text-primary mb-1">
+              <Receipt className="w-5 h-5" />
+              <DialogTitle className="text-2xl font-bold">Checkout</DialogTitle>
+            </div>
+          </DialogHeader>
 
-          {/* Modal Body */}
-          <div className="p-4 space-y-4">
-            {/* Order Summary */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-              <h3 className="font-semibold text-gray-900 mb-2">Order Summary</h3>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Items:</span>
+          <div className="p-6 space-y-6">
+            {/* Order Summary Card */}
+            <Card className="bg-primary/[0.03] border-primary/10 shadow-none">
+              <CardContent className="p-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total Items</span>
                   <span className="font-medium">{cartItems.length}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal:</span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium">BDT {totals.subtotal.toFixed(2)}</span>
                 </div>
                 {totals.totalDiscount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Discount:</span>
-                    <span className="font-medium text-green-600">-BDT {totals.totalDiscount.toFixed(2)}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Discount</span>
+                    <Badge variant="success" className="font-bold">
+                      -BDT {totals.totalDiscount.toFixed(2)}
+                    </Badge>
                   </div>
                 )}
-                {totals.tax > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Tax:</span>
-                    <span className="font-medium">BDT {totals.tax.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-lg font-bold pt-2 border-t border-blue-300 mt-2">
-                  <span>Grand Total:</span>
-                  <span className="text-blue-600">BDT {totals.grandTotal.toFixed(2)}</span>
+                <Separator className="my-2" />
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-bold">Grand Total</span>
+                  <span className="text-2xl font-black text-primary">
+                    BDT {totals.grandTotal.toFixed(2)}
+                  </span>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-      {/* Customer Selection */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          <User className="w-4 h-4 inline mr-1" />
-          Customer
-        </label>
-        <div className="flex gap-2">
-          <select
-            value={selectedCustomer?._id || ''}
-            onChange={(e) => {
-              const customer = customers.find(c => c._id === e.target.value)
-              onSelectCustomer(customer)
-            }}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select Customer</option>
-            {customers.map(customer => (
-              <option key={customer._id} value={customer._id}>
-                {customer.name} {customer.phone ? `- ${customer.phone}` : ''}
-              </option>
-            ))}
-          </select>
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={() => setShowCustomerModal(true)}
-          >
-            <div className="flex items-center">
-              + New
-            </div>
-          </Button>
-          {selectedCustomer && (
-            <Button
-              variant="ghost"
-              size="md"
-              onClick={() => setShowCustomerHistory(true)}
-              title="View Customer History"
-            >
-              <div className="flex items-center">
-                <History className="w-4 h-4" />
-              </div>
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Payment Method */}
-      <div className="mb-4">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          <CreditCard className="w-4 h-4 inline mr-1" />
-          Payment Method
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {paymentMethods.map(method => (
-            <button
-              key={method}
-              onClick={() => setPaymentMethod(method)}
-              className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
-                paymentMethod === method
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 hover:border-gray-400'
-              }`}
-            >
-              {method}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="space-y-3 pt-4 border-t border-gray-200">
-        <Button
-          variant="primary"
-          size="lg"
-          onClick={async () => {
-            await onCompleteSale(paymentMethod)
-            setIsOpen(false)
-          }}
-          disabled={cartItems.length === 0 || !selectedCustomer}
-          className="w-full"
-        >
-          <div className="flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 mr-2" />
-            <span className="text-lg">Complete Payment</span>
-          </div>
-        </Button>
-
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={async () => {
-              await onHoldSale()
-              setIsOpen(false)
-            }}
-            disabled={cartItems.length === 0}
-            className="w-full"
-          >
-            <div className="flex items-center justify-center">
-              <Clock className="w-4 h-4 mr-2" />
-              Hold
-            </div>
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="md"
-            onClick={() => setIsOpen(false)}
-            className="w-full"
-          >
-            <div className="flex items-center justify-center">
-              Cancel
-            </div>
-          </Button>
-        </div>
-      </div>
-
-      {/* New Customer Modal */}
-      {showCustomerModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60]">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Add New Customer</h3>
-            
+            {/* Customer Selection */}
             <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  value={newCustomer.name}
-                  onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Customer name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  value={newCustomer.phone}
-                  onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Phone number"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={newCustomer.email}
-                  onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Email address"
-                />
+              <Label className="flex items-center gap-2">
+                <User className="w-4 h-4" /> Customer Information
+              </Label>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Select 
+                    value={selectedCustomer?._id || ""} 
+                    onValueChange={(val) => {
+                      const customer = customers.find(c => c._id === val)
+                      onSelectCustomer(customer)
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select existing customer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {customers.map(customer => (
+                        <SelectItem key={customer._id} value={customer._id}>
+                          {customer.name} {customer.phone ? `(${customer.phone})` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => setShowCustomerModal(true)}
+                  className="shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+                {selectedCustomer && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setShowCustomerHistory(true)}
+                    className="shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                  >
+                    <History className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
 
-            <div className="flex gap-2 mt-6">
+            {/* Payment Method Grid */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4" /> Payment Method
+              </Label>
+              <div className="grid grid-cols-3 gap-2">
+                {paymentMethods.map(method => (
+                  <Button
+                    key={method}
+                    variant={paymentMethod === method ? "default" : "outline"}
+                    onClick={() => setPaymentMethod(method)}
+                    className={`h-auto py-3 px-2 text-xs font-semibold ${
+                      paymentMethod === method ? "shadow-md scale-[1.02]" : "opacity-70"
+                    } transition-all`}
+                  >
+                    {method}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="p-6 pt-0 flex-col sm:flex-col gap-3">
+            <Button
+              size="lg"
+              className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20"
+              onClick={async () => {
+                await onCompleteSale(paymentMethod)
+                setIsOpen(false)
+              }}
+              disabled={cartItems.length === 0 || !selectedCustomer}
+            >
+              <CheckCircle className="w-5 h-5 mr-2" />
+              Complete Payment
+            </Button>
+
+            <div className="grid grid-cols-2 gap-3 w-full">
               <Button
                 variant="secondary"
-                size="md"
-                onClick={() => {
-                  setShowCustomerModal(false)
-                  setNewCustomer({ name: '', phone: '', email: '' })
+                className="w-full"
+                onClick={async () => {
+                  await onHoldSale()
+                  setIsOpen(false)
                 }}
-                className="flex-1"
+                disabled={cartItems.length === 0}
               >
-                <div className="flex items-center">
-                  Cancel
-                </div>
+                <Clock className="w-4 h-4 mr-2" /> Hold Sale
               </Button>
               <Button
-                variant="primary"
-                size="md"
-                onClick={handleCreateCustomer}
-                className="flex-1"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setIsOpen(false)}
               >
-                <div className="flex items-center">
-                  Save Customer
-                </div>
+                Cancel
               </Button>
             </div>
-          </div>
-        </div>
-      )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
+      {/* New Customer Dialog */}
+      <Dialog open={showCustomerModal} onOpenChange={setShowCustomerModal}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Add New Customer</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Full Name *</Label>
+              <Input 
+                id="name" 
+                value={newCustomer.name} 
+                onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+                placeholder="John Doe"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input 
+                id="phone" 
+                type="tel"
+                value={newCustomer.phone} 
+                onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+                placeholder="017XXXXXXXX"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input 
+                id="email" 
+                type="email"
+                value={newCustomer.email} 
+                onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                placeholder="customer@example.com"
+              />
+            </div>
           </div>
-        </div>
-      </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowCustomerModal(false)}>Cancel</Button>
+            <Button onClick={handleCreateCustomer}>Save Customer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {/* Customer History Modal */}
       <CustomerHistory
         customer={selectedCustomer}
         isOpen={showCustomerHistory}
@@ -311,4 +278,3 @@ const PaymentSection = ({
 }
 
 export default PaymentSection
-

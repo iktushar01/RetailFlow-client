@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import { History, Receipt, Calendar, DollarSign } from 'lucide-react'
+import { History, Receipt, Calendar, DollarSign, X } from 'lucide-react'
 import { salesAPI } from '../services/posService'
 import { formatDateTime, formatCurrency } from '../utils/posHelpers'
+
+// Shadcn UI Components
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
 
 const CustomerHistory = ({ customer, isOpen, onClose }) => {
   const [salesHistory, setSalesHistory] = useState([])
@@ -15,7 +30,6 @@ const CustomerHistory = ({ customer, isOpen, onClose }) => {
 
   const fetchCustomerHistory = async () => {
     if (!customer) return
-
     setLoading(true)
     try {
       const allSales = await salesAPI.getAll()
@@ -30,145 +44,152 @@ const CustomerHistory = ({ customer, isOpen, onClose }) => {
     }
   }
 
-  if (!isOpen || !customer) return null
+  if (!customer) return null
 
   const totalSpent = salesHistory.reduce((sum, sale) => sum + (sale.grandTotal || 0), 0)
   const totalOrders = salesHistory.length
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+        {/* Header Section */}
+        <div className="p-6 pb-4 border-b">
           <div className="flex items-center gap-3">
-            <History className="w-6 h-6 text-blue-600" />
+            <div className="bg-primary/10 p-2 rounded-full">
+              <History className="w-6 h-6 text-primary" />
+            </div>
             <div>
-              <h3 className="text-xl font-semibold text-gray-900">
+              <DialogTitle className="text-xl font-bold tracking-tight">
                 {customer.name}'s Purchase History
-              </h3>
-              <p className="text-sm text-gray-600">
+              </DialogTitle>
+              <DialogDescription className="text-sm mt-0.5">
                 {customer.phone && `Phone: ${customer.phone}`}
                 {customer.email && ` • Email: ${customer.email}`}
-              </p>
+              </DialogDescription>
             </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl"
-          >
-            ×
-          </button>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">Total Orders</span>
-            </div>
-            <p className="text-2xl font-bold text-blue-900">{totalOrders}</p>
-          </div>
-          <div className="bg-green-50 rounded-lg p-4">
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-green-600" />
-              <span className="text-sm font-medium text-green-800">Total Spent</span>
-            </div>
-            <p className="text-2xl font-bold text-green-900">{formatCurrency(totalSpent)}</p>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-purple-600" />
-              <span className="text-sm font-medium text-purple-800">Last Order</span>
-            </div>
-            <p className="text-sm font-bold text-purple-900">
-              {salesHistory.length > 0 ? formatDateTime(salesHistory[0].createdAt) : 'No orders'}
-            </p>
           </div>
         </div>
 
-        {/* Sales History */}
-        <div className="flex-1 overflow-y-auto">
+        <ScrollArea className="flex-1 p-6">
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900">
+              <CardHeader className="p-4 pb-0 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-xs font-medium text-blue-800 dark:text-blue-300 uppercase tracking-wider">Total Orders</CardTitle>
+                <Receipt className="w-4 h-4 text-blue-600" />
+              </CardHeader>
+              <CardContent className="p-4 pt-1">
+                <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{totalOrders}</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-green-50/50 dark:bg-green-950/20 border-green-100 dark:border-green-900">
+              <CardHeader className="p-4 pb-0 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-xs font-medium text-green-800 dark:text-green-300 uppercase tracking-wider">Total Spent</CardTitle>
+                <DollarSign className="w-4 h-4 text-green-600" />
+              </CardHeader>
+              <CardContent className="p-4 pt-1">
+                <div className="text-2xl font-bold text-green-900 dark:text-green-100">{formatCurrency(totalSpent)}</div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-purple-50/50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900">
+              <CardHeader className="p-4 pb-0 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-xs font-medium text-purple-800 dark:text-purple-300 uppercase tracking-wider">Last Order</CardTitle>
+                <Calendar className="w-4 h-4 text-purple-600" />
+              </CardHeader>
+              <CardContent className="p-4 pt-1">
+                <div className="text-sm font-bold text-purple-900 dark:text-purple-100 truncate">
+                  {salesHistory.length > 0 ? formatDateTime(salesHistory[0].createdAt) : 'No orders'}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <h4 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-widest">Recent Invoices</h4>
+
           {loading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-32 w-full rounded-xl" />
+              ))}
             </div>
           ) : salesHistory.length === 0 ? (
-            <div className="text-center py-8">
-              <Receipt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">No purchase history found</p>
+            <div className="flex flex-col items-center justify-center py-12 text-center opacity-50">
+              <Receipt className="w-12 h-12 mb-3" />
+              <p>No purchase history found</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {salesHistory.map((sale) => (
-                <div
-                  key={sale._id}
-                  className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 rounded-lg p-2">
-                        <Receipt className="w-5 h-5 text-blue-600" />
+                <Card key={sale._id} className="overflow-hidden transition-all hover:border-primary/50">
+                  <CardContent className="p-0">
+                    <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-muted p-2.5 rounded-lg">
+                          <Receipt className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold">{sale.invoiceNo}</h4>
+                            <Badge variant={sale.paymentStatus === 'Paid' ? 'success' : 'outline'} className="text-[10px] h-5">
+                              {sale.paymentStatus}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDateTime(sale.createdAt)}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{sale.invoiceNo}</h4>
-                        <p className="text-sm text-gray-600">
-                          {formatDateTime(sale.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-green-600">
-                        {formatCurrency(sale.grandTotal)}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {sale.paymentMethod} • {sale.paymentStatus}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Items:</span>
-                      <span className="ml-2 font-medium">{sale.items?.length || 0}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Discount:</span>
-                      <span className="ml-2 font-medium text-green-600">
-                        -{formatCurrency(sale.totalDiscount || 0)}
-                      </span>
-                    </div>
-                  </div>
 
-                  {sale.items && sale.items.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <p className="text-sm text-gray-600 mb-2">Items purchased:</p>
-                      <div className="space-y-1">
-                        {sale.items.slice(0, 3).map((item, index) => (
-                          <div key={index} className="flex justify-between text-sm">
-                            <span className="text-gray-700">
-                              {item.productName} × {item.quantity}
+                      <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center">
+                        <div className="text-lg font-bold text-primary">
+                          {formatCurrency(sale.grandTotal)}
+                        </div>
+                        <div className="text-[11px] font-medium text-muted-foreground uppercase">
+                          {sale.paymentMethod}
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="p-4 bg-muted/30">
+                      <div className="flex justify-between text-xs mb-3">
+                        <span className="text-muted-foreground">Purchased Items ({sale.items?.length || 0})</span>
+                        {sale.totalDiscount > 0 && (
+                          <span className="text-green-600 font-medium">
+                            Discount: -{formatCurrency(sale.totalDiscount)}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {sale.items?.slice(0, 3).map((item, idx) => (
+                          <div key={idx} className="flex justify-between text-sm">
+                            <span className="text-foreground font-medium">
+                              {item.productName} <span className="text-muted-foreground text-xs ml-1">x{item.quantity}</span>
                             </span>
-                            <span className="text-gray-600">
+                            <span className="text-muted-foreground">
                               {formatCurrency(item.unitPrice * item.quantity)}
                             </span>
                           </div>
                         ))}
-                        {sale.items.length > 3 && (
-                          <p className="text-xs text-gray-500">
-                            +{sale.items.length - 3} more items
+                        {sale.items?.length > 3 && (
+                          <p className="text-[10px] text-muted-foreground italic pt-1">
+                            + {sale.items.length - 3} more items in this invoice
                           </p>
                         )}
                       </div>
                     </div>
-                  )}
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
-        </div>
-      </div>
-    </div>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   )
 }
 
