@@ -3,60 +3,55 @@ import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { EditSuppliersForm } from './EditSuppliersForm'
 import { Button } from '../../../Components/UI/Button'
 import { suppliersAPI } from '../services/supplierService'
+import { FileEdit, AlertCircle, Save } from 'lucide-react'
 import Swal from 'sweetalert2'
 
 const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const formRef = useRef(null)
 
-  // Don't render modal if supplierData is not available
-  if (!supplierData) {
-    return null
-  }
+  // Avoid rendering issues if supplierData hasn't been passed yet
+  if (!supplierData) return null
 
   const handleFormSubmit = async (values) => {
     setIsSubmitting(true)
     try {
-      // Get the supplier ID
-      const supplierId = supplierData._id || supplierData.id;
+      const supplierId = supplierData._id || supplierData.id
+      await suppliersAPI.update(supplierId, values)
       
-      // Put data to your API
-      const response = await suppliersAPI.update(supplierId, values);
-      console.log("Update Supplier response:", response);
-      
-      // Show success message with SweetAlert2
-      await Swal.fire({
-        title: 'Success!',
-        text: 'Supplier updated successfully!',
+      // Modern Toast notification for subtle feedback
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+      })
+
+      await Toast.fire({
         icon: 'success',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#3b82f6',
-        timer: 2000,
-        timerProgressBar: true
-      });
+        title: 'Registry Updated',
+        text: 'Changes synchronized successfully.'
+      })
       
-      // Call success callback if provided - pass the updated data with original ID
       if (onSuccess) {
+        // Construct the updated object for the parent list
         const updatedData = {
-          ...supplierData, // Keep original data
-          ...values, // Override with new values
-          _id: supplierData._id, // Ensure ID is preserved
-          id: supplierData.id
-        };
+          ...supplierData,
+          ...values,
+          _id: supplierId,
+        }
         onSuccess(updatedData)
       }
       
-      // Close modal after successful submission
       onClose()
     } catch (error) {
-      console.error('Error updating supplier:', error)
-      // Show error message with SweetAlert2
-      await Swal.fire({
-        title: 'Error!',
-        text: error.response?.data?.message || error.message || 'Failed to update supplier',
+      console.error('Update Error:', error)
+      Swal.fire({
+        title: 'Update Rejected',
+        text: error.response?.data?.message || 'The server could not process the update.',
         icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#ef4444'
+        confirmButtonColor: 'oklch(var(--destructive))'
       })
     } finally {
       setIsSubmitting(false)
@@ -70,28 +65,33 @@ const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
   }
 
   const modalFooter = (
-    <div className="flex justify-end space-x-3">
-      <Button
-        variant="secondary"
-        size="md"
-        onClick={onClose}
-        disabled={isSubmitting}
-      >
-        <div className="flex items-center">
+    <div className="flex items-center justify-between w-full border-t pt-4 mt-2">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <AlertCircle className="w-3.5 h-3.5" />
+        <span className="text-[10px] font-bold uppercase tracking-wider">
+          All changes are logged in audit history
+        </span>
+      </div>
+      <div className="flex gap-3">
+        <Button
+          variant="ghost"
+          onClick={onClose}
+          disabled={isSubmitting}
+          className="rounded-xl font-bold uppercase text-[11px] tracking-widest"
+        >
           Cancel
-        </div>
-      </Button>
-      <Button
-        variant="primary"
-        size="md"
-        onClick={handleUpdateClick}
-        loading={isSubmitting}
-        disabled={isSubmitting}
-      >
-        <div className="flex items-center">
-          {isSubmitting ? 'Updating Supplier...' : 'Update Supplier'}
-        </div>
-      </Button>
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleUpdateClick}
+          loading={isSubmitting}
+          disabled={isSubmitting}
+          className="rounded-xl px-8 shadow-lg shadow-primary/20 font-bold uppercase text-[11px] tracking-widest"
+        >
+          <Save className="w-3.5 h-3.5 mr-2" />
+          {isSubmitting ? 'Syncing...' : 'Commit Changes'}
+        </Button>
+      </div>
     </div>
   )
 
@@ -99,13 +99,22 @@ const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
     <SharedModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Supplier"
-      size="large"
+      title={
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <FileEdit className="w-5 h-5 text-primary" />
+          </div>
+          <span className="text-xl font-black italic uppercase tracking-tighter">
+            Edit <span className="text-primary/70">Registry</span>
+          </span>
+        </div>
+      }
+      size="lg"
       footer={modalFooter}
       closeOnOverlayClick={!isSubmitting}
       closeOnEscape={!isSubmitting}
     >
-      <div className="max-h-96 overflow-y-auto">
+      <div className="max-h-[70vh] overflow-y-auto px-1 pr-3 scrollbar-thin scrollbar-thumb-muted">
         <EditSuppliersForm 
           onSubmit={handleFormSubmit} 
           hideSubmitButton={true}

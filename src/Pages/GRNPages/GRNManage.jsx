@@ -140,7 +140,7 @@ const GRNManage = () => {
       }
 
       // Search filter (GRN Number)
-      if (filters.search) {
+      if (filters.search && typeof filters.search === 'string') {
         const searchLower = filters.search.toLowerCase()
         if (!grn.grnNumber.toLowerCase().includes(searchLower)) {
           return false

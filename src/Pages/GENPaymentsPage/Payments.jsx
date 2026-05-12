@@ -102,7 +102,7 @@ const Payments = () => {
       }
 
       // Search filter (GRN or PO Number)
-      if (filters.search) {
+      if (filters.search && typeof filters.search === 'string') {
         const searchLower = filters.search.toLowerCase()
         const grnMatch = payment.grnNumber?.toLowerCase().includes(searchLower)
         const poMatch = payment.poNumber?.toLowerCase().includes(searchLower)

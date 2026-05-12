@@ -6,7 +6,7 @@
 export const applyDiscountFilters = (discounts, filters) => {
   let filtered = [...discounts]
 
-  if (filters.search) {
+  if (filters.search && typeof filters.search === 'string') {
     const search = filters.search.toLowerCase()
     filtered = filtered.filter(d =>
       d.offerName?.toLowerCase().includes(search) ||

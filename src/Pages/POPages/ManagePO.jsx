@@ -134,7 +134,7 @@ const ManagePO = () => {
       }
 
       // Search filter (PO Number)
-      if (filters.search) {
+      if (filters.search && typeof filters.search === 'string') {
         const searchLower = filters.search.toLowerCase()
         if (!po.poNumber.toLowerCase().includes(searchLower)) {
           return false

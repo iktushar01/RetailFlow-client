@@ -79,9 +79,9 @@ export const filterLowStockItems = (lowStockItems, products, filters) => {
     const product = products.find(p => p._id === item.productId)
     if (!product) return false
 
-    const matchesSearch = !filters.search || 
+    const matchesSearch = !filters.search || (typeof filters.search === 'string' && (
       product.productName?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      product.sku?.toLowerCase().includes(filters.search.toLowerCase())
+      product.sku?.toLowerCase().includes(filters.search.toLowerCase())))
     
     const matchesCategory = !filters.category || product.category === filters.category
     const matchesSupplier = !filters.supplier || product.supplierId === filters.supplier

@@ -143,7 +143,7 @@ export const applyProductFilters = (products, filters) => {
   let filtered = [...products]
   
   // Search filter
-  if (filters.search) {
+  if (filters.search && typeof filters.search === 'string') {
     const searchLower = filters.search.toLowerCase()
     filtered = filtered.filter(product => 
       product.productName?.toLowerCase().includes(searchLower) ||

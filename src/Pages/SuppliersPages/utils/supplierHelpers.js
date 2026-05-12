@@ -189,7 +189,7 @@ export const applySupplierFilters = (suppliers, filters) => {
   let filtered = [...suppliers]
   
   // Search filter
-  if (filters.search) {
+  if (filters.search && typeof filters.search === 'string') {
     const searchLower = filters.search.toLowerCase()
     filtered = filtered.filter(supplier => 
       supplier.supplierName?.toLowerCase().includes(searchLower) ||

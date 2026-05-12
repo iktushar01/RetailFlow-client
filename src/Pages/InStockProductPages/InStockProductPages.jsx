@@ -83,7 +83,7 @@ export const InStockProductPages = () => {
   const filteredInventory = useMemo(() => {
     const filtered = inventory.filter(product => {
       // Search filter
-      if (filters.search) {
+      if (filters.search && typeof filters.search === 'string') {
         const searchLower = filters.search.toLowerCase()
         if (!product.productName?.toLowerCase().includes(searchLower) && 
             !product.sku?.toLowerCase().includes(searchLower)) {
@@ -129,7 +129,7 @@ export const InStockProductPages = () => {
       }
 
       // Location filter - check if any location matches
-      if (filters.location) {
+      if (filters.location && typeof filters.location === 'string') {
         const locationLower = filters.location.toLowerCase()
         const hasMatchingLocation = product.locations.some(location => 
           location.location?.toLowerCase().includes(locationLower)

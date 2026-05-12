@@ -3,6 +3,7 @@ import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { AddSuppliersFrom } from './AddSuppliersFrom'
 import { Button } from '../../../Components/UI/Button'
 import { suppliersAPI } from '../services/supplierService'
+import { X, UserPlus, AlertCircle } from 'lucide-react'
 import Swal from 'sweetalert2'
 
 const AddSuppliersModal = ({ isOpen, onClose, onSuccess }) => {
@@ -13,70 +14,70 @@ const AddSuppliersModal = ({ isOpen, onClose, onSuccess }) => {
     setIsSubmitting(true)
     try {
       const response = await suppliersAPI.create(values);
-      console.log("Add Supplier response:", response);
       
-      // Show success message with SweetAlert2
-      await Swal.fire({
-        title: 'Success!',
-        text: 'Supplier added successfully!',
+      // We use a toast-style success for a more modern dashboard feel
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+
+      await Toast.fire({
         icon: 'success',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#3b82f6',
-        timer: 2000,
-        timerProgressBar: true
+        title: 'Entity Registered',
+        text: `${values.supplierName} added to system.`
       });
       
-      // Call success callback if provided
-      if (onSuccess) {
-        onSuccess(response)
-      }
-      
-      // Close modal after successful submission
+      if (onSuccess) onSuccess(response)
       onClose()
     } catch (error) {
-      console.error('Error adding supplier:', error)
-      // Show error message with SweetAlert2
-      await Swal.fire({
-        title: 'Error!',
-        text: error.response?.data?.message || error.message || 'Failed to add supplier',
+      console.error('Supplier Creation Error:', error)
+      Swal.fire({
+        title: 'Registration Failed',
+        text: error.response?.data?.message || 'Database rejected the entry.',
         icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#ef4444'
+        confirmButtonColor: 'oklch(var(--destructive))',
       })
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  // Programmatically trigger the form inside the forwardRef
   const handleSaveClick = () => {
     if (formRef.current) {
+      // Triggering the custom submit method provided by your InputForm/ref
       formRef.current.requestSubmit()
     }
   }
 
   const modalFooter = (
-    <div className="flex justify-end space-x-3">
-      <Button
-        variant="secondary"
-        size="md"
-        onClick={onClose}
-        disabled={isSubmitting}
-      >
-        <div className="flex items-center">
+    <div className="flex items-center justify-between w-full border-t pt-4 mt-2">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <AlertCircle className="w-3.5 h-3.5" />
+        <span className="text-[10px] font-bold uppercase tracking-wider">Required fields must be valid</span>
+      </div>
+      <div className="flex gap-3">
+        <Button
+          variant="ghost"
+          onClick={onClose}
+          disabled={isSubmitting}
+          className="rounded-xl hover:bg-muted font-bold uppercase text-[11px] tracking-widest"
+        >
           Cancel
-        </div>
-      </Button>
-      <Button
-        variant="primary"
-        size="md"
-        onClick={handleSaveClick}
-        loading={isSubmitting}
-        disabled={isSubmitting}
-      >
-        <div className="flex items-center">
-          {isSubmitting ? 'Adding Supplier...' : 'Add Supplier'}
-        </div>
-      </Button>
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleSaveClick}
+          loading={isSubmitting}
+          disabled={isSubmitting}
+          className="rounded-xl px-8 shadow-lg shadow-primary/20 font-bold uppercase text-[11px] tracking-widest"
+        >
+          {isSubmitting ? 'Processing...' : 'Confirm Registration'}
+        </Button>
+      </div>
     </div>
   )
 
@@ -84,13 +85,27 @@ const AddSuppliersModal = ({ isOpen, onClose, onSuccess }) => {
     <SharedModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add New Supplier"
-      size="medium"
+      title={
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <UserPlus className="w-5 h-5 text-primary" />
+          </div>
+          <span className="text-xl font-black italic uppercase tracking-tighter">
+            New <span className="text-primary/70">Supplier</span>
+          </span>
+        </div>
+      }
+      size="lg" // Increased to 'lg' for 2-column comfort
       footer={modalFooter}
       closeOnOverlayClick={!isSubmitting}
       closeOnEscape={!isSubmitting}
     >
-      <div className="max-h-96 overflow-y-auto">
+      {/* 
+         Enhanced container: 
+         - Custom scrollbar styling 
+         - Padding to prevent input focus outlines from being clipped
+      */}
+      <div className="max-h-[70vh] overflow-y-auto px-1 pr-3 scrollbar-thin scrollbar-thumb-muted">
         <AddSuppliersFrom 
           onSubmit={handleFormSubmit} 
           hideSubmitButton={true}

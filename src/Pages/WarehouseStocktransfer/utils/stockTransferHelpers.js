@@ -10,7 +10,7 @@ export const filterInventory = (inventory, filters) => {
   filtered = filtered.filter(item => (item.stockQty || 0) > 0 && item.location)
 
   // Search filter
-  if (filters.search) {
+  if (filters.search && typeof filters.search === 'string') {
     const searchLower = filters.search.toLowerCase()
     filtered = filtered.filter(item => 
       item.productName?.toLowerCase().includes(searchLower) ||
