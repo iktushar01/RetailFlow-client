@@ -1,115 +1,124 @@
 import React from 'react'
-import { Eye, Pencil, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
-import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
-import { getStatusColor, getStatusLabel, formatDateForInput } from '../utils/discountsHelpers'
+import { Pencil, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { getStatusColor, getStatusLabel } from '../utils/discountsHelpers'
 
 const DiscountsList = ({ discounts, onEdit, onDelete, onToggleStatus, loading }) => {
-  const columns = [
-    {
-      accessorKey: 'offerName',
-      header: 'Offer Name',
-      cell: ({ row }) => (
-        <div>
-          <div className="font-semibold text-gray-900">{row.original.offerName}</div>
-          {row.original.code && (
-            <div className="text-xs text-gray-500">Code: {row.original.code}</div>
-          )}
-        </div>
-      )
-    },
-    {
-      accessorKey: 'type',
-      header: 'Type',
-      cell: ({ row }) => (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-          {row.original.type}
-        </span>
-      )
-    },
-    {
-      accessorKey: 'value',
-      header: 'Discount',
-      cell: ({ row }) => (
-        <span className="font-semibold text-green-600">
-          {row.original.type === 'Percentage' ? `${row.original.value}%` : `$${row.original.value}`}
-        </span>
-      )
-    },
-    {
-      accessorKey: 'validFrom',
-      header: 'Valid From',
-      cell: ({ row }) => new Date(row.original.validFrom).toLocaleDateString()
-    },
-    {
-      accessorKey: 'validTo',
-      header: 'Valid To',
-      cell: ({ row }) => new Date(row.original.validTo).toLocaleDateString()
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(row.original)}`}>
-          {getStatusLabel(row.original)}
-        </span>
-      )
-    }
-  ]
-
-  const renderRowActions = (discount) => (
-    <div className="flex items-center gap-2">
-      <Button
-        variant={discount.status === 'Active' ? 'delete' : 'primary'}
-        size="sm"
-        onClick={() => onToggleStatus(discount)}
-      >
-        <div className="flex items-center">
-          {discount.status === 'Active' ? (
-            <ToggleRight className="w-4 h-4 mr-2" />
-          ) : (
-            <ToggleLeft className="w-4 h-4 mr-2" />
-          )}
-          {discount.status === 'Active' ? 'Deactivate' : 'Activate'}
-        </div>
-      </Button>
-      
-      <Button
-        variant="edit"
-        size="sm"
-        onClick={() => onEdit(discount)}
-      >
-        <div className="flex items-center">
-          <Pencil className="w-4 h-4 mr-2" />
-          Edit
-        </div>
-      </Button>
-      
-      <Button
-        variant="delete"
-        size="sm"
-        onClick={() => onDelete(discount)}
-      >
-        <div className="flex items-center">
-          <Trash2 className="w-4 h-4 mr-2" />
-          Delete
-        </div>
-      </Button>
-    </div>
-  )
+  
+  if (loading) {
+    return <div className="flex justify-center p-8 text-muted-foreground">Loading discounts...</div>
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <SharedTable
-        columns={columns}
-        data={discounts}
-        loading={loading}
-        renderRowActions={renderRowActions}
-        pageSize={10}
-      />
+    <div className="rounded-xl border border-border bg-card text-card-foreground shadow-sm overflow-hidden">
+      <Table>
+        <TableHeader className="bg-muted/50">
+          <TableRow>
+            <TableHead className="font-bold">Offer Name</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Discount</TableHead>
+            <TableHead>Valid From</TableHead>
+            <TableHead>Valid To</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {discounts.length > 0 ? (
+            discounts.map((discount) => (
+              <TableRow key={discount.id || discount._id}>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-foreground">{discount.offerName}</span>
+                    {discount.code && (
+                      <span className="text-xs text-muted-foreground font-mono">
+                        Code: {discount.code}
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="secondary" className="font-medium">
+                    {discount.type}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <span className="font-bold text-primary">
+                    {discount.type === 'Percentage' ? `${discount.value}%` : `$${discount.value}`}
+                  </span>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {new Date(discount.validFrom).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {new Date(discount.validTo).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  {/* getStatusColor should return Shadcn-friendly tailwind classes like 'bg-destructive/10 text-destructive' */}
+                  <Badge 
+                    variant="outline" 
+                    className={`${getStatusColor(discount)} border-transparent`}
+                  >
+                    {getStatusLabel(discount)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={discount.status === 'Active' ? "text-destructive hover:text-destructive" : "text-primary"}
+                      onClick={() => onToggleStatus(discount)}
+                    >
+                      {discount.status === 'Active' ? (
+                        <ToggleRight className="w-4 h-4 mr-1" />
+                      ) : (
+                        <ToggleLeft className="w-4 h-4 mr-1" />
+                      )}
+                      {discount.status === 'Active' ? 'Deactivate' : 'Activate'}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => onEdit(discount)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => onDelete(discount)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                No discounts found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   )
 }
 
 export default DiscountsList
-

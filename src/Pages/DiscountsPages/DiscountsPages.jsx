@@ -1,7 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Tag, Plus, RefreshCw } from 'lucide-react'
-import Swal from 'sweetalert2'
-import { Button } from '../../Components/UI/Button'
+import { Tag, Plus, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react'
+// Importing via relative paths to ensure Vite resolves them correctly
+import { Button } from '../../components/ui/button' 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog"
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert"
+
 import DiscountsList from './components/DiscountsList'
 import DiscountFilter from './components/DiscountFilter'
 import DiscountModal from './components/DiscountModal'
@@ -16,11 +34,39 @@ const DiscountsPages = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedDiscount, setSelectedDiscount] = useState(null)
   
+  // Local notification state
+  const [notification, setNotification] = useState(null)
+  
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [discountToDelete, setDiscountToDelete] = useState(null)
+
   const [filters, setFilters] = useState({
     search: '',
     status: '',
     type: ''
   })
+
+  // Helper to show local alerts that disappear
+  const showAlert = (title, message, type = "default") => {
+    setNotification({ title, message, type })
+    setTimeout(() => setNotification(null), 4000)
+  }
+
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const [discountsData, productsData] = await Promise.all([
+        discountsAPI.getAll(),
+        productsAPI.getAll()
+      ])
+      setDiscounts(discountsData)
+      setProducts(productsData)
+    } catch (error) {
+      showAlert("Error", "Failed to load data.", "destructive")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     fetchData()
@@ -35,125 +81,77 @@ const DiscountsPages = () => {
     applyFilters()
   }, [applyFilters])
 
-  const fetchData = async () => {
-    setLoading(true)
-    try {
-      const [discountsData, productsData] = await Promise.all([
-        discountsAPI.getAll(),
-        productsAPI.getAll()
-      ])
-      setDiscounts(discountsData)
-      setProducts(productsData)
-    } catch (error) {
-      console.error('Error fetching data:', error)
-      Swal.fire('Error', 'Failed to load data', 'error')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
-  }
-
-  const handleClearFilters = () => {
-    setFilters({ search: '', status: '', type: '' })
-  }
-
-  const handleAdd = () => {
-    setSelectedDiscount(null)
-    setModalOpen(true)
-  }
-
-  const handleEdit = (discount) => {
-    setSelectedDiscount(discount)
-    setModalOpen(true)
-  }
-
   const handleSave = async (discountData) => {
     try {
       if (selectedDiscount) {
         await discountsAPI.update(selectedDiscount._id, discountData)
-        await Swal.fire('Updated!', 'Discount updated successfully', 'success')
+        showAlert("Updated", "Discount updated successfully.")
       } else {
         await discountsAPI.create(discountData)
-        await Swal.fire('Created!', 'Discount created successfully', 'success')
+        showAlert("Created", "New discount added.")
       }
-      
       setModalOpen(false)
       fetchData()
     } catch (error) {
-      console.error('Error saving discount:', error)
-      Swal.fire('Error', 'Failed to save discount', 'error')
+      showAlert("Error", "Failed to save changes.", "destructive")
     }
   }
 
-  const handleDelete = async (discount) => {
-    const result = await Swal.fire({
-      title: 'Delete Discount?',
-      text: `Delete "${discount.offerName}"?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      confirmButtonText: 'Yes, delete it!'
-    })
-
-    if (result.isConfirmed) {
-      try {
-        await discountsAPI.delete(discount._id)
-        await Swal.fire('Deleted!', 'Discount deleted successfully', 'success')
-        fetchData()
-      } catch (error) {
-        console.error('Error deleting discount:', error)
-        Swal.fire('Error', 'Failed to delete discount', 'error')
-      }
-    }
-  }
-
-  const handleToggleStatus = async (discount) => {
+  const handleConfirmDelete = async () => {
     try {
-      await discountsAPI.toggleStatus(discount._id)
-      await Swal.fire('Success!', 'Discount status updated', 'success')
+      await discountsAPI.delete(discountToDelete._id)
+      showAlert("Deleted", "The offer has been removed.")
       fetchData()
     } catch (error) {
-      console.error('Error updating status:', error)
-      Swal.fire('Error', 'Failed to update status', 'error')
+      showAlert("Error", "Delete operation failed.", "destructive")
+    } finally {
+      setDeleteConfirmOpen(false)
+      setDiscountToDelete(null)
     }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-r from-orange-50 via-red-50 to-pink-50 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-              <Tag className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-orange-600" />
+    <div className="space-y-6 max-w-7xl mx-auto p-6">
+      {/* Floating Notification using Shadcn Alert */}
+      {notification && (
+        <div className="fixed top-4 right-4 z-50 w-80 animate-in fade-in slide-in-from-top-4">
+          <Alert variant={notification.type === "destructive" ? "destructive" : "default"} className="bg-card border-border shadow-lg">
+            {notification.type === "destructive" ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
+            <AlertTitle>{notification.title}</AlertTitle>
+            <AlertDescription>{notification.message}</AlertDescription>
+          </Alert>
+        </div>
+      )}
+
+      <Card className="border-border bg-card shadow-sm">
+        <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold flex items-center">
+              <Tag className="w-6 h-6 mr-3 text-primary" />
               Discounts & Offers
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-2">Manage promotional offers and discount codes</p>
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Manage promotional codes and active campaigns
+            </CardDescription>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Button variant="secondary" size="sm" onClick={fetchData} className="w-full sm:w-auto flex items-center justify-center">
-              <div className="flex items-center">
-                <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                <span className="text-sm sm:text-base">Refresh</span>
-              </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={fetchData} disabled={loading}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
             </Button>
-            <Button variant="primary" size="sm" onClick={handleAdd} className="w-full sm:w-auto flex items-center justify-center">
-              <div className="flex items-center">
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                <span className="text-sm sm:text-base">Add Discount</span>
-              </div>
+            <Button onClick={() => { setSelectedDiscount(null); setModalOpen(true); }}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Discount
             </Button>
           </div>
-        </div>
-      </div>
+        </CardHeader>
+      </Card>
 
       <DiscountFilter
         filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
+        onFilterChange={(k, v) => setFilters(prev => ({ ...prev, [k]: v }))}
+        onClearFilters={() => setFilters({ search: '', status: '', type: '' })}
         discounts={discounts}
         filteredDiscounts={filteredDiscounts}
         resultsCount={filteredDiscounts.length}
@@ -162,9 +160,9 @@ const DiscountsPages = () => {
 
       <DiscountsList
         discounts={filteredDiscounts}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onToggleStatus={handleToggleStatus}
+        onEdit={(d) => { setSelectedDiscount(d); setModalOpen(true); }}
+        onDelete={(d) => { setDiscountToDelete(d); setDeleteConfirmOpen(true); }}
+        onToggleStatus={fetchData}
         loading={loading}
       />
 
@@ -175,6 +173,23 @@ const DiscountsPages = () => {
         onSave={handleSave}
         products={products}
       />
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <span className="font-bold">"{discountToDelete?.offerName}"</span>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete Forever
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
