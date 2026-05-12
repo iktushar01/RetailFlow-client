@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { RotateCcw, Plus, RefreshCw, Info, XCircle } from 'lucide-react'
 import Swal from 'sweetalert2'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import InfoCard from '../../Shared/InfoCard/InfoCard'
 import ReturnsList from './components/ReturnsList'
 import ReturnFilter from './components/ReturnFilter'

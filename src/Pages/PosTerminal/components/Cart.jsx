@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ShoppingCart, Plus, Minus, Trash2, X, Edit3, RotateCcw } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import DiscountSelector from './DiscountSelector'
 import Swal from 'sweetalert2'
 

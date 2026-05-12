@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Bell, AlertTriangle, Clock, CreditCard, Package, TrendingUp, X, CheckCircle, Info, AlertCircle, RefreshCw } from 'lucide-react'
 import Swal from 'sweetalert2'
 import { dashboardAPI } from './services/dashboardService'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import { DashboardLoading } from '../../Components/UI/LoadingAnimation'
 
 export const NotificationsPage = () => {

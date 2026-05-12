@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { EditSuppliersForm } from './EditSuppliersForm'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { suppliersAPI } from '../services/supplierService'
 import Swal from 'sweetalert2'
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { User, CreditCard, CheckCircle, Clock, XCircle, History } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import CustomerHistory from './CustomerHistory'
 import Swal from 'sweetalert2'
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { PieChart, RefreshCw } from 'lucide-react'
-import Button from '../../../../Components/UI/Button'
+import { Button } from '../../../../Components/UI/Button'
 
 const ProfitLossHeader = ({ onRefresh }) => {
   return (

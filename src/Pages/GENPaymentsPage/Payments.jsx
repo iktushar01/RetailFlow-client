@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { RefreshCw, Receipt, DollarSign, CheckCircle, AlertCircle, Info } from 'lucide-react'
 import Swal from 'sweetalert2'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import PaymentsList from './components/PaymentsList'
 import PaymentsFilter from './components/PaymentsFilter'

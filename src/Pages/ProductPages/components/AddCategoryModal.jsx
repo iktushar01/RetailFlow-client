@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import Swal from 'sweetalert2'
 
 const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {

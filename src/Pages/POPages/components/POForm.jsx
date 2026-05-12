@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { X, Plus, Edit } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import POItemsTable from './POItemsTable'
 import POSummary from './POSummary'

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { X, DollarSign } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { formatCurrency, calculateDueAmount } from '../utils/paymentsHelpers'
 
 const AddPaymentModal = ({ 

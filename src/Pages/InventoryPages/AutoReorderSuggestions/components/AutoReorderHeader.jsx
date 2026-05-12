@@ -1,6 +1,6 @@
 import React from 'react'
 import { RotateCcw, CheckCircle, RefreshCw } from 'lucide-react'
-import Button from '../../../../Components/UI/Button'
+import { Button } from '../../../../Components/UI/Button'
 
 const AutoReorderHeader = ({ 
   onGenerateAll, 

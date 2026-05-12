@@ -1,6 +1,6 @@
 import React from 'react'
 import { X, Printer, Download } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { formatCurrency, formatDateTime } from '../utils/invoiceHelpers'
 

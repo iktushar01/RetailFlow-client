@@ -1,6 +1,6 @@
 import React from 'react'
 import { CheckCircle } from 'lucide-react'
-import Button from '../../../../Components/UI/Button'
+import { Button } from '../../../../Components/UI/Button'
 
 const ActionButtons = ({ 
   selectedCount, 

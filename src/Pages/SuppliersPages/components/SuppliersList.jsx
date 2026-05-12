@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { SharedTable } from "../../../Shared/SharedTable/SharedTable";
-import Button from "../../../Components/UI/Button";
+import { Button } from "../../../Components/UI/Button";
 import { Edit, Trash2 } from "lucide-react";
 import SuppliersFilter from "./SuppliersFilter";
 import EditSuppliersModal from "./EditSuppliersModal";

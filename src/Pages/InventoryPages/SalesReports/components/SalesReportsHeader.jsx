@@ -1,6 +1,6 @@
 import React from 'react'
 import { TrendingUp, RefreshCw } from 'lucide-react'
-import Button from '../../../../Components/UI/Button'
+import { Button } from '../../../../Components/UI/Button'
 
 const SalesReportsHeader = ({ onRefresh }) => {
   return (

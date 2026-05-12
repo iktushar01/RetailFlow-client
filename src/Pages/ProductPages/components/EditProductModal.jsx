@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { productsAPI, suppliersAPI, imageAPI } from '../services/productService'
 import { generateQRCode, validateImageFile, DEFAULT_CATEGORIES } from '../utils/productHelpers'
 import Swal from 'sweetalert2'

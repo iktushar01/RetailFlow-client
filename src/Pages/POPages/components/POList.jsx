@@ -1,6 +1,6 @@
 import React from 'react'
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { Edit, Trash2, Eye, Send } from 'lucide-react'
 import { getStatusColor, formatCurrency, formatDate } from '../utils/poHelpers'
 

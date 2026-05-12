@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Tag, X, Check, AlertCircle } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { discountsAPI } from '../services/posService'
 import { getApplicableDiscounts, isDiscountApplicable } from '../utils/posHelpers'
 import Swal from 'sweetalert2'

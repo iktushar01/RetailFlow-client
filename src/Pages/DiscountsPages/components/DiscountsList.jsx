@@ -1,6 +1,6 @@
 import React from 'react'
 import { Eye, Pencil, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { getStatusColor, getStatusLabel, formatDateForInput } from '../utils/discountsHelpers'
 

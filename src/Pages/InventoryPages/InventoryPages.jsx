@@ -1,7 +1,7 @@
 import React from 'react'
 import { BarChart3, AlertTriangle, RotateCcw, Calculator, TrendingUp, PieChart, Activity } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import InfoCard from '../../Shared/InfoCard/InfoCard'
 
 const InventoryPages = () => {

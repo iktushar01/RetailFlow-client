@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Package, Pencil, AlertTriangle, Calendar, RefreshCw, Info, CheckCircle, XCircle, QrCode, Barcode } from 'lucide-react'
 import Swal from 'sweetalert2'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'
 import SharedModal from '../../Shared/SharedModal/SharedModal'

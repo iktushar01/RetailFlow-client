@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Plus, RefreshCw, FileText, Users, Package, Info } from 'lucide-react'
 import Swal from 'sweetalert2'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import POForm from './components/POForm'
 import POList from './components/POList'

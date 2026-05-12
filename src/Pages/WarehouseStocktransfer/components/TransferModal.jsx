@@ -1,6 +1,6 @@
 import React from 'react'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import InfoCard from '../../../Shared/InfoCard/InfoCard'
 import { ArrowRightLeft, Package, MapPin, Layers, AlertCircle } from 'lucide-react'
 import { validateTransferForm } from '../utils/stockTransferHelpers'

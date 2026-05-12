@@ -1,6 +1,6 @@
 import React from 'react'
 import { Plus, Trash2 } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { getItemStatus } from '../utils/grnHelpers'
 
 const GRNItemsTable = ({ 

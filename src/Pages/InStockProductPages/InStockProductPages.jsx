@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { RefreshCw, Package, AlertTriangle, TrendingUp, XCircle, Clock, Info } from 'lucide-react'
 import Swal from 'sweetalert2'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import ProductInventoryList from './components/ProductInventoryList'
 import InventoryFilter from './components/InventoryFilter'

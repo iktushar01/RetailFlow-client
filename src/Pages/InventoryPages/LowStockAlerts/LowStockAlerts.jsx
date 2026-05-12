@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { AlertTriangle, Package, RotateCcw, RefreshCw, Plus, Filter, Download } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import StatsCard from '../../../Shared/StatsCard/StatsCard'
 import InfoCard from '../../../Shared/InfoCard/InfoCard'
 import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'

@@ -1,6 +1,6 @@
 import React from 'react'
 import { X, Plus } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { validateItem } from '../utils/poHelpers'
 
 const POItemsTable = ({ items, products, onAddItem, onRemoveItem, onItemChange, hasAttemptedSubmit }) => {

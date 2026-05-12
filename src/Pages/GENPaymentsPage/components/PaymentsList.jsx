@@ -1,6 +1,6 @@
 import React from 'react'
 import { DollarSign, History, Eye } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { formatCurrency, formatDate, getPaymentStatusColor, calculateDueAmount } from '../utils/paymentsHelpers'
 

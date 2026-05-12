@@ -1,6 +1,6 @@
 import React from 'react'
 import { CheckCircle, XCircle, Trash2, Eye } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { getStatusColor, formatDateTime } from '../utils/returnsHelpers'
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ArrowRightLeft, Plus, Package, History, MapPin, Layers, AlertCircle } from 'lucide-react'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import PageHeader from '../../Shared/PageHeader/PageHeader'
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import InfoCard from '../../Shared/InfoCard/InfoCard'

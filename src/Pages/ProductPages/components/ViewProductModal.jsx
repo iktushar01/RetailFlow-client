@@ -1,6 +1,6 @@
 import React from 'react'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 
 const ViewProductModal = ({ isOpen, onClose, product }) => {
   if (!product) return null

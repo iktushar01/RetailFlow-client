@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, List, Info } from 'lucide-react'
 import Swal from 'sweetalert2'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import ProductForm from './components/ProductForm'
 import { productsAPI, suppliersAPI, imageAPI } from './services/productService'
 import { 

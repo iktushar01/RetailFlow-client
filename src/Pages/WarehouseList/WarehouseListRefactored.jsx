@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Warehouse, Plus, Pencil, Trash2, Eye } from 'lucide-react'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import PageHeader from '../../Shared/PageHeader/PageHeader'
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import EmptyState from '../../Shared/EmptyState/EmptyState'

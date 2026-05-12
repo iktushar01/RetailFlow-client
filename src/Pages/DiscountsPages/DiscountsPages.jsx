@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Tag, Plus, RefreshCw } from 'lucide-react'
 import Swal from 'sweetalert2'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import DiscountsList from './components/DiscountsList'
 import DiscountFilter from './components/DiscountFilter'
 import DiscountModal from './components/DiscountModal'

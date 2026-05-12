@@ -1,5 +1,5 @@
 import React from 'react'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 
 /**
  * Reusable Page Header Component

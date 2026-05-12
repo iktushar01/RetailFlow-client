@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { RETURN_REASONS } from '../utils/returnsHelpers'
 import Swal from 'sweetalert2'

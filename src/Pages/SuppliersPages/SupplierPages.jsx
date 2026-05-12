@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Users, Info } from "lucide-react";
 import SuppliersList from "./components/SuppliersList";
-import Button from "../../Components/UI/Button";
+import { Button } from "../../Components/UI/Button";
 import InfoCard from "../../Shared/InfoCard/InfoCard";
 import AddSuppliersModal from "./components/AddSuppliersModal";
 

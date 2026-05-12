@@ -1,6 +1,6 @@
 import React from 'react'
 import { RefreshCw, Calendar } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import TimeFilter from './TimeFilter'
 
 const DashboardHeader = ({ 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Search, Package, Plus, Edit3 } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import Swal from 'sweetalert2'
 
 const ProductList = ({ products, inventory, onAddToCart, onUpdateProductPrice, filters, onFilterChange }) => {

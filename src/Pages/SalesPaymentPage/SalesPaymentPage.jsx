@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { CreditCard, RefreshCw, Info } from 'lucide-react'
 import Swal from 'sweetalert2'
-import Button from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/Button'
 import InfoCard from '../../Shared/InfoCard/InfoCard'
 import PaymentsList from './components/PaymentsList'
 import PaymentFilter from './components/PaymentFilter'

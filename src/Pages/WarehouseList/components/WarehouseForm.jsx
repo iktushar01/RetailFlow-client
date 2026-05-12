@@ -1,6 +1,6 @@
 import React from 'react'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { Save, X } from 'lucide-react'
 import { validateWarehouseForm } from '../utils/warehouseHelpers'
 import { notify } from '../../../utils/notifications'

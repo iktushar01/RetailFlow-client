@@ -1,6 +1,6 @@
 import React from 'react'
 import { Package, Plus } from 'lucide-react'
-import Button from '../../../../Components/UI/Button'
+import { Button } from '../../../../Components/UI/Button'
 import { SharedTable } from '../../../../Shared/SharedTable/SharedTable'
 
 const SuggestionsTable = ({ 

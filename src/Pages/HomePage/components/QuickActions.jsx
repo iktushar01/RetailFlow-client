@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusCircle, Package, ShoppingBag, FileText, ArrowRight } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 
 const QuickActions = () => {
   const navigate = useNavigate()

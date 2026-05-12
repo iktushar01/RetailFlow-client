@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { X, Save } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import GRNItemsTable from './GRNItemsTable'
 import { validateGRNForm, generateGRNNumber, MAX_NOTES_LENGTH } from '../utils/grnHelpers'

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Eye, AlertTriangle, MapPin, Package, Calendar, Hash } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { formatDate, getStockStatusColor, getStockStatusText, getExpiryStatus } from '../utils/inventoryHelpers'
 

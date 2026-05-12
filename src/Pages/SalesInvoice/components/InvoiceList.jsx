@@ -1,6 +1,6 @@
 import React from 'react'
 import { Eye, Printer } from 'lucide-react'
-import Button from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/Button'
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { getPaymentStatusColor, formatCurrency, formatDateTime } from '../utils/invoiceHelpers'
 
