@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { FileText, RefreshCw, Info } from 'lucide-react'
-import Swal from 'sweetalert2'
-import { Button } from '../../Components/UI/Button'
-import InfoCard from '../../Shared/InfoCard/InfoCard'
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { toast } from "sonner" // Shadcn recommended toast
+
 import InvoiceList from './components/InvoiceList'
 import InvoiceFilter from './components/InvoiceFilter'
 import InvoiceViewModal from './components/InvoiceViewModal'
@@ -23,9 +25,24 @@ const SalesInvoice = () => {
     dateTo: ''
   })
 
+  const fetchInvoices = useCallback(async () => {
+    setLoading(true)
+    try {
+      const data = await invoiceAPI.getAll()
+      setInvoices(data)
+    } catch (error) {
+      console.error('Error fetching invoices:', error)
+      toast.error("Failed to load invoices", {
+        description: "Please check your connection and try again."
+      })
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     fetchInvoices()
-  }, [])
+  }, [fetchInvoices])
 
   const applyFilters = useCallback(() => {
     const filtered = applyInvoiceFilters(invoices, filters)
@@ -35,19 +52,6 @@ const SalesInvoice = () => {
   useEffect(() => {
     applyFilters()
   }, [applyFilters])
-
-  const fetchInvoices = async () => {
-    setLoading(true)
-    try {
-      const data = await invoiceAPI.getAll()
-      setInvoices(data)
-    } catch (error) {
-      console.error('Error fetching invoices:', error)
-      Swal.fire('Error', 'Failed to load invoices', 'error')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
@@ -67,34 +71,41 @@ const SalesInvoice = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-              <FileText className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-indigo-600" />
+    <div className="container mx-auto py-6 space-y-6">
+      {/* Header Section using Shadcn Card */}
+      <Card className="border-none shadow-md bg-gradient-to-r from-primary/5 via-accent/5 to-secondary/5">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl sm:text-3xl font-bold flex items-center tracking-tight">
+              <FileText className="w-8 h-8 mr-3 text-primary" />
               Sales Invoices
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-2">View, print, and manage sales invoices</p>
+            </CardTitle>
+            <CardDescription className="text-muted-foreground text-base">
+              View, print, and manage sales invoices
+            </CardDescription>
           </div>
-
-          <Button variant="secondary" size="sm" onClick={fetchInvoices} className="w-full sm:w-auto flex items-center justify-center">
-            <div className="flex items-center">
-              <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              <span className="text-sm sm:text-base">Refresh</span>
-            </div>
+          <Button 
+            variant="outline" 
+            size="default" 
+            onClick={fetchInvoices} 
+            className="w-full sm:w-auto bg-background hover:bg-accent transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh Data
           </Button>
-        </div>
-      </div>
+        </CardHeader>
+      </Card>
 
-      {/* Info Card */}
-      <InfoCard
-        type="info"
-        title="Sales Invoice Management"
-        message="View, print, and manage all sales invoices. Track payment status, generate reports, and maintain complete sales records for accounting and customer service purposes."
-        icon={Info}
-      />
+      {/* Info Section using Shadcn Alert */}
+      <Alert className="bg-muted/50 border-border">
+        <Info className="h-5 w-5" />
+        <AlertTitle className="font-semibold">Invoice Management</AlertTitle>
+        <AlertDescription className="text-muted-foreground">
+          Track payment status, generate reports, and maintain complete sales records for accounting and customer service purposes.
+        </AlertDescription>
+      </Alert>
 
+      {/* Filter Section */}
       <InvoiceFilter
         filters={filters}
         onFilterChange={handleFilterChange}
@@ -103,13 +114,19 @@ const SalesInvoice = () => {
         totalCount={invoices.length}
       />
 
-      <InvoiceList
-        invoices={filteredInvoices}
-        onView={handleView}
-        onPrint={handlePrint}
-        loading={loading}
-      />
+      {/* Main List Section */}
+      <Card className="border-border">
+        <CardContent className="p-0">
+          <InvoiceList
+            invoices={filteredInvoices}
+            onView={handleView}
+            onPrint={handlePrint}
+            loading={loading}
+          />
+        </CardContent>
+      </Card>
 
+      {/* Detail Modal */}
       <InvoiceViewModal
         isOpen={viewModalOpen}
         onClose={() => setViewModalOpen(false)}

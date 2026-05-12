@@ -1,132 +1,174 @@
 import React from 'react'
-import { X, Printer, Download } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
-import SharedModal from '../../../Shared/SharedModal/SharedModal'
+import { Printer, Download, User, Calendar, CreditCard } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { formatCurrency, formatDateTime } from '../utils/invoiceHelpers'
 
 const InvoiceViewModal = ({ isOpen, onClose, invoice, onPrint }) => {
   if (!invoice) return null
 
+  const isPaid = invoice.paymentStatus === 'Paid'
+  const balanceDue = invoice.grandTotal - (invoice.amountPaid || 0)
+
   return (
-    <SharedModal isOpen={isOpen} onClose={onClose} title={`Invoice - ${invoice.invoiceNo}`} size="large">
-      <div className="space-y-6">
-        {/* Invoice Header */}
-        <div className="border-b pb-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Invoice Number</p>
-              <p className="font-semibold text-gray-900">{invoice.invoiceNo}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Date</p>
-              <p className="font-semibold text-gray-900">{formatDateTime(invoice.createdAt)}</p>
-            </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 py-4 border-b">
+          <div className="flex justify-between items-center pr-6">
+            <DialogTitle className="text-xl font-bold tracking-tight">
+              Invoice <span className="text-primary">{invoice.invoiceNo}</span>
+            </DialogTitle>
+            <Badge variant={isPaid ? "default" : "destructive"} className="uppercase">
+              {invoice.paymentStatus}
+            </Badge>
           </div>
-        </div>
+        </DialogHeader>
 
-        {/* Customer Info */}
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-2">Customer Information</h3>
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="font-medium">{invoice.customerName}</p>
-            {invoice.customerPhone && <p className="text-sm text-gray-600">{invoice.customerPhone}</p>}
-          </div>
-        </div>
-
-        {/* Items */}
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-2">Items</h3>
-          <div className="border rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Product</th>
-                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Qty</th>
-                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Price</th>
-                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {invoice.items.map((item, index) => (
-                  <tr key={index}>
-                    <td className="px-4 py-2 text-sm">{item.productName}</td>
-                    <td className="px-4 py-2 text-sm text-right">{item.quantity}</td>
-                    <td className="px-4 py-2 text-sm text-right">{formatCurrency(item.unitPrice)}</td>
-                    <td className="px-4 py-2 text-sm text-right font-semibold">{formatCurrency(item.subtotal)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Totals */}
-        <div className="border-t pt-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Subtotal:</span>
-              <span className="font-medium">{formatCurrency(invoice.subtotal)}</span>
-            </div>
-            {invoice.totalDiscount > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Discount:</span>
-                <span className="font-medium text-green-600">-{formatCurrency(invoice.totalDiscount)}</span>
-              </div>
-            )}
-            {invoice.tax > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Tax:</span>
-                <span className="font-medium">{formatCurrency(invoice.tax)}</span>
-              </div>
-            )}
-            <div className="flex justify-between text-lg font-bold pt-2 border-t">
-              <span>Grand Total:</span>
-              <span className="text-blue-600">{formatCurrency(invoice.grandTotal)}</span>
-            </div>
-            {invoice.amountPaid > 0 && (
-              <>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Amount Paid:</span>
-                  <span className="font-medium text-green-600">{formatCurrency(invoice.amountPaid)}</span>
+        <ScrollArea className="flex-1 px-6 py-4">
+          <div className="space-y-6">
+            {/* Quick Summary Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Issue Date
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Balance Due:</span>
-                  <span className="font-medium text-red-600">{formatCurrency(invoice.grandTotal - invoice.amountPaid)}</span>
+                <p className="font-semibold">{formatDateTime(invoice.createdAt)}</p>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <User className="w-4 h-4 mr-2" />
+                  Customer Details
                 </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Payment Info */}
-        <div className="bg-blue-50 p-3 rounded-lg">
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div>
-              <span className="text-gray-600">Payment Method:</span>
-              <span className="ml-2 font-semibold">{invoice.paymentMethod}</span>
+                <p className="font-semibold">{invoice.customerName}</p>
+                {invoice.customerPhone && (
+                  <p className="text-sm text-muted-foreground">{invoice.customerPhone}</p>
+                )}
+              </div>
             </div>
-            <div>
-              <span className="text-gray-600">Status:</span>
-              <span className={`ml-2 font-semibold ${invoice.paymentStatus === 'Paid' ? 'text-green-600' : 'text-red-600'}`}>
-                {invoice.paymentStatus}
-              </span>
+
+            <Separator />
+
+            {/* Items Table */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                Line Items
+              </h3>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader className="bg-muted/50">
+                    <TableRow>
+                      <TableHead>Product</TableHead>
+                      <TableHead className="text-right">Qty</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {invoice.items.map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{item.productName}</TableCell>
+                        <TableCell className="text-right">{item.quantity}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(item.unitPrice)}</TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {formatCurrency(item.subtotal)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Totals Section */}
+            <div className="flex justify-end">
+              <div className="w-full sm:w-72 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>{formatCurrency(invoice.subtotal)}</span>
+                </div>
+                
+                {invoice.totalDiscount > 0 && (
+                  <div className="flex justify-between text-sm text-destructive">
+                    <span>Discount</span>
+                    <span>-{formatCurrency(invoice.totalDiscount)}</span>
+                  </div>
+                )}
+                
+                {invoice.tax > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Tax</span>
+                    <span>{formatCurrency(invoice.tax)}</span>
+                  </div>
+                )}
+                
+                <Separator className="my-2" />
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-bold">Grand Total</span>
+                  <span className="text-xl font-bold text-primary">
+                    {formatCurrency(invoice.grandTotal)}
+                  </span>
+                </div>
+
+                {invoice.amountPaid > 0 && (
+                  <div className="space-y-1 pt-2">
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Amount Paid</span>
+                      <span className="text-foreground font-medium">
+                        {formatCurrency(invoice.amountPaid)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="font-bold">Balance Due</span>
+                      <span className="font-bold text-destructive">
+                        {formatCurrency(balanceDue)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Payment Method Footer Card */}
+            <div className="rounded-lg bg-muted/40 p-4 border border-dashed">
+              <div className="flex items-center text-sm font-medium">
+                <CreditCard className="w-4 h-4 mr-2 text-muted-foreground" />
+                Payment via {invoice.paymentMethod || 'N/A'}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </ScrollArea>
 
-      <div className="flex gap-3 mt-6">
-        <Button variant="secondary" size="md" onClick={onClose} className="flex-1">
-          Close
-        </Button>
-        <Button variant="primary" size="md" onClick={() => onPrint(invoice)} className="flex-1">
-          <Printer className="w-4 h-4 mr-2" />
-          Print Invoice
-        </Button>
-      </div>
-    </SharedModal>
+        <DialogFooter className="px-6 py-4 border-t bg-muted/20 gap-2 sm:gap-0">
+          <Button variant="outline" onClick={onClose} className="sm:flex-1">
+            Close
+          </Button>
+          <Button onClick={() => onPrint(invoice)} className="sm:flex-1">
+            <Printer className="w-4 h-4 mr-2" />
+            Print Invoice
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
 export default InvoiceViewModal
-

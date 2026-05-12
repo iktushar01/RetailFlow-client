@@ -1,76 +1,112 @@
 import React from 'react'
 import { Eye, Printer } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
-import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Card } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { getPaymentStatusColor, formatCurrency, formatDateTime } from '../utils/invoiceHelpers'
 
 const InvoiceList = ({ invoices, onView, onPrint, loading }) => {
-  const columns = [
-    {
-      accessorKey: 'invoiceNo',
-      header: 'Invoice No',
-      cell: ({ row }) => (
-        <span className="font-semibold text-blue-600">{row.original.invoiceNo}</span>
-      )
-    },
-    {
-      accessorKey: 'customerName',
-      header: 'Customer',
-      cell: ({ row }) => (
-        <div>
-          <div className="font-medium text-gray-900">{row.original.customerName}</div>
-          {row.original.customerPhone && (
-            <div className="text-xs text-gray-500">{row.original.customerPhone}</div>
-          )}
+  if (loading) {
+    return (
+      <Card className="p-6">
+        <div className="space-y-3">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
         </div>
-      )
-    },
-    {
-      accessorKey: 'createdAt',
-      header: 'Date',
-      cell: ({ row }) => formatDateTime(row.original.createdAt)
-    },
-    {
-      accessorKey: 'grandTotal',
-      header: 'Total',
-      cell: ({ row }) => (
-        <span className="font-semibold text-green-600">{formatCurrency(row.original.grandTotal)}</span>
-      )
-    },
-    {
-      accessorKey: 'paymentStatus',
-      header: 'Payment Status',
-      cell: ({ row }) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPaymentStatusColor(row.original.paymentStatus)}`}>
-          {row.original.paymentStatus}
-        </span>
-      )
-    }
-  ]
-
-  const renderRowActions = (invoice) => (
-    <div className="flex items-center gap-2">
-      <Button variant="ghost" size="sm" onClick={() => onView(invoice)}>
-        <div className="flex items-center">
-          <Eye className="w-4 h-4 mr-2" />
-          View
-        </div>
-      </Button>
-      <Button variant="primary" size="sm" onClick={() => onPrint(invoice)}>
-        <div className="flex items-center">
-          <Printer className="w-4 h-4 mr-2" />
-          Print
-        </div>
-      </Button>
-    </div>
-  )
+      </Card>
+    )
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <SharedTable columns={columns} data={invoices} loading={loading} renderRowActions={renderRowActions} pageSize={10} />
-    </div>
+    <Card className="border-none shadow-none">
+      <div className="rounded-md border border-border">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-[120px] font-bold text-foreground">Invoice No</TableHead>
+              <TableHead className="font-bold text-foreground">Customer</TableHead>
+              <TableHead className="font-bold text-foreground">Date</TableHead>
+              <TableHead className="font-bold text-foreground">Total</TableHead>
+              <TableHead className="font-bold text-foreground">Payment Status</TableHead>
+              <TableHead className="text-right font-bold text-foreground">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {invoices.length > 0 ? (
+              invoices.map((invoice) => (
+                <TableRow key={invoice.id} className="hover:bg-muted/30 transition-colors">
+                  <TableCell className="font-medium text-primary">
+                    {invoice.invoiceNo}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-foreground">{invoice.customerName}</span>
+                      {invoice.customerPhone && (
+                        <span className="text-xs text-muted-foreground">{invoice.customerPhone}</span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {formatDateTime(invoice.createdAt)}
+                  </TableCell>
+                  <TableCell className="font-semibold text-foreground">
+                    {formatCurrency(invoice.grandTotal)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant="outline" 
+                      className={`capitalize font-semibold ${getPaymentStatusColor(invoice.paymentStatus)}`}
+                    >
+                      {invoice.paymentStatus}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => onView(invoice)}
+                        className="h-8 px-2 lg:px-3"
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        <span className="hidden sm:inline">View</span>
+                      </Button>
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        onClick={() => onPrint(invoice)}
+                        className="h-8 px-2 lg:px-3"
+                      >
+                        <Printer className="w-4 h-4 mr-2" />
+                        <span className="hidden sm:inline">Print</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  No invoices found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </Card>
   )
 }
 
 export default InvoiceList
-
