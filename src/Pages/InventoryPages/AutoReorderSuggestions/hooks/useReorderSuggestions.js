@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { inventoryAPI, productsAPI, suppliersAPI, salesAPI, purchaseOrdersAPI } from '../../services/inventoryService'
-import Swal from 'sweetalert2'
+import { toast } from "sonner" // or "@/components/ui/use-toast" depending on your shadcn setup
 
 export const useReorderSuggestions = () => {
   const [suggestions, setSuggestions] = useState([])
@@ -23,62 +23,49 @@ export const useReorderSuggestions = () => {
     lowPriority: 0
   })
 
+  // --- Helper Functions (Pure Logic) ---
   const calculateMonthlySales = (productId, salesData) => {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
     
-    const recentSales = salesData.filter(sale => 
-      new Date(sale.createdAt) >= thirtyDaysAgo &&
-      sale.items.some(item => item.productId === productId)
-    )
-    
-    const totalSold = recentSales.reduce((sum, sale) => {
-      const item = sale.items.find(item => item.productId === productId)
-      return sum + (item?.quantity || 0)
-    }, 0)
+    const totalSold = salesData
+      .filter(sale => new Date(sale.createdAt) >= thirtyDaysAgo)
+      .reduce((sum, sale) => {
+        const item = sale.items.find(item => item.productId === productId)
+        return sum + (item?.quantity || 0)
+      }, 0)
     
     return totalSold
   }
 
   const getLastSaleDate = (productId, salesData) => {
-    const productSales = salesData.filter(sale => 
-      sale.items.some(item => item.productId === productId)
-    ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const productSales = salesData
+      .filter(sale => sale.items.some(item => item.productId === productId))
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     
     return productSales[0]?.createdAt || null
   }
 
   const generateReorderSuggestions = (inventoryData, productsData, salesData) => {
-    const suggestions = []
-    
-    productsData.forEach(product => {
+    return productsData.map(product => {
       const inventoryItem = inventoryData.find(inv => inv.productId === product._id)
-      if (!inventoryItem) return
+      if (!inventoryItem) return null
       
-      // Calculate average monthly sales
       const monthlySales = calculateMonthlySales(product._id, salesData)
       const currentStock = inventoryItem.stockQty
       const minStockLevel = product.minStockLevel || 10
-      const leadTime = product.leadTime || 7 // days
-      const safetyStock = Math.ceil(monthlySales * 0.2) // 20% safety buffer
+      const safetyStock = Math.ceil(monthlySales * 0.2)
       
-      // Calculate suggested quantity
-      const suggestedQty = Math.max(
-        monthlySales * 2, // 2 months supply
-        minStockLevel * 3, // 3x minimum level
-        safetyStock * 2 // 2x safety stock
-      )
+      const suggestedQty = Math.max(monthlySales * 2, minStockLevel * 3, safetyStock * 2)
       
-      // Calculate priority
       let priority = 'Low'
       if (currentStock <= minStockLevel * 0.5) priority = 'High'
       else if (currentStock <= minStockLevel) priority = 'Medium'
       
-      // Calculate urgency score
-      const urgencyScore = (monthlySales * 30) / (currentStock + 1) // sales per day / current stock
+      const urgencyScore = (monthlySales * 30) / (currentStock + 1)
       
       if (suggestedQty > 0 && (currentStock < minStockLevel * 2 || urgencyScore > 1)) {
-        suggestions.push({
+        return {
           productId: product._id,
           productName: product.productName,
           sku: product.sku,
@@ -92,28 +79,23 @@ export const useReorderSuggestions = () => {
           lastSaleDate: getLastSaleDate(product._id, salesData),
           costPrice: product.costPrice || 0,
           totalValue: Math.ceil(suggestedQty) * (product.costPrice || 0)
-        })
+        }
       }
-    })
-    
-    return suggestions.sort((a, b) => b.urgencyScore - a.urgencyScore)
+      return null
+    }).filter(Boolean).sort((a, b) => b.urgencyScore - a.urgencyScore)
   }
 
   const calculateStats = (suggestionsData) => {
-    const totalSuggestions = suggestionsData.length
-    const highPriority = suggestionsData.filter(s => s.priority === 'High').length
-    const mediumPriority = suggestionsData.filter(s => s.priority === 'Medium').length
-    const lowPriority = suggestionsData.filter(s => s.priority === 'Low').length
-    
     setStats({
-      totalSuggestions,
-      highPriority,
-      mediumPriority,
-      lowPriority
+      totalSuggestions: suggestionsData.length,
+      highPriority: suggestionsData.filter(s => s.priority === 'High').length,
+      mediumPriority: suggestionsData.filter(s => s.priority === 'Medium').length,
+      lowPriority: suggestionsData.filter(s => s.priority === 'Low').length
     })
   }
 
-  const fetchData = async () => {
+  // --- API Actions ---
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true)
       const [inventoryData, productsData, suppliersData, salesData] = await Promise.all([
@@ -127,22 +109,22 @@ export const useReorderSuggestions = () => {
       setSuppliers(suppliersData)
       setSales(salesData)
       
-      // Generate reorder suggestions
-      const suggestions = generateReorderSuggestions(inventoryData, productsData, salesData)
-      setSuggestions(suggestions)
-      calculateStats(suggestions)
+      const suggestionsData = generateReorderSuggestions(inventoryData, productsData, salesData)
+      setSuggestions(suggestionsData)
+      calculateStats(suggestionsData)
     } catch (error) {
-      console.error('Error fetching data:', error)
+      toast.error("Failed to fetch inventory data")
+      console.error(error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   const handleAddToPO = async (item) => {
     const supplier = suppliers.find(s => s._id === item.supplierId)
     
     if (!supplier) {
-      Swal.fire('Error', 'No supplier found for this product', 'error')
+      toast.error("No supplier found for this product")
       return
     }
 
@@ -162,37 +144,28 @@ export const useReorderSuggestions = () => {
       }
 
       await purchaseOrdersAPI.create(poData)
-      
-      Swal.fire({
-        title: 'Success!',
-        text: `Purchase order created for ${item.productName}`,
-        icon: 'success'
-      })
-      
-      fetchData() // Refresh data
+      toast.success(`Purchase order created for ${item.productName}`)
+      fetchData() 
     } catch (error) {
-      console.error('Error creating PO:', error)
-      Swal.fire('Error', 'Failed to create purchase order', 'error')
+      toast.error("Failed to create purchase order")
     }
   }
 
   const handleGenerateConfirm = async () => {
+    if (selectedItems.length === 0) return
+
     try {
-      // Group by supplier
-      const supplierGroups = {}
-      selectedItems.forEach(item => {
-        if (!supplierGroups[item.supplierId]) {
-          supplierGroups[item.supplierId] = []
-        }
-        supplierGroups[item.supplierId].push(item)
-      })
+      const supplierGroups = selectedItems.reduce((acc, item) => {
+        acc[item.supplierId] = acc[item.supplierId] || []
+        acc[item.supplierId].push(item)
+        return acc
+      }, {})
 
-      // Create PO for each supplier
-      for (const [supplierId, items] of Object.entries(supplierGroups)) {
+      const creationPromises = Object.entries(supplierGroups).map(([supplierId, items]) => {
         const supplier = suppliers.find(s => s._id === supplierId)
-        if (!supplier) continue
+        if (!supplier) return null
 
-        const poData = {
+        return purchaseOrdersAPI.create({
           supplierId: supplier._id,
           supplierName: supplier.name,
           items: items.map(item => ({
@@ -204,56 +177,22 @@ export const useReorderSuggestions = () => {
           })),
           status: 'Draft',
           notes: `Auto-generated bulk PO for ${items.length} items`
-        }
+        })
+      }).filter(Boolean)
 
-        await purchaseOrdersAPI.create(poData)
-      }
+      await Promise.all(creationPromises)
       
-      Swal.fire({
-        title: 'Success!',
-        text: `Generated ${Object.keys(supplierGroups).length} purchase orders for ${selectedItems.length} items`,
-        icon: 'success'
-      })
+      toast.success(`Generated ${Object.keys(supplierGroups).length} purchase orders successfully`)
       
       setShowGenerateModal(false)
       setSelectedItems([])
       fetchData()
     } catch (error) {
-      console.error('Error generating POs:', error)
-      Swal.fire('Error', 'Failed to generate purchase orders', 'error')
+      toast.error("An error occurred while generating bulk orders")
     }
   }
 
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
-  }
-
-  const handleClearFilters = () => {
-    setFilters({
-      search: '',
-      category: '',
-      supplier: '',
-      priority: ''
-    })
-  }
-
-  const handleSelectAll = () => {
-    setSelectedItems(filteredSuggestions)
-  }
-
-  const handleDeselectAll = () => {
-    setSelectedItems([])
-  }
-
-  const handleGenerateAll = () => {
-    setSelectedItems(filteredSuggestions)
-    setShowGenerateModal(true)
-  }
-
-  const handleExport = () => {
-    console.log('Exporting reorder suggestions...')
-  }
-
+  // --- Filter Logic ---
   const filteredSuggestions = suggestions.filter(item => {
     const matchesSearch = !filters.search || 
       item.productName?.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -266,76 +205,24 @@ export const useReorderSuggestions = () => {
     return matchesSearch && matchesCategory && matchesSupplier && matchesPriority
   })
 
-  const filterConfig = [
-    {
-      key: 'search',
-      label: 'Search Products',
-      type: 'search',
-      placeholder: 'Search by name or SKU...'
-    },
-    {
-      key: 'category',
-      label: 'Category',
-      type: 'select',
-      options: [
-        { label: 'All Categories', value: '' },
-        ...Array.from(new Set(products.map(p => p.category))).map(cat => ({ label: cat, value: cat }))
-      ]
-    },
-    {
-      key: 'supplier',
-      label: 'Supplier',
-      type: 'select',
-      options: [
-        { label: 'All Suppliers', value: '' },
-        ...suppliers.map(s => ({ label: s.name, value: s._id }))
-      ]
-    },
-    {
-      key: 'priority',
-      label: 'Priority',
-      type: 'select',
-      options: [
-        { label: 'All Priorities', value: '' },
-        { label: 'High', value: 'High' },
-        { label: 'Medium', value: 'Medium' },
-        { label: 'Low', value: 'Low' }
-      ]
-    }
-  ]
+  const handleFilterChange = (key, value) => setFilters(prev => ({ ...prev, [key]: value }))
+  const handleClearFilters = () => setFilters({ search: '', category: '', supplier: '', priority: '' })
+  const handleSelectAll = () => setSelectedItems(filteredSuggestions)
+  const handleDeselectAll = () => setSelectedItems([])
+  const handleGenerateAll = () => {
+    setSelectedItems(filteredSuggestions)
+    setShowGenerateModal(true)
+  }
 
   useEffect(() => {
     fetchData()
-  }, [])
-
-  useEffect(() => {
-    fetchData()
-  }, [filters])
+  }, [fetchData])
 
   return {
-    // State
-    suggestions,
-    products,
-    suppliers,
-    sales,
-    loading,
-    selectedItems,
-    showGenerateModal,
-    filters,
-    stats,
-    filteredSuggestions,
-    filterConfig,
-    
-    // Actions
-    fetchData,
-    handleAddToPO,
-    handleGenerateConfirm,
-    handleFilterChange,
-    handleClearFilters,
-    handleSelectAll,
-    handleDeselectAll,
-    handleGenerateAll,
-    handleExport,
+    suggestions, products, suppliers, sales, loading, selectedItems,
+    showGenerateModal, filters, stats, filteredSuggestions,
+    fetchData, handleAddToPO, handleGenerateConfirm, handleFilterChange,
+    handleClearFilters, handleSelectAll, handleDeselectAll, handleGenerateAll,
     setShowGenerateModal
   }
 }

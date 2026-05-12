@@ -2,7 +2,7 @@ import React from 'react'
 import { TrendingUp } from 'lucide-react'
 import InfoCard from '../../../Shared/InfoCard/InfoCard'
 import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
-import { ReportLoading } from '../../../Components/UI/LoadingAnimation'
+import { SalesLoading } from '../../../Components/UI/LoadingAnimation'
 import { 
   SalesReportsHeader, 
   SummaryStats, 

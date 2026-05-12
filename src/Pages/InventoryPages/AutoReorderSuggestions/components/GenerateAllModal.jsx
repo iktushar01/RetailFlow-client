@@ -1,67 +1,83 @@
 import React from 'react'
 import { CheckCircle } from 'lucide-react'
-import { Button } from '../../../../Components/UI/Button'
-import SharedModal from '../../../../Shared/SharedModal/SharedModal'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 
 const GenerateAllModal = ({ 
   isOpen, 
   onClose, 
-  selectedItems, 
-  suppliers, 
+  selectedItems = [], 
+  suppliers = [], 
   onConfirm 
 }) => {
   return (
-    <SharedModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Generate All Purchase Orders"
-      size="lg"
-    >
-      <div className="space-y-4">
-        <p className="text-gray-600">
-          You are about to generate purchase orders for {selectedItems.length} suggested items.
-          Items will be grouped by supplier for efficient ordering.
-        </p>
-        <div className="max-h-64 overflow-y-auto">
-          {selectedItems.map((item, index) => {
-            const supplier = suppliers.find(s => s._id === item.supplierId)
-            return (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <div className="font-medium">{item.productName}</div>
-                  <div className="text-sm text-gray-500">Supplier: {supplier?.name || 'Unknown'}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-gray-600">Qty: {item.suggestedQty} units</div>
-                  <div className="text-sm text-gray-600">Value: BDT {item.totalValue.toFixed(2)}</div>
-                </div>
-              </div>
-            )
-          })}
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">Generate All Purchase Orders</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            You are about to generate purchase orders for {selectedItems.length} suggested items.
+            Items will be grouped by supplier for efficient ordering.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="py-4">
+          <ScrollArea className="h-[300px] rounded-md border border-border p-4">
+            <div className="space-y-3">
+              {selectedItems.map((item, index) => {
+                const supplier = suppliers.find(s => s._id === item.supplierId)
+                return (
+                  <React.Fragment key={index}>
+                    <div className="flex items-center justify-between rounded-lg bg-muted/40 p-3 transition-colors hover:bg-muted/60">
+                      <div className="space-y-1">
+                        <div className="font-semibold leading-none">{item.productName}</div>
+                        <div className="text-sm text-muted-foreground">
+                          Supplier: <span className="text-foreground">{supplier?.name || 'Unknown'}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">Qty: {item.suggestedQty} units</div>
+                        <div className="text-xs text-muted-foreground">
+                          Value: BDT {item.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </div>
+                      </div>
+                    </div>
+                    {index < selectedItems.length - 1 && <Separator className="opacity-50" />}
+                  </React.Fragment>
+                )
+              })}
+            </div>
+          </ScrollArea>
         </div>
-        <div className="flex justify-end space-x-3 pt-4">
+
+        <DialogFooter className="gap-2 sm:gap-0">
           <Button
-            variant="secondary"
-            size="md"
+            variant="outline"
             onClick={onClose}
+            className="w-full sm:w-auto"
           >
-            <div className="flex items-center">
-              Cancel
-            </div>
+            Cancel
           </Button>
           <Button
-            variant="primary"
-            size="md"
+            variant="default"
             onClick={onConfirm}
+            className="w-full sm:w-auto"
           >
-            <div className="flex items-center">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Generate POs
-            </div>
+            <CheckCircle className="mr-2 h-4 w-4" />
+            Generate POs
           </Button>
-        </div>
-      </div>
-    </SharedModal>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

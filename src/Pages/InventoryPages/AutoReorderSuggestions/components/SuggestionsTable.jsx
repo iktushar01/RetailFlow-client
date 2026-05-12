@@ -1,140 +1,142 @@
 import React from 'react'
-import { Package, Plus } from 'lucide-react'
-import { Button } from '../../../../Components/UI/Button'
-import { SharedTable } from '../../../../Shared/SharedTable/SharedTable'
+import { Package, Plus, AlertCircle, Clock, CheckCircle2 } from 'lucide-react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const SuggestionsTable = ({ 
-  suggestions, 
-  suppliers, 
+  suggestions = [], 
+  suppliers = [], 
   loading, 
   onAddToPO 
 }) => {
-  const getPriorityColor = (priority) => {
-    const colors = {
-      High: 'text-red-600 bg-red-100',
-      Medium: 'text-yellow-600 bg-yellow-100',
-      Low: 'text-green-600 bg-green-100'
+  
+  const getPriorityConfig = (priority) => {
+    switch (priority) {
+      case 'High':
+        return { 
+          variant: "destructive", 
+          icon: <AlertCircle className="w-3 h-3 mr-1" />,
+          className: "bg-destructive/15 text-destructive border-destructive/20 hover:bg-destructive/20"
+        }
+      case 'Medium':
+        return { 
+          variant: "outline", 
+          icon: <Clock className="w-3 h-3 mr-1" />,
+          className: "bg-amber-500/15 text-amber-600 border-amber-500/20 hover:bg-amber-500/20 dark:text-amber-400"
+        }
+      case 'Low':
+        return { 
+          variant: "secondary", 
+          icon: <CheckCircle2 className="w-3 h-3 mr-1" />,
+          className: "bg-emerald-500/15 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 dark:text-emerald-400"
+        }
+      default:
+        return { variant: "secondary", icon: null, className: "" }
     }
-    return colors[priority] || colors.Low
   }
-
-  const getPriorityIcon = (priority) => {
-    const icons = {
-      High: '🔴',
-      Medium: '🟡',
-      Low: '🟢'
-    }
-    return icons[priority] || '🟢'
-  }
-
-  const tableColumns = [
-    {
-      id: 'product',
-      accessorKey: 'productName',
-      header: 'Product',
-      cell: ({ row }) => (
-        <div>
-          <div className="font-medium text-gray-900">{row.original.productName}</div>
-          <div className="text-sm text-gray-500">SKU: {row.original.sku}</div>
-        </div>
-      )
-    },
-    {
-      id: 'sales',
-      accessorKey: 'monthlySales',
-      header: 'Avg Monthly Sale',
-      cell: ({ row }) => (
-        <div className="text-center">
-          <div className="text-lg font-semibold text-gray-900">{row.original.monthlySales}</div>
-          <div className="text-xs text-gray-500">units/month</div>
-        </div>
-      )
-    },
-    {
-      id: 'currentStock',
-      accessorKey: 'currentStock',
-      header: 'Current Stock',
-      cell: ({ row }) => (
-        <div className="text-center">
-          <div className="text-lg font-semibold text-gray-900">{row.original.currentStock}</div>
-          <div className="text-xs text-gray-500">units</div>
-        </div>
-      )
-    },
-    {
-      id: 'suggestedQty',
-      accessorKey: 'suggestedQty',
-      header: 'Suggested Qty',
-      cell: ({ row }) => (
-        <div className="text-center">
-          <div className="text-lg font-semibold text-blue-600">{row.original.suggestedQty}</div>
-          <div className="text-xs text-gray-500">units</div>
-        </div>
-      )
-    },
-    {
-      id: 'supplier',
-      accessorKey: 'supplier',
-      header: 'Supplier',
-      cell: ({ row }) => {
-        const item = row.original
-        const supplier = suppliers.find(s => s._id === item.supplierId)
-        return (
-          <div className="text-center">
-            <div className="font-medium text-gray-900">{supplier?.name || 'Unknown'}</div>
-          </div>
-        )
-      }
-    },
-    {
-      id: 'priority',
-      accessorKey: 'priority',
-      header: 'Priority',
-      cell: ({ row }) => (
-        <div className="flex items-center justify-center">
-          <span className="text-lg mr-2">{getPriorityIcon(row.original.priority)}</span>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(row.original.priority)}`}>
-            {row.original.priority}
-          </span>
-        </div>
-      )
-    },
-    {
-      id: 'actions',
-      accessorKey: 'actions',
-      header: 'Action',
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => onAddToPO(row.original)}
-          >
-            <div className="flex items-center">
-              <Plus className="w-4 h-4 mr-2" />
-              Add to PO
-            </div>
-          </Button>
-        </div>
-      )
-    }
-  ]
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="mb-6 pb-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Package className="w-5 h-5 mr-2 text-purple-600" />
+    <Card className="border-border bg-card shadow-sm">
+      <CardHeader className="border-b border-border/50 bg-muted/20 pb-4">
+        <CardTitle className="text-lg font-semibold text-foreground flex items-center">
+          <Package className="w-5 h-5 mr-2 text-primary" />
           Reorder Suggestions
-        </h3>
-      </div>
-      <SharedTable
-        data={suggestions}
-        columns={tableColumns}
-        loading={loading}
-        emptyMessage="No reorder suggestions available"
-      />
-    </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader className="bg-muted/30">
+            <TableRow>
+              <TableHead className="w-[300px]">Product</TableHead>
+              <TableHead className="text-center">Avg Monthly Sale</TableHead>
+              <TableHead className="text-center">Current Stock</TableHead>
+              <TableHead className="text-center">Suggested Qty</TableHead>
+              <TableHead className="text-center">Supplier</TableHead>
+              <TableHead className="text-center">Priority</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  {Array.from({ length: 7 }).map((_, j) => (
+                    <TableCell key={j}><Skeleton className="h-6 w-full" /></TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : suggestions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                  No reorder suggestions available
+                </TableCell>
+              </TableRow>
+            ) : (
+              suggestions.map((item) => {
+                const supplier = suppliers.find(s => s._id === item.supplierId);
+                const priorityStyle = getPriorityConfig(item.priority);
+                
+                return (
+                  <TableRow key={item._id || item.sku} className="hover:bg-muted/50 transition-colors">
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="font-medium text-foreground">{item.productName}</div>
+                        <div className="text-xs text-muted-foreground font-mono">SKU: {item.sku}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="text-base font-semibold">{item.monthlySales}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">units/mo</div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="text-base font-semibold">{item.currentStock}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">units</div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="text-base font-bold text-primary">{item.suggestedQty}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">units</div>
+                    </TableCell>
+                    <TableCell className="text-center font-medium text-sm">
+                      {supplier?.name || 'Unknown'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge 
+                        variant={priorityStyle.variant} 
+                        className={`capitalize px-2 py-0.5 rounded-full border ${priorityStyle.className}`}
+                      >
+                        {priorityStyle.icon}
+                        {item.priority}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => onAddToPO(item)}
+                        className="h-8"
+                      >
+                        <Plus className="w-3.5 h-3.5 mr-1.5" />
+                        Add to PO
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   )
 }
 

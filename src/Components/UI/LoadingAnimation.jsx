@@ -1,15 +1,20 @@
 import React from 'react'
-import { Loader2, Package, TrendingUp, AlertTriangle, CreditCard, ShoppingBag, FileText, BarChart3, PieChart, RefreshCw } from 'lucide-react'
+import { 
+  Loader2, Package, TrendingUp, AlertTriangle, 
+  CreditCard, ShoppingBag, FileText, BarChart3, 
+  PieChart, RefreshCw 
+} from 'lucide-react'
+import { cn } from "@/lib/utils"
 
 const LoadingAnimation = ({ 
   message = "Loading...", 
   variant = "default",
   size = "default",
   fullScreen = false,
-  icon = null,
+  icon: CustomIcon = null,
   className = ""
 }) => {
-  // Icon variants
+  // Icon variants mapping
   const iconVariants = {
     default: Loader2,
     package: Package,
@@ -23,125 +28,117 @@ const LoadingAnimation = ({
     refresh: RefreshCw
   }
 
-  // Size variants
+  // Size configurations using shadcn-consistent scaling
   const sizeVariants = {
     small: {
-      icon: "w-6 h-6",
-      text: "text-sm",
-      container: "min-h-32"
+      icon: "h-5 w-5",
+      text: "text-xs",
+      container: "min-h-[80px]"
     },
     default: {
-      icon: "w-12 h-12",
-      text: "text-base",
-      container: "min-h-96"
+      icon: "h-10 w-10",
+      text: "text-sm",
+      container: "min-h-[300px]"
     },
     large: {
-      icon: "w-16 h-16",
-      text: "text-lg",
+      icon: "h-14 w-14",
+      text: "text-base",
       container: "min-h-[50vh]"
     }
   }
 
-  // Color variants
+  // Color variants using shadcn semantic tokens (OKLCH compatible)
   const colorVariants = {
-    default: "text-blue-600",
-    success: "text-emerald-600",
-    warning: "text-amber-600",
-    error: "text-red-600",
-    info: "text-indigo-600"
+    default: "text-primary",
+    success: "text-emerald-500", // Custom status colors
+    warning: "text-amber-500",
+    error: "text-destructive",
+    info: "text-blue-500"
   }
 
-  const IconComponent = icon || iconVariants[variant] || Loader2
+  const IconComponent = CustomIcon || iconVariants[variant] || Loader2
   const currentSize = sizeVariants[size] || sizeVariants.default
   const currentColor = colorVariants[variant] || colorVariants.default
 
-  const containerClasses = fullScreen 
-    ? "min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 to-white px-4 py-6"
-    : "flex items-center justify-center"
-  
-  const contentClasses = fullScreen
-    ? "max-w-7xl mx-auto flex items-center justify-center"
-    : "flex items-center justify-center"
-
   return (
-    <div className={`${containerClasses} ${className}`}>
-      <div className={contentClasses}>
-        <div className={`${currentSize.container} flex items-center justify-center`}>
-          <div className="text-center">
-            <IconComponent 
-              className={`${currentSize.icon} ${currentColor} mx-auto mb-4 animate-spin`} 
-            />
-            <p className={`${currentSize.text} text-gray-600`}>
-              {message}
-            </p>
-          </div>
+    <div 
+      className={cn(
+        "flex flex-col items-center justify-center transition-all duration-300",
+        fullScreen ? "fixed inset-0 z-50 h-screen w-screen bg-background/80 backdrop-blur-sm" : "w-full",
+        currentSize.container,
+        className
+      )}
+    >
+      <div className="flex flex-col items-center gap-3">
+        <div className="relative">
+          {/* Subtle glow effect using theme primary */}
+          <div className={cn("absolute inset-0 rounded-full blur-xl opacity-20 animate-pulse", currentColor)} />
+          
+          <IconComponent 
+            className={cn(
+              "animate-spin relative z-10", 
+              currentSize.icon, 
+              currentColor
+            )} 
+          />
         </div>
+        
+        {message && (
+          <p className={cn(
+            "font-medium animate-pulse",
+            currentSize.text,
+            "text-muted-foreground"
+          )}>
+            {message}
+          </p>
+        )}
       </div>
     </div>
   )
 }
 
-// Predefined loading components for common use cases
-export const DashboardLoading = ({ message = "Loading dashboard data..." }) => (
+// --- Predefined variants ---
+
+export const DashboardLoading = (props) => (
   <LoadingAnimation 
-    message={message}
-    variant="trending"
-    size="default"
-    fullScreen={true}
+    message="Syncing dashboard data..." 
+    variant="trending" 
+    fullScreen 
+    {...props} 
   />
 )
 
-export const InventoryLoading = ({ message = "Loading inventory data..." }) => (
+export const InventoryLoading = (props) => (
   <LoadingAnimation 
-    message={message}
-    variant="package"
-    size="default"
-    fullScreen={true}
+    message="Loading stock levels..." 
+    variant="package" 
+    fullScreen 
+    {...props} 
   />
 )
 
-export const SalesLoading = ({ message = "Loading sales data..." }) => (
+export const SalesLoading = (props) => (
   <LoadingAnimation 
-    message={message}
-    variant="sales"
-    size="default"
-    fullScreen={true}
+    message="Fetching sales history..." 
+    variant="sales" 
+    fullScreen 
+    {...props} 
   />
 )
 
-export const ReportLoading = ({ message = "Generating report..." }) => (
+export const ChartLoading = (props) => (
   <LoadingAnimation 
-    message={message}
-    variant="report"
-    size="default"
-    fullScreen={true}
+    message="Visualizing data..." 
+    variant="chart" 
+    size="default" 
+    {...props} 
   />
 )
 
-export const ChartLoading = ({ message = "Loading chart data..." }) => (
+export const SmallLoading = (props) => (
   <LoadingAnimation 
-    message={message}
-    variant="chart"
-    size="default"
-    fullScreen={false}
-  />
-)
-
-export const SmallLoading = ({ message = "Loading...", variant = "default" }) => (
-  <LoadingAnimation 
-    message={message}
-    variant={variant}
-    size="small"
-    fullScreen={false}
-  />
-)
-
-export const ButtonLoading = ({ message = "Loading..." }) => (
-  <LoadingAnimation 
-    message={message}
-    variant="refresh"
-    size="small"
-    fullScreen={false}
+    size="small" 
+    {...props} 
   />
 )
 
