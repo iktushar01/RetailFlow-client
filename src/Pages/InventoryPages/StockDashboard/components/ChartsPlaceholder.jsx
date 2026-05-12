@@ -1,18 +1,30 @@
 import React, { useMemo } from 'react'
-import { BarChart3 } from 'lucide-react'
-import { BarChart } from '../../../../Shared/Charts'
+import { BarChart3, TrendingUp } from 'lucide-react'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
 
 const ProductStockChart = ({ inventory = [] }) => {
-  // Get top 10 products by stock quantity
+  // Memoized data transformation
   const chartData = useMemo(() => {
     if (!inventory || inventory.length === 0) {
-      // Generate sample data if no real data
       return [
-        { product: 'Bluetooth Headphones', quantity: 150, value: 45000 },
-        { product: 'Wireless Mouse', quantity: 120, value: 36000 },
+        { product: 'Headphones', quantity: 150, value: 45000 },
+        { product: 'Mouse', quantity: 120, value: 36000 },
         { product: 'USB Cable', quantity: 200, value: 20000 },
-        { product: 'Phone Charger', quantity: 180, value: 27000 },
-        { product: 'Laptop Stand', quantity: 85, value: 42500 },
+        { product: 'Charger', quantity: 180, value: 27000 },
+        { product: 'Stand', quantity: 85, value: 42500 },
         { product: 'Keyboard', quantity: 95, value: 47500 },
         { product: 'Webcam', quantity: 65, value: 32500 },
         { product: 'Monitor', quantity: 40, value: 60000 },
@@ -21,70 +33,110 @@ const ProductStockChart = ({ inventory = [] }) => {
       ]
     }
 
-    // Sort by quantity and take top 10
-    const sortedInventory = [...inventory]
+    return [...inventory]
       .sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
       .slice(0, 10)
-
-    // Transform data for chart
-    return sortedInventory.map(item => ({
-      product: item.productName || item.name || 'Unknown',
-      quantity: item.quantity || 0,
-      value: (item.quantity || 0) * (item.unitPrice || 0)
-    }))
+      .map(item => ({
+        product: item.productName || item.name || 'Unknown',
+        quantity: item.quantity || 0,
+        value: (item.quantity || 0) * (item.unitPrice || 0)
+      }))
   }, [inventory])
 
-  // Calculate totals
-  const totalQuantity = useMemo(() => {
-    return chartData.reduce((sum, item) => sum + item.quantity, 0)
+  const totals = useMemo(() => {
+    return chartData.reduce((acc, item) => ({
+      qty: acc.qty + item.quantity,
+      val: acc.val + item.value
+    }), { qty: 0, val: 0 })
   }, [chartData])
 
-  const totalValue = useMemo(() => {
-    return chartData.reduce((sum, item) => sum + item.value, 0)
-  }, [chartData])
+  // shadcn chart configuration
+  const chartConfig = {
+    quantity: {
+      label: "Stock Quantity",
+      color: "var(--primary)",
+    },
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Product Stock Comparison</h3>
+    <Card className="bg-card text-card-foreground shadow-sm">
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-primary" />
+            Product Stock Comparison
+          </CardTitle>
+          <CardDescription>
+            Showing top 10 products by inventory volume
+          </CardDescription>
         </div>
-        <div className="flex gap-4 text-sm">
-          <div className="text-right">
-            <p className="text-gray-500">Total Quantity</p>
-            <p className="font-semibold text-gray-900">{totalQuantity.toLocaleString()}</p>
+        <div className="flex">
+          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+            <span className="text-xs text-muted-foreground uppercase">Total Quantity</span>
+            <span className="text-lg font-bold leading-none sm:text-2xl">
+              {totals.qty.toLocaleString()}
+            </span>
           </div>
-          <div className="text-right">
-            <p className="text-gray-500">Total Value</p>
-            <p className="font-semibold text-green-600">BDT {totalValue.toLocaleString()}</p>
+          <div className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+            <span className="text-xs text-muted-foreground uppercase">Total Value</span>
+            <span className="text-lg font-bold leading-none sm:text-2xl text-primary">
+              {totals.val.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">BDT</span>
+            </span>
           </div>
         </div>
-      </div>
-      
-      <div className="bg-gradient-to-b from-slate-50/50 to-white rounded-lg border border-gray-200 p-4">
-        <BarChart
-          data={chartData}
-          bars={[
-            { 
-              dataKey: 'quantity', 
-              fill: '#3b82f6', 
-              name: 'Stock Quantity' 
-            }
-          ]}
-          xAxisKey="product"
-          height={320}
-          showGrid={true}
-          showLegend={false}
-        />
-      </div>
-      
-      <div className="mt-4 text-center">
-        <p className="text-xs text-gray-500">
-          Showing top 10 products by stock quantity
-        </p>
-      </div>
-    </div>
+      </CardHeader>
+
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+        <ChartContainer config={chartConfig} className="aspect-auto h-[320px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              margin={{ left: 12, right: 12, top: 10 }}
+            >
+              <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 3" />
+              <XAxis
+                dataKey="product"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={32}
+                tickFormatter={(value) => value.length > 12 ? `${value.slice(0, 10)}..` : value}
+                className="text-muted-foreground text-xs"
+              />
+              <YAxis 
+                tickLine={false} 
+                axisLine={false} 
+                className="text-muted-foreground text-xs"
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    className="w-[150px] border-border bg-popover text-popover-foreground"
+                    nameKey="quantity"
+                    labelFormatter={(value) => value}
+                  />
+                }
+              />
+              <Bar 
+                dataKey="quantity" 
+                fill="var(--primary)" 
+                radius={[4, 4, 0, 0]} 
+                barSize={32}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+
+      <CardFooter className="flex-col items-start gap-2 text-sm border-t p-4">
+        <div className="flex gap-2 font-medium leading-none">
+          Live warehouse data active <TrendingUp className="h-4 w-4 text-primary" />
+        </div>
+        <div className="leading-none text-muted-foreground">
+          Calculated based on current unit cost and quantity on hand.
+        </div>
+      </CardFooter>
+    </Card>
   )
 }
 
