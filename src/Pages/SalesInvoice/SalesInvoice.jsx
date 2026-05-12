@@ -71,7 +71,7 @@ const SalesInvoice = () => {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className=" mx-auto py-6 space-y-6">
       {/* Header Section using Shadcn Card */}
       <Card className="border-none shadow-md bg-gradient-to-r from-primary/5 via-accent/5 to-secondary/5">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">

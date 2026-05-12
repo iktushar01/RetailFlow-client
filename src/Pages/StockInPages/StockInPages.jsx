@@ -1,11 +1,27 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import { RefreshCw, Package, CheckCircle, Info, TrendingUp, ClipboardCheck } from 'lucide-react'
-import Swal from 'sweetalert2'
-import { Button } from '../../Components/UI/Button'
-import StatsCard from '../../Shared/StatsCard/StatsCard'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { 
+  RefreshCw, 
+  Package, 
+  CheckCircle, 
+  Info, 
+  TrendingUp, 
+  ClipboardCheck, 
+  Eye, 
+  Calendar,
+  FileText
+} from 'lucide-react'
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+
+// Shared components (Assuming these are also refactored to Shadcn)
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'
 import StockInFilter from './components/StockInFilter'
-import { showStockInDetails } from './components/StockInDetails'
+import { StockInDetailsDialog } from './components/StockInDetailsDialog'
+
 import { grnAPI, suppliersAPI } from './services/stockInService'
 import { 
   formatDate, 
@@ -23,8 +39,9 @@ const StockInPages = () => {
   const [grns, setGrns] = useState([])
   const [suppliers, setSuppliers] = useState([])
   const [fetchLoading, setFetchLoading] = useState(false)
+  const [selectedGrn, setSelectedGrn] = useState(null)
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   
-  // Filter state
   const [filters, setFilters] = useState({
     status: '',
     supplier: '',
@@ -33,74 +50,54 @@ const StockInPages = () => {
     search: ''
   })
 
-  useEffect(() => {
-    fetchAllData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const fetchAllData = async () => {
-    await Promise.all([
-      fetchGRNs(),
-      fetchSuppliers()
-    ])
-  }
-
-  const fetchGRNs = async () => {
+  const fetchAllData = useCallback(async () => {
     try {
       setFetchLoading(true)
-      const data = await grnAPI.getAll()
-      setGrns(data || [])
+      const [grnData, supplierData] = await Promise.all([
+        grnAPI.getAll(),
+        suppliersAPI.getAll()
+      ])
+      setGrns(grnData || [])
+      setSuppliers(supplierData || [])
     } catch (error) {
-      console.error('Error fetching GRNs:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch GRN data. Please try again.',
-        confirmButtonColor: '#3B82F6'
+      toast.error("Connection Error", {
+        description: "Failed to fetch stock records. Please try again later."
       })
     } finally {
       setFetchLoading(false)
     }
-  }
+  }, [])
 
-  const fetchSuppliers = async () => {
-    try {
-      const data = await suppliersAPI.getAll()
-      setSuppliers(data || [])
-    } catch (error) {
-      console.error('Error fetching suppliers:', error)
-    }
-  }
+  useEffect(() => {
+    fetchAllData()
+  }, [fetchAllData])
 
-  // Filter handler
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters)
-  }
-
-  // Show only approved GRNs (stock already added to inventory automatically)
   const stockInItems = useMemo(() => {
     const approved = getApprovedGRNs(grns)
     return sortGRNsByDate(approved)
   }, [grns])
 
-  // Filtered stock items
   const filteredStockInItems = useMemo(() => {
     return applyStockInFilters(stockInItems, filters)
   }, [stockInItems, filters])
 
-  // Calculate summary stats
   const stats = useMemo(() => {
     return calculateStockInStats(stockInItems)
   }, [stockInItems])
 
-  const columns = React.useMemo(() => [
+  const handleView = (grn) => {
+    setSelectedGrn(grn)
+    setIsDetailsOpen(true)
+  }
+
+  const columns = useMemo(() => [
     {
       header: 'GRN Number',
       accessorKey: 'grnNumber',
       cell: ({ row }) => (
-        <div className="flex items-center">
-          <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-          <span className="font-semibold text-gray-900 font-mono">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="font-mono font-bold text-foreground">
             {row.original.grnNumber}
           </span>
         </div>
@@ -110,57 +107,43 @@ const StockInPages = () => {
       header: 'PO Number',
       accessorKey: 'poNumber',
       cell: ({ row }) => (
-        <span className="font-mono text-blue-600 font-semibold">
+        <Badge variant="outline" className="font-mono text-blue-600 bg-blue-50/50">
           {row.original.poNumber || 'N/A'}
-        </span>
+        </Badge>
       )
     },
     {
-      header: 'Supplier Name',
+      header: 'Supplier',
       accessorKey: 'supplierId',
       cell: ({ row }) => {
         const supplier = suppliers.find(s => s._id === row.original.supplierId)
         return (
-          <div>
-            <p className="font-medium text-gray-900">{supplier?.supplierName || 'N/A'}</p>
-            <p className="text-xs text-gray-500">{supplier?.email || ''}</p>
+          <div className="flex flex-col">
+            <span className="font-medium text-sm leading-none">{supplier?.supplierName || 'N/A'}</span>
+            <span className="text-[10px] text-muted-foreground mt-1 lowercase">{supplier?.email || ''}</span>
           </div>
         )
       }
     },
     {
-      header: 'Products',
-      accessorKey: 'items',
-      cell: ({ row }) => (
-        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-semibold text-sm">
-          {row.original.items?.length || 0} items
-        </span>
-      )
-    },
-    {
-      header: 'Ordered Qty',
-      accessorKey: 'orderedQty',
+      header: 'Volumes',
       cell: ({ row }) => {
         const totalOrdered = getTotalOrderedQty(row.original)
-        return <span className="font-semibold text-gray-700">{totalOrdered}</span>
-      }
-    },
-    {
-      header: 'Received Qty',
-      accessorKey: 'receivedQty',
-      cell: ({ row }) => {
         const totalReceived = getTotalReceivedQty(row.original)
-        return <span className="font-semibold text-green-600">{totalReceived}</span>
+        return (
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">Rec: <b className="text-emerald-600">{totalReceived}</b></span>
+            <span className="text-xs text-muted-foreground">Ord: <b>{totalOrdered}</b></span>
+          </div>
+        )
       }
     },
     {
-      header: 'Received Date',
+      header: 'Date Received',
       accessorKey: 'receivedDate',
       cell: ({ row }) => (
-        <div className="flex items-center">
-          <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
+        <div className="flex items-center text-muted-foreground text-sm">
+          <Calendar className="w-3.5 h-3.5 mr-2" />
           {formatDate(row.original.receivedDate)}
         </div>
       )
@@ -168,113 +151,75 @@ const StockInPages = () => {
     {
       header: 'Stock Status',
       accessorKey: 'status',
-      cell: ({ row }) => {
-        const status = row.original.status
-        const color = getStockStatusColor(status)
-        const displayText = getStockStatusDisplay(status)
-        return (
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${color}`}>
-            {displayText}
-          </span>
-        )
-      }
+      cell: ({ row }) => (
+        <Badge 
+          variant="outline" 
+          className={`capitalize ${getStockStatusColor(row.original.status)}`}
+        >
+          {getStockStatusDisplay(row.original.status)}
+        </Badge>
+      )
     }
   ], [suppliers])
 
-  const handleView = (grn) => {
-    showStockInDetails(grn, suppliers)
-  }
-
-  const renderRowActions = (grn) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => handleView(grn)}
-      title="View Details"
-    >
-      <div className="flex items-center">
-        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-        <span>View</span>
-      </div>
-    </Button>
-  )
-
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-green-50 via-blue-50 to-purple-50 p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <Package className="w-8 h-8 mr-3 text-green-600" />
-              Stock In (from GRN)
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Review GRN-approved stock entries that have been added to warehouse
-            </p>
-            
-            
+    <div className="container mx-auto py-6 space-y-6">
+      {/* Header */}
+      <Card className="border-none shadow-sm bg-gradient-to-r from-emerald-500/10 via-blue-500/5 to-transparent">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold flex items-center">
+              <Package className="w-6 h-6 mr-3 text-emerald-600" />
+              Stock In History
+            </CardTitle>
+            <CardDescription>
+              Review all approved Goods Received Notes (GRN) and warehouse entries.
+            </CardDescription>
           </div>
-
           <Button 
-            variant="secondary" 
-            size="md"
-            onClick={fetchAllData}
+            variant="outline" 
+            size="sm" 
+            onClick={fetchAllData} 
             disabled={fetchLoading}
-            loading={fetchLoading}
-            className="flex items-center"
           >
-            <div className="flex items-center">
-              <RefreshCw className="w-5 h-5 mr-2" />
-              <span>Refresh</span>
-            </div>
+            <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
+            Sync Data
           </Button>
-        </div>
+        </CardHeader>
+      </Card>
+
+      {/* Logic Alert */}
+      <Alert className="bg-blue-500/5 border-blue-500/20">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertTitle className="text-blue-900 font-semibold">Automated Inventory Management</AlertTitle>
+        <AlertDescription className="text-blue-800/80 text-sm">
+          Warehouse stock levels update instantly upon GRN approval. 
+          History below represents verified physical arrivals.
+        </AlertDescription>
+      </Alert>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { label: "Total GRNs", val: stats.totalGRNs, icon: ClipboardCheck, color: "text-slate-500" },
+          { label: "Items Received", val: stats.totalItems, icon: TrendingUp, color: "text-blue-600" },
+          { label: "Approved Records", val: stats.approvedGRNs, icon: CheckCircle, color: "text-emerald-600" },
+        ].map((stat, i) => (
+          <Card key={i}>
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                <p className="text-3xl font-bold mt-1">{stat.val}</p>
+              </div>
+              <stat.icon className={`w-10 h-10 ${stat.color} opacity-20`} />
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Info Alert */}
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-        <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="text-sm font-semibold text-blue-900">Automatic Stock Update</p>
-            <p className="text-sm text-blue-700 mt-1">
-              Stock is automatically added to your warehouse inventory when GRNs are created. 
-              This page shows the history of all stock entries from approved GRNs.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <StatsCard
-          label="Total GRNs"
-          value={stats.totalGRNs}
-          icon={ClipboardCheck}
-          color="gray"
-        />
-        <StatsCard
-          label="Items Received"
-          value={stats.totalItems}
-          icon={TrendingUp}
-          color="blue"
-        />
-        <StatsCard
-          label="Approved GRNs"
-          value={stats.approvedGRNs}
-          icon={CheckCircle}
-          color="green"
-        />
-      </div>
-
-      {/* Filter Section */}
       <StockInFilter
         filters={filters}
-        onFilterChange={handleFilterChange}
+        onFilterChange={setFilters}
         suppliers={suppliers}
         stockInItems={stockInItems}
         filteredStockInItems={filteredStockInItems}
@@ -282,17 +227,30 @@ const StockInPages = () => {
         totalCount={stockInItems.length}
       />
 
-      {/* Stock In Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <SharedTable
-          columns={columns}
-          data={filteredStockInItems}
-          pageSize={10}
-          loading={fetchLoading}
-          renderRowActions={renderRowActions}
-          actionsHeader="Actions"
-        />
-      </div>
+      <Card className="border-border shadow-sm">
+        <div className="p-1">
+          <SharedTable
+            columns={columns}
+            data={filteredStockInItems}
+            pageSize={10}
+            loading={fetchLoading}
+            renderRowActions={(grn) => (
+              <Button variant="ghost" size="icon" onClick={() => handleView(grn)}>
+                <Eye className="w-4 h-4" />
+              </Button>
+            )}
+            actionsHeader="View"
+          />
+        </div>
+      </Card>
+
+      {/* Details Modal */}
+      <StockInDetailsDialog 
+        isOpen={isDetailsOpen} 
+        onOpenChange={setIsDetailsOpen}
+        grn={selectedGrn}
+        suppliers={suppliers}
+      />
     </div>
   )
 }

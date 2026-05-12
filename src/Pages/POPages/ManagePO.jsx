@@ -200,7 +200,7 @@ const ManagePO = () => {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-8">
+    <div className=" mx-auto py-6 space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
         <div>
