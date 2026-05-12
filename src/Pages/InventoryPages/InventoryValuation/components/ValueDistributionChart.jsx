@@ -1,123 +1,125 @@
 import React, { useMemo } from 'react'
-import { BarChart3 } from 'lucide-react'
-import { BarChart } from '../../../../Shared/Charts'
+import { BarChart3, TrendingUp, Info } from 'lucide-react'
+// Adjusted this import to point to your actual shared BarChart component
+import { BarChart } from '../../../../Shared/Charts' 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
-const ValueDistributionChart = ({ valuationData = [] }) => {
-  // Calculate category-wise value distribution
+const ValueDistributionChart = ({ valuationData = [], className }) => {
   const chartData = useMemo(() => {
     if (!valuationData || valuationData.length === 0) {
-      // Generate sample data if no real data
       return [
-        { category: 'Electronics', totalValue: 45000, itemCount: 15, avgValue: 3000 },
-        { category: 'Clothing', totalValue: 32000, itemCount: 25, avgValue: 1280 },
-        { category: 'Food & Beverage', totalValue: 28000, itemCount: 40, avgValue: 700 },
-        { category: 'Home & Garden', totalValue: 22000, itemCount: 18, avgValue: 1222 },
-        { category: 'Sports', totalValue: 18000, itemCount: 12, avgValue: 1500 },
-        { category: 'Books', totalValue: 12000, itemCount: 30, avgValue: 400 },
-        { category: 'Health & Beauty', totalValue: 15000, itemCount: 20, avgValue: 750 },
-        { category: 'Toys & Games', totalValue: 8000, itemCount: 15, avgValue: 533 }
+        { category: 'Electronics', totalValue: 45000, itemCount: 15 },
+        { category: 'Clothing', totalValue: 32000, itemCount: 25 },
+        { category: 'Food & Bev', totalValue: 28000, itemCount: 40 },
+        { category: 'Home', totalValue: 22000, itemCount: 18 },
+        { category: 'Sports', totalValue: 18000, itemCount: 12 }
       ]
     }
 
-    // Group by category and calculate totals
     const categoryMap = {}
     valuationData.forEach(item => {
       const category = item.category || 'Uncategorized'
       if (!categoryMap[category]) {
-        categoryMap[category] = {
-          totalValue: 0,
-          itemCount: 0,
-          avgValue: 0
-        }
+        categoryMap[category] = { totalValue: 0, itemCount: 0 }
       }
       categoryMap[category].totalValue += item.totalValue || 0
       categoryMap[category].itemCount += 1
     })
 
-    // Calculate average values and convert to array
-    return Object.entries(categoryMap).map(([category, data]) => ({
-      category,
-      totalValue: data.totalValue,
-      itemCount: data.itemCount,
-      avgValue: data.totalValue / data.itemCount
-    })).sort((a, b) => b.totalValue - a.totalValue) // Sort by total value descending
+    return Object.entries(categoryMap)
+      .map(([category, data]) => ({
+        category,
+        totalValue: data.totalValue,
+        itemCount: data.itemCount,
+      }))
+      .sort((a, b) => b.totalValue - a.totalValue)
   }, [valuationData])
 
-  // Calculate summary statistics
-  const totalValue = useMemo(() => {
-    return chartData.reduce((sum, item) => sum + item.totalValue, 0)
-  }, [chartData])
-
-  const totalItems = useMemo(() => {
-    return chartData.reduce((sum, item) => sum + item.itemCount, 0)
-  }, [chartData])
-
-  const topCategory = useMemo(() => {
-    return chartData.length > 0 ? chartData[0] : null
+  const totals = useMemo(() => {
+    const value = chartData.reduce((sum, item) => sum + item.totalValue, 0)
+    const items = chartData.reduce((sum, item) => sum + item.itemCount, 0)
+    return { value, items, top: chartData[0] || null }
   }, [chartData])
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <BarChart3 className="w-5 h-5 mr-2 text-green-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Value Distribution Chart</h3>
+    <Card className={cn("border-border bg-card shadow-sm", className)}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border/50 bg-muted/20 pb-4">
+        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-primary" />
+          Value Distribution
+        </CardTitle>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Badge variant="outline" className="bg-background font-mono text-primary border-primary/20">
+            BDT {totals.value.toLocaleString()}
+          </Badge>
+          <Badge variant="secondary" className="hidden sm:flex">
+            {totals.items} Items
+          </Badge>
         </div>
-        <div className="flex gap-4 text-sm">
-          <div className="text-right">
-            <p className="text-gray-500">Total Value</p>
-            <p className="font-semibold text-green-600">BDT {totalValue.toLocaleString()}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-gray-500">Total Items</p>
-            <p className="font-semibold text-gray-900">{totalItems.toLocaleString()}</p>
-          </div>
-          {topCategory && (
-            <div className="text-right">
-              <p className="text-gray-500">Top Category</p>
-              <p className="font-semibold text-blue-600">{topCategory.category}</p>
-            </div>
-          )}
-        </div>
-      </div>
+      </CardHeader>
       
-      <div className="bg-gradient-to-b from-slate-50/50 to-white rounded-lg border border-gray-200 p-4">
-        <BarChart
-          data={chartData}
-          bars={[
-            { 
-              dataKey: 'totalValue', 
-              fill: '#10b981', 
-              name: 'Total Value (BDT)' 
-            }
-          ]}
-          xAxisKey="category"
-          height={320}
-          showGrid={true}
-          showLegend={false}
-        />
-      </div>
-      
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-        <div className="text-center p-3 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">Categories</p>
-          <p className="font-semibold text-gray-900">{chartData.length}</p>
+      <CardContent className="pt-6">
+        <div className="rounded-xl border border-border bg-muted/30 p-4 mb-6">
+          {/* Using your existing Shared BarChart component */}
+          <BarChart
+            data={chartData}
+            bars={[
+              { 
+                dataKey: 'totalValue', 
+                fill: 'hsl(var(--primary))', 
+                name: 'Total Value (BDT)',
+                radius: [4, 4, 0, 0] 
+              }
+            ]}
+            xAxisKey="category"
+            height={300}
+            showGrid={true}
+            showLegend={false}
+          />
         </div>
-        <div className="text-center p-3 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">Avg Value per Item</p>
-          <p className="font-semibold text-green-600">
-            BDT {totalItems > 0 ? (totalValue / totalItems).toFixed(0) : 0}
-          </p>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatBox 
+            label="Avg Value/Item" 
+            value={`BDT ${totals.items > 0 ? (totals.value / totals.items).toFixed(0) : 0}`} 
+            icon={<TrendingUp className="w-4 h-4 text-emerald-500" />}
+          />
+          <StatBox 
+            label="Top Category" 
+            value={totals.top?.category || 'N/A'} 
+            subValue={`BDT ${totals.top?.totalValue.toLocaleString()}`}
+            icon={<BarChart3 className="w-4 h-4 text-blue-500" />}
+          />
+          <StatBox 
+            label="Categories" 
+            value={chartData.length} 
+            icon={<Info className="w-4 h-4 text-muted-foreground" />}
+          />
         </div>
-        <div className="text-center p-3 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">Highest Value Category</p>
-          <p className="font-semibold text-blue-600">
-            {topCategory ? `${topCategory.category} (BDT ${topCategory.totalValue.toLocaleString()})` : 'N/A'}
-          </p>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
+
+const StatBox = ({ label, value, subValue, icon }) => (
+  <div className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/50 transition-all hover:bg-muted/80">
+    <div className="mt-1">{icon}</div>
+    <div className="space-y-1">
+      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground leading-none">
+        {label}
+      </p>
+      <p className="text-sm font-bold text-foreground">
+        {value}
+      </p>
+      {subValue && (
+        <p className="text-[10px] text-muted-foreground font-medium italic">
+          {subValue}
+        </p>
+      )}
+    </div>
+  </div>
+)
 
 export default ValueDistributionChart

@@ -1,35 +1,48 @@
 import React from 'react'
 import { Calculator, RefreshCw } from 'lucide-react'
-import { Button } from '../../../../Components/UI/Button'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
-const InventoryValuationHeader = ({ onRefresh }) => {
+const InventoryValuationHeader = ({ onRefresh, className }) => {
   return (
-    <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-            <Calculator className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-green-600" />
-            Inventory Valuation
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-2">
-            Track total stock value and cost-based valuation
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onRefresh}
-            className="w-full sm:w-auto flex items-center justify-center"
-          >
-            <div className="flex items-center">
-              <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              <span className="text-sm sm:text-base">Refresh</span>
+    <Card className={cn(
+      "relative overflow-hidden border-border bg-gradient-to-r from-emerald-500/5 via-primary/5 to-background shadow-md",
+      className
+    )}>
+      {/* Visual accent decoration consistent with other headers */}
+      <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      
+      <CardContent className="p-4 sm:p-6 relative z-10">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <Calculator className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                Inventory Valuation
+              </h1>
             </div>
-          </Button>
+            <p className="text-sm sm:text-base text-muted-foreground ml-1">
+              Track total stock value and cost-based valuation
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="default"
+              onClick={onRefresh}
+              className="w-full sm:w-auto h-10 px-4 bg-background/50 backdrop-blur-sm border-border hover:bg-accent hover:text-accent-foreground"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              <span className="text-sm font-medium">Refresh</span>
+            </Button>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 
