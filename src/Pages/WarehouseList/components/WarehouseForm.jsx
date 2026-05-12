@@ -1,13 +1,23 @@
 import React from 'react'
-import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import { Button } from '../../../Components/UI/Button'
-import { Save, X } from 'lucide-react'
+import { Save, X, Warehouse, MapPin, Contact, Phone, Mail, Navigation } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 import { validateWarehouseForm } from '../utils/warehouseHelpers'
-import { notify } from '../../../utils/notifications'
+import { toast } from "sonner"
 
 /**
- * Warehouse Form Component
- * Handles both create and edit operations
+ * Warehouse Form Component refactored with Shadcn UI
  */
 const WarehouseForm = ({
   isOpen,
@@ -18,13 +28,15 @@ const WarehouseForm = ({
   editMode,
   loading
 }) => {
+
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Validate form
     const validation = validateWarehouseForm(formData)
     if (!validation.isValid) {
-      notify.warning('Validation Error', validation.errors.join(', '))
+      toast.error('Validation Error', {
+        description: validation.errors.join(', ')
+      })
       return
     }
 
@@ -36,128 +48,167 @@ const WarehouseForm = ({
   }
 
   return (
-    <SharedModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={editMode ? 'Edit Warehouse' : 'Add New Warehouse'}
-      size="medium"
-    >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Warehouse Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Warehouse Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => handleChange('name', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter warehouse name"
-            required
-          />
-        </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-0">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Warehouse className="w-5 h-5 text-primary" />
+            </div>
+            <DialogTitle className="text-xl font-bold">
+              {editMode ? 'Edit Warehouse' : 'Add New Warehouse'}
+            </DialogTitle>
+          </div>
+          <DialogDescription>
+            {editMode 
+              ? 'Update existing warehouse details and contact information.' 
+              : 'Register a new storage facility in your logistics network.'}
+          </DialogDescription>
+        </DialogHeader>
 
-        {/* Location */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Location <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.location}
-            onChange={(e) => handleChange('location', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="e.g., Building A, Floor 2"
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Warehouse Name */}
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="name" className="text-xs font-bold uppercase tracking-wider">
+                Warehouse Name <span className="text-destructive">*</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  id="name"
+                  placeholder="e.g. North Hub Distribution"
+                  value={formData.name}
+                  onChange={(e) => handleChange('name', e.target.value)}
+                  className="font-medium"
+                  required
+                />
+              </div>
+            </div>
 
-        {/* Address */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Address <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            value={formData.address}
-            onChange={(e) => handleChange('address', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Full address"
-            rows={3}
-            required
-          />
-        </div>
+            {/* Location Tag */}
+            <div className="space-y-2">
+              <Label htmlFor="location" className="text-xs font-bold uppercase tracking-wider">
+                Zone / Location <span className="text-destructive">*</span>
+              </Label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="location"
+                  placeholder="e.g. Sector 7"
+                  value={formData.location}
+                  onChange={(e) => handleChange('location', e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
 
-        {/* Contact Person */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Contact Person <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.contactPerson}
-            onChange={(e) => handleChange('contactPerson', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Person in charge"
-            required
-          />
-        </div>
+            {/* Contact Person */}
+            <div className="space-y-2">
+              <Label htmlFor="contact" className="text-xs font-bold uppercase tracking-wider">
+                Manager <span className="text-destructive">*</span>
+              </Label>
+              <div className="relative">
+                <Contact className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="contact"
+                  placeholder="Full name"
+                  value={formData.contactPerson}
+                  onChange={(e) => handleChange('contactPerson', e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
 
-        {/* Phone and Email */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => handleChange('phone', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Phone number"
-              required
-            />
+            {/* Address */}
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="address" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                <Navigation className="w-3 h-3" /> Physical Address
+              </Label>
+              <Textarea
+                id="address"
+                placeholder="Enter full physical address..."
+                value={formData.address}
+                onChange={(e) => handleChange('address', e.target.value)}
+                className="resize-none min-h-[80px]"
+                required
+              />
+            </div>
+
+            {/* Phone */}
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider">
+                Phone <span className="text-destructive">*</span>
+              </Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+1 (555) 000-0000"
+                  value={formData.phone}
+                  onChange={(e) => handleChange('phone', e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider">
+                Email <span className="text-destructive">*</span>
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="warehouse@company.com"
+                  value={formData.email}
+                  onChange={(e) => handleChange('email', e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="email@example.com"
-              required
-            />
-          </div>
-        </div>
+          <Separator className="my-2" />
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
-            disabled={loading}
-          >
-            <X className="w-4 h-4 mr-2" />
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={loading}
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {editMode ? 'Update' : 'Create'}
-          </Button>
-        </div>
-      </form>
-    </SharedModal>
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onClose}
+              disabled={loading}
+              className="font-semibold"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="font-bold min-w-[120px] shadow-lg shadow-primary/20"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Saving...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Save className="w-4 h-4" />
+                  {editMode ? 'Update Warehouse' : 'Create Warehouse'}
+                </div>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
 export default WarehouseForm
-
