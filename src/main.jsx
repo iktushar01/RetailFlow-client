@@ -5,11 +5,14 @@ import App from './App.jsx'
 import { RouterProvider } from 'react-router-dom'
 import router from './Routes/PublicRoute.jsx'
 import { AuthProvider } from './contexts/AuthContext'
+import { ThemeProvider } from './providers/theme-provider.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </AuthProvider>
   </StrictMode>,
 )

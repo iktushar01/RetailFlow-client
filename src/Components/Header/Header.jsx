@@ -5,8 +5,9 @@ import { Z_INDEX } from '../../constants/zIndex'
 import { dashboardAPI } from '../../Pages/HomePage/services/dashboardService'
 import { useAuth } from '../../contexts/AuthContext'
 import Swal from 'sweetalert2'
+import { ModeToggle } from '@/Shared/ModeToggle'
 
-const Header = ({ onMenuClick }) => {
+const Header = ({ onMenuClick, onSidebarCollapse, isSidebarCollapsed }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
@@ -369,6 +370,9 @@ const Header = ({ onMenuClick }) => {
             <button className="md:hidden mobile-menu-btn" onClick={onMenuClick}>
               <Menu size={18} />
             </button>
+            <button className="hidden md:flex mobile-menu-btn" onClick={onSidebarCollapse} title="Toggle sidebar">
+              <Menu size={18} />
+            </button>
             <div>
               <div className="page-title">{getPageTitle()}</div>
               <div className="breadcrumb-wrap">
@@ -398,6 +402,8 @@ const Header = ({ onMenuClick }) => {
                 <span className="clock-date">{formatDate(currentTime)}</span>
               </div>
             </div>
+
+            <ModeToggle />
 
             {/* Notifications */}
             <button className="notif-btn" onClick={handleNotificationClick} title="Notifications">

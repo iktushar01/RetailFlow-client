@@ -11,29 +11,13 @@ import {
   ChevronRight,
   Store,
   PackageIcon,
-  UserCircle,
-  PanelLeftClose,
-  PanelLeftOpen
+  UserCircle
 } from 'lucide-react'
 import { Z_INDEX } from '../../constants/zIndex'
 
 const Sidebar = ({ isOpen, onClose }) => {
   const [activeDropdown, setActiveDropdown] = useState(null)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const location = useLocation()
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('sidebarCollapsed')
-      if (saved !== null) setSidebarCollapsed(saved === 'true')
-    } catch { /* ignore */ }
-  }, [])
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('sidebarCollapsed', String(sidebarCollapsed))
-    } catch { /* ignore */ }
-  }, [sidebarCollapsed])
 
   const menuItems = [
     {
@@ -177,24 +161,6 @@ const Sidebar = ({ isOpen, onClose }) => {
           box-shadow: 0 0 0 1px rgba(99,102,241,0.3), 0 4px 12px rgba(99,102,241,0.25);
           flex-shrink: 0;
         }
-        .collapse-btn {
-          width: 28px;
-          height: 28px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 6px;
-          color: #64748b;
-          transition: background 0.15s, color 0.15s;
-          cursor: pointer;
-          border: none;
-          background: transparent;
-          flex-shrink: 0;
-        }
-        .collapse-btn:hover {
-          background: rgba(255,255,255,0.07);
-          color: #94a3b8;
-        }
         .section-label {
           font-size: 10px;
           font-weight: 600;
@@ -276,44 +242,9 @@ const Sidebar = ({ isOpen, onClose }) => {
           color: #a5b4fc;
           background: rgba(99,102,241,0.1);
         }
-        .tooltip-popup {
-          position: absolute;
-          left: calc(100% + 8px);
-          top: 50%;
-          transform: translateY(-50%);
-          background: #1e293b;
-          border: 1px solid rgba(255,255,255,0.08);
-          color: #e2e8f0;
-          font-size: 12px;
-          font-weight: 500;
-          padding: 4px 10px;
-          border-radius: 6px;
-          white-space: nowrap;
-          pointer-events: none;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-          display: none;
-          z-index: 9999;
-        }
         .group:hover .tooltip-popup { display: block; }
         .sidebar-nav-scroll::-webkit-scrollbar { width: 3px; }
         .sidebar-nav-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 99px; }
-        .collapsed-item-wrap { position: relative; }
-        .collapsed-nav-btn {
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          color: #475569;
-          transition: background 0.15s, color 0.15s;
-          margin: 0 auto;
-        }
-        .collapsed-nav-btn:hover { background: rgba(255,255,255,0.07); color: #94a3b8; }
-        .collapsed-nav-btn.active { background: rgba(99,102,241,0.14); color: #818cf8; }
       `}</style>
 
       {/* Sidebar */}
@@ -322,7 +253,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           fixed md:relative inset-y-0 left-0
           sidebar-root
           transition-all duration-300 ease-in-out
-          ${sidebarCollapsed ? 'w-[64px]' : 'w-[240px]'}
+          w-[240px]
           ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           flex flex-col
         `}
@@ -332,142 +263,81 @@ const Sidebar = ({ isOpen, onClose }) => {
       >
         {/* Logo */}
         <div className="sidebar-logo-area flex items-center justify-between px-4 py-[14px] sticky top-0" style={{ zIndex: Z_INDEX.SIDEBAR_STICKY }}>
-          {!sidebarCollapsed && (
-            <Link to="/" className="flex items-center gap-2.5 flex-1 min-w-0" onClick={handleLinkClick}>
-              <div className="logo-icon-wrap">
-                <Store className="h-4 w-4 text-white" />
-              </div>
-              <span className="sidebar-logo-text truncate">Store-Xen POS</span>
-            </Link>
-          )}
-          {sidebarCollapsed && (
-            <div className="flex justify-center w-full">
-              <div className="logo-icon-wrap">
-                <Store className="h-4 w-4 text-white" />
-              </div>
+          <Link to="/" className="flex items-center gap-2.5 flex-1 min-w-0" onClick={handleLinkClick}>
+            <div className="logo-icon-wrap">
+              <Store className="h-4 w-4 text-white" />
             </div>
-          )}
-          {!sidebarCollapsed && (
-            <button className="collapse-btn ml-2" onClick={() => setSidebarCollapsed(true)} title="Collapse sidebar">
-              <PanelLeftClose size={16} />
-            </button>
-          )}
-          {sidebarCollapsed && (
-            <button
-              className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#1e293b] border border-[rgba(255,255,255,0.08)] rounded-full flex items-center justify-center text-[#64748b] hover:text-[#94a3b8] hover:bg-[#263148] transition-all cursor-pointer shadow-lg"
-              onClick={() => setSidebarCollapsed(false)}
-              title="Expand sidebar"
-              style={{ zIndex: 10 }}
-            >
-              <PanelLeftOpen size={12} />
-            </button>
-          )}
+            <span className="sidebar-logo-text truncate">Store-Xen POS</span>
+          </Link>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto sidebar-nav-scroll py-3" aria-label="Sidebar menu">
-          {!sidebarCollapsed && (
-            <div className="px-3 space-y-0.5">
-              {menuItems.map((item) => {
-                const Icon = item.icon
-                const active = isActive(item.path)
-                const isOpen = activeDropdown === item.id
+          <div className="px-3 space-y-0.5">
+            {menuItems.map((item) => {
+              const Icon = item.icon
+              const active = isActive(item.path)
+              const isOpen = activeDropdown === item.id
 
-                // Section grouping labels
-                const sectionLabels = {
-                  dashboard: 'Main',
-                  suppliers: 'Operations',
-                  inventory: 'Analytics',
-                  profile: 'Account'
-                }
+              // Section grouping labels
+              const sectionLabels = {
+                dashboard: 'Main',
+                suppliers: 'Operations',
+                inventory: 'Analytics',
+                profile: 'Account'
+              }
 
-                return (
-                  <div key={item.id}>
-                    {sectionLabels[item.id] && (
-                      <div className="section-label">{sectionLabels[item.id]}</div>
-                    )}
-                    {item.subItems ? (
-                      <>
-                        <button
-                          onClick={() => handleDropdownToggle(item.id)}
-                          className={`nav-item-btn ${active ? 'active' : ''}`}
-                          aria-expanded={isOpen}
-                        >
-                          <Icon size={16} className="nav-icon" />
-                          <span className="nav-label">{item.title}</span>
-                          <ChevronDown size={14} className={`chevron-icon ${isOpen ? 'open' : ''}`} />
-                        </button>
-                        {isOpen && (
-                          <div className="sub-items-wrap">
-                            {item.subItems.map((sub, i) => (
-                              <Link
-                                key={i}
-                                to={sub.path}
-                                className={`sub-item-link ${isActive(sub.path) ? 'active' : ''}`}
-                                onClick={handleLinkClick}
-                              >
-                                {sub.title}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <Link
-                        to={item.path}
-                        className={`nav-item-link ${active ? 'active' : ''}`}
-                        onClick={handleLinkClick}
+              return (
+                <div key={item.id}>
+                  {sectionLabels[item.id] && (
+                    <div className="section-label">{sectionLabels[item.id]}</div>
+                  )}
+                  {item.subItems ? (
+                    <>
+                      <button
+                        onClick={() => handleDropdownToggle(item.id)}
+                        className={`nav-item-btn ${active ? 'active' : ''}`}
+                        aria-expanded={isOpen}
                       >
                         <Icon size={16} className="nav-icon" />
                         <span className="nav-label">{item.title}</span>
-                      </Link>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          )}
-
-          {/* Collapsed icon-only nav */}
-          {sidebarCollapsed && (
-            <div className="flex flex-col gap-1 px-2 py-1">
-              {menuItems.map((item) => {
-                const Icon = item.icon
-                const active = isActive(item.path)
-                return (
-                  <div key={item.id} className="group collapsed-item-wrap">
-                    {item.subItems ? (
-                      <button
-                        onClick={() => handleDropdownToggle(item.id)}
-                        className={`collapsed-nav-btn ${active ? 'active' : ''}`}
-                        title={item.title}
-                      >
-                        <Icon size={18} />
+                        <ChevronDown size={14} className={`chevron-icon ${isOpen ? 'open' : ''}`} />
                       </button>
-                    ) : (
-                      <Link
-                        to={item.path}
-                        className={`collapsed-nav-btn ${active ? 'active' : ''}`}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', borderRadius: '10px' }}
-                        onClick={handleLinkClick}
-                      >
-                        <Icon size={18} />
-                      </Link>
-                    )}
-                    <div className="tooltip-popup">{item.title}</div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
+                      {isOpen && (
+                        <div className="sub-items-wrap">
+                          {item.subItems.map((sub, i) => (
+                            <Link
+                              key={i}
+                              to={sub.path}
+                              className={`sub-item-link ${isActive(sub.path) ? 'active' : ''}`}
+                              onClick={handleLinkClick}
+                            >
+                              {sub.title}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      to={item.path}
+                      className={`nav-item-link ${active ? 'active' : ''}`}
+                      onClick={handleLinkClick}
+                    >
+                      <Icon size={16} className="nav-icon" />
+                      <span className="nav-label">{item.title}</span>
+                    </Link>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </nav>
 
         {/* Bottom version tag */}
-        {!sidebarCollapsed && (
-          <div className="px-4 py-3 border-t border-[rgba(255,255,255,0.05)]">
-            <span style={{ fontSize: 11, color: '#1e293b', fontWeight: 600, letterSpacing: '0.05em' }}>v2.0 · PREMIUM</span>
-          </div>
-        )}
+        <div className="px-4 py-3 border-t border-[rgba(255,255,255,0.05)]">
+          <span style={{ fontSize: 11, color: '#1e293b', fontWeight: 600, letterSpacing: '0.05em' }}>v2.0 · PREMIUM</span>
+        </div>
       </aside>
     </>
   )
