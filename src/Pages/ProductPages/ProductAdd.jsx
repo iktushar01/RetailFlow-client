@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, List, Info } from 'lucide-react'
+import { Plus, List, Info, PackagePlus, ArrowLeft, ShieldCheck } from 'lucide-react'
 import Swal from 'sweetalert2'
 import { Button } from '../../Components/UI/Button'
 import ProductForm from './components/ProductForm'
@@ -15,7 +15,8 @@ import {
 
 const ProductAdd = () => {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState({
+  
+  const initialFormState = {
     productName: '',
     category: '',
     brand: '',
@@ -24,8 +25,9 @@ const ProductAdd = () => {
     qrCode: '',
     supplier: '',
     productImage: ''
-  })
+  }
 
+  const [formData, setFormData] = useState(initialFormState)
   const [errors, setErrors] = useState({})
   const [suppliers, setSuppliers] = useState([])
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES)
@@ -35,12 +37,11 @@ const ProductAdd = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [allProducts, setAllProducts] = useState([])
 
-  // Fetch suppliers and products on component mount
   useEffect(() => {
     fetchSuppliers()
     fetchAllProducts()
     handleGenerateQRCode()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   const fetchSuppliers = async () => {
     try {
@@ -48,12 +49,6 @@ const ProductAdd = () => {
       setSuppliers(data)
     } catch (error) {
       console.error('Error fetching suppliers:', error)
-      Swal.fire({
-        title: 'Warning',
-        text: 'Could not fetch suppliers list',
-        icon: 'warning',
-        confirmButtonColor: '#3b82f6'
-      })
     }
   }
 
@@ -74,10 +69,7 @@ const ProductAdd = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-    // Clear error when user types
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
-    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
   const handleImageChange = (e) => {
@@ -94,12 +86,11 @@ const ProductAdd = () => {
         title: 'Invalid File',
         text: validation.error,
         icon: 'error',
-        confirmButtonColor: '#ef4444'
+        confirmButtonColor: 'oklch(var(--destructive))'
       })
       return
     }
 
-    // Store file and show preview only (no upload yet)
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
   }
@@ -112,9 +103,9 @@ const ProductAdd = () => {
       setErrors(validation.errors)
       Swal.fire({
         title: 'Validation Error',
-        text: 'Please fill in all required fields',
+        text: 'Please check the required fields',
         icon: 'error',
-        confirmButtonColor: '#ef4444'
+        confirmButtonColor: 'oklch(var(--destructive))'
       })
       return
     }
@@ -124,22 +115,18 @@ const ProductAdd = () => {
     try {
       let imageUrl = ''
 
-      // Upload image to imgbb if a new image is selected
       if (imageFile) {
         try {
           imageUrl = await imageAPI.upload(imageFile, import.meta.env.VITE_IMGBB_API_KEY)
-        } catch (uploadError) {
-          console.error('Image upload error:', uploadError)
+        } catch {
           const result = await Swal.fire({
-            title: 'Upload Failed',
-            text: 'Failed to upload image. Product will be added without image.',
+            title: 'Image Upload Failed',
+            text: 'Would you like to add this product without an image?',
             icon: 'warning',
-            confirmButtonColor: '#f59e0b',
             showCancelButton: true,
-            cancelButtonText: 'Cancel',
-            confirmButtonText: 'Continue'
+            confirmButtonText: 'Yes, continue',
+            confirmButtonColor: 'oklch(var(--primary))'
           })
-          
           if (!result.isConfirmed) {
             setIsSubmitting(false)
             return
@@ -152,70 +139,44 @@ const ProductAdd = () => {
 
       await Swal.fire({
         title: 'Success!',
-        text: 'Product added successfully!',
+        text: 'Product archived successfully',
         icon: 'success',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#3b82f6',
         timer: 2000,
-        timerProgressBar: true
+        showConfirmButton: false
       })
 
-      // Reset form
-      setFormData({
-        productName: '',
-        category: '',
-        brand: '',
-        sku: '',
-        description: '',
-        qrCode: '',
-        supplier: '',
-        productImage: ''
-      })
-      setImageFile(null)
-      setImagePreview(null)
-      setErrors({})
-      handleGenerateQRCode()
+      resetForm()
+      fetchAllProducts() // Refresh the unique check list
 
     } catch (error) {
-      console.error('Error adding product:', error)
-      await Swal.fire({
+      Swal.fire({
         title: 'Error!',
-        text: error.response?.data?.message || error.message || 'Failed to add product',
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#ef4444'
+        text: error.response?.data?.message || 'Failed to create product',
+        icon: 'error'
       })
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const resetForm = () => {
+    setFormData(initialFormState)
+    setImageFile(null)
+    setImagePreview(null)
+    setErrors({})
+    handleGenerateQRCode()
+  }
+
   const handleCancel = () => {
     Swal.fire({
-      title: 'Are you sure?',
-      text: 'All unsaved changes will be lost',
+      title: 'Discard changes?',
+      text: 'You will lose all data entered in this form',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, cancel',
-      cancelButtonText: 'No, continue editing'
+      confirmButtonText: 'Discard',
+      confirmButtonColor: 'oklch(var(--destructive))'
     }).then((result) => {
-      if (result.isConfirmed) {
-        setFormData({
-          productName: '',
-          category: '',
-          brand: '',
-          description: '',
-          qrCode: '',
-          supplier: '',
-          productImage: ''
-        })
-        setImageFile(null)
-        setImagePreview(null)
-        setErrors({})
-        handleGenerateQRCode()
-      }
+      if (result.isConfirmed) navigate('/products/manage')
     })
   }
 
@@ -224,51 +185,57 @@ const ProductAdd = () => {
     setFormData(prev => ({ ...prev, category: newCategory }))
   }
 
-  const handleCategoryModalOpen = () => setIsCategoryModalOpen(true)
-  const handleCategoryModalClose = () => setIsCategoryModalOpen(false)
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-50 via-pink-50 to-red-50 p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <Plus className="w-8 h-8 mr-3 text-purple-600" />
-              Add New Product
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Create and manage your product inventory with ease
+    <div className="space-y-8 pb-12 animate-in fade-in duration-500">
+      {/* Header Section */}
+      <div className="relative overflow-hidden bg-card border rounded-2xl p-8 shadow-sm">
+        {/* Decorative Background Blur */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+        
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary rounded-xl shadow-lg shadow-primary/20">
+                <PackagePlus className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase italic">
+                Registry <span className="text-primary/80">New</span>
+              </h1>
+            </div>
+            <p className="text-muted-foreground text-sm max-w-md">
+              Initialize a new entry into the global inventory system. 
+              QR identifiers are auto-generated upon entry.
             </p>
           </div>
 
-          <Button 
-            variant="primary" 
-            size="md"
-            onClick={() => navigate('/products/manage')}
-          >
-            <div className="flex items-center">
-              <List className="w-5 h-5 mr-2" />
-              Manage Products
-            </div>
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/products/manage')}
+              className="gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Vault
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Info Card */}
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 flex items-start gap-3">
-        <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+      {/* Info Notice */}
+      <div className="flex items-start gap-4 p-4 rounded-xl border bg-primary/5 border-primary/10">
+        <div className="mt-1">
+          <ShieldCheck className="w-5 h-5 text-primary" />
+        </div>
         <div>
-          <p className="text-sm font-semibold text-blue-900">Product Creation</p>
-          <p className="text-sm text-blue-700 mt-1">
-            Add new products to your catalog with complete details including category, brand, supplier, and images.
-            A unique QR code is automatically generated for each product for easy tracking and identification.
+          <h4 className="text-sm font-bold text-primary uppercase tracking-wider">System Integrity</h4>
+          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+            Ensure SKU and Product Names are unique to prevent collisions in the database. 
+            All uploads are routed through encrypted image servers.
           </p>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      {/* Form Container */}
+      <div className="bg-card rounded-2xl border shadow-sm p-2 md:p-6 lg:p-10">
         <ProductForm
           formData={formData}
           errors={errors}
@@ -282,8 +249,8 @@ const ProductAdd = () => {
           onGenerateQRCode={handleGenerateQRCode}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-          onCategoryModalOpen={handleCategoryModalOpen}
-          onCategoryModalClose={handleCategoryModalClose}
+          onCategoryModalOpen={() => setIsCategoryModalOpen(true)}
+          onCategoryModalClose={() => setIsCategoryModalOpen(false)}
           onCategoryAdded={handleCategoryAdded}
         />
       </div>

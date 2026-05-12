@@ -1,8 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutGrid, List, Eye, Pencil, Trash2, Plus, Package, Info, RefreshCw } from 'lucide-react'
+import { 
+  LayoutGrid, 
+  List, 
+  Eye, 
+  Pencil, 
+  Trash2, 
+  Plus, 
+  Package, 
+  Info, 
+  RefreshCw,
+  Search,
+  ArrowRight
+} from 'lucide-react'
 import Swal from 'sweetalert2'
 import { Button } from '../../Components/UI/Button'
+import { Badge } from "../../Components/UI/Badge"
 import InfoCard from '../../Shared/InfoCard/InfoCard'
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'
 import ViewProductModal from './components/ViewProductModal'
@@ -11,42 +24,26 @@ import ProductFilter from './components/ProductFilter'
 import ProductCard from './components/ProductCard'
 import { productsAPI } from './services/productService'
 import { applyProductFilters, getUniqueCategories, getUniqueSuppliers } from './utils/productHelpers'
+import { cn } from "@/lib/utils"
 
 const ProductManage = () => {
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [viewMode, setViewMode] = useState('table') // 'table' or 'card'
+  const [viewMode, setViewMode] = useState('table') 
   
-  // Modal states
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   
-  // Filter states
   const [filters, setFilters] = useState({
     search: '',
     category: '',
     supplier: ''
   })
 
-  // Fetch products
-  useEffect(() => {
-    fetchProducts()
-  }, [])
-
-  const applyFilters = useCallback(() => {
-    const filtered = applyProductFilters(products, filters)
-    setFilteredProducts(filtered)
-  }, [products, filters])
-
-  // Apply filters
-  useEffect(() => {
-    applyFilters()
-  }, [applyFilters])
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true)
     try {
       const data = await productsAPI.getAll()
@@ -54,105 +51,86 @@ const ProductManage = () => {
     } catch (error) {
       console.error('Error fetching products:', error)
       Swal.fire({
-        title: 'Error!',
-        text: 'Failed to load products',
+        title: 'System Error',
+        text: 'Failed to synchronize product vault',
         icon: 'error',
-        confirmButtonColor: '#ef4444'
+        confirmButtonColor: 'oklch(var(--destructive))'
       })
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
+
+  useEffect(() => {
+    const filtered = applyProductFilters(products, filters)
+    setFilteredProducts(filtered)
+  }, [products, filters])
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
   }
 
   const handleClearFilters = () => {
-    setFilters({
-      search: '',
-      category: '',
-      supplier: ''
-    })
+    setFilters({ search: '', category: '', supplier: '' })
   }
 
-  const handleView = (product) => {
+  const handleAction = (product, mode) => {
     setSelectedProduct(product)
-    setViewModalOpen(true)
-  }
-
-  const handleEdit = (product) => {
-    setSelectedProduct(product)
-    setEditModalOpen(true)
+    if (mode === 'view') setViewModalOpen(true)
+    if (mode === 'edit') setEditModalOpen(true)
   }
 
   const handleDelete = async (product) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: `Delete "${product.productName}"? This action cannot be undone!`,
+      title: 'De-list Product?',
+      text: `Are you sure you want to remove ${product.productName}?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel'
+      confirmButtonText: 'Yes, Delete',
+      confirmButtonColor: 'oklch(var(--destructive))',
+      cancelButtonColor: 'oklch(var(--muted))',
     })
 
     if (result.isConfirmed) {
       try {
         await productsAPI.delete(product._id)
-        
-        await Swal.fire({
-          title: 'Deleted!',
-          text: 'Product has been deleted successfully.',
-          icon: 'success',
-          confirmButtonColor: '#3b82f6',
-          timer: 2000,
-          timerProgressBar: true
-        })
-        
+        Swal.fire({ title: 'Deleted', icon: 'success', timer: 1500, showConfirmButton: false })
         fetchProducts()
-      } catch (error) {
-        console.error('Error deleting product:', error)
-        Swal.fire({
-          title: 'Error!',
-          text: 'Failed to delete product',
-          icon: 'error',
-          confirmButtonColor: '#ef4444'
-        })
+      } catch {
+        Swal.fire({ title: 'Error', text: 'Deletion failed', icon: 'error' })
       }
     }
   }
 
-  const handleEditSuccess = () => {
-    setEditModalOpen(false)
-    fetchProducts()
-  }
-
-  // Get unique categories and suppliers for filters
-  const categories = getUniqueCategories(products)
-  const suppliers = getUniqueSuppliers(products)
-
-  // Table columns
   const columns = [
     {
       accessorKey: 'productImage',
-      header: 'Image',
+      header: 'Assets',
       cell: ({ row }) => (
-        <img 
-          src={row.original.productImage || 'https://via.placeholder.com/50'} 
-          alt={row.original.productName}
-          className="w-12 h-12 object-cover rounded-lg border border-gray-200"
-        />
+        <div className="relative w-10 h-10 group cursor-pointer" onClick={() => handleAction(row.original, 'view')}>
+          <img 
+            src={row.original.productImage || 'https://via.placeholder.com/50'} 
+            alt={row.original.productName}
+            className="w-full h-full object-cover rounded-lg border bg-muted group-hover:scale-110 transition-transform"
+          />
+        </div>
       )
     },
     {
       accessorKey: 'productName',
-      header: 'Product Name',
+      header: 'Product Identity',
       cell: ({ row }) => (
-        <div>
-          <div className="font-semibold text-gray-900">{row.original.productName}</div>
-          <div className="text-xs text-gray-500">{row.original.qrCode}</div>
+        <div className="flex flex-col">
+          <span className="font-bold text-foreground text-sm uppercase tracking-tight leading-none mb-1">
+            {row.original.productName}
+          </span>
+          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+            {row.original.qrCode?.slice(-8) || 'NO-ID'}
+          </span>
         </div>
       )
     },
@@ -160,231 +138,187 @@ const ProductManage = () => {
       accessorKey: 'sku',
       header: 'SKU',
       cell: ({ row }) => (
-        <div className="font-mono text-sm text-gray-700">
+        <code className="text-[11px] bg-muted px-1.5 py-0.5 rounded border">
           {row.original.sku || '-'}
-        </div>
+        </code>
       )
     },
     {
       accessorKey: 'category',
-      header: 'Category',
+      header: 'Classification',
       cell: ({ row }) => (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <Badge variant="secondary" className="font-medium text-[10px] uppercase tracking-wide">
           {row.original.category}
-        </span>
+        </Badge>
       )
     },
     {
-      accessorKey: 'brand',
-      header: 'Brand',
-      cell: ({ row }) => row.original.brand || '-'
-    },
-    {
       accessorKey: 'supplier',
-      header: 'Supplier',
-      cell: ({ row }) => row.original.supplier || '-'
+      header: 'Source',
+      cell: ({ row }) => <span className="text-xs font-medium italic">{row.original.supplier || 'N/A'}</span>
     },
     {
       accessorKey: 'createdAt',
-      header: 'Created At',
-      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString()
+      header: 'Enrolled',
+      cell: ({ row }) => <span className="text-xs text-muted-foreground">{new Date(row.original.createdAt).toLocaleDateString()}</span>
     }
   ]
 
-
-  // Render row actions for table
   const renderRowActions = (product) => (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => handleView(product)}
-      >
-        <div className='items-center'>
-        <div className='flex items-center'>
-        <Eye className="w-4 h-4 mr-1" />
-        View
-        </div>
-        </div>
+    <div className="flex items-center gap-1">
+      <Button variant="ghost" size="icon" onClick={() => handleAction(product, 'view')} title="Inspect">
+        <Eye className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
       </Button>
-      <Button
-        variant="edit"
-        size="sm"
-        onClick={() => handleEdit(product)}
-      >
-        <div className='flex items-center'>
-        <Pencil className="w-4 h-4 mr-1" />
-        Edit
-        </div>
+      <Button variant="ghost" size="icon" onClick={() => handleAction(product, 'edit')} title="Modify">
+        <Pencil className="w-4 h-4 text-muted-foreground hover:text-blue-500 transition-colors" />
       </Button>
-      <Button
-        variant="delete"
-        size="sm"
-        onClick={() => handleDelete(product)}
-      >
-        <div className='flex items-center'>
-        <Trash2 className="w-4 h-4 mr-1" />
-        Delete
-        </div>
+      <Button variant="ghost" size="icon" onClick={() => handleDelete(product)} title="Purge">
+        <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive transition-colors" />
       </Button>
-    </div>
-  )
-
-  // Card View Component
-  const CardView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-      {loading ? (
-        <div className="col-span-full flex items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      ) : filteredProducts.length > 0 ? (
-        filteredProducts.map((product) => (
-          <ProductCard
-            key={product._id}
-            product={product}
-            onView={handleView}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ))
-      ) : (
-        <div className="col-span-full flex flex-col items-center justify-center py-16">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
-          </div>
-          <p className="text-gray-500 font-medium">No products found</p>
-          <p className="text-gray-400 text-sm">Try adjusting your search or filters</p>
-        </div>
-      )}
     </div>
   )
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-50 via-pink-50 to-red-50 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-              <Package className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-purple-600" />
-              Manage Products
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-2">
-              View, search, and manage your product inventory
-            </p>
+    <div className="space-y-8 animate-in fade-in duration-700">
+      {/* Dynamic Dashboard Header */}
+      <div className="relative overflow-hidden bg-card border rounded-2xl p-6 shadow-sm">
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
+        
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/10">
+              <Package className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase italic leading-none">
+                Vault <span className="text-primary/70">Inventory</span>
+              </h1>
+              <p className="text-muted-foreground text-xs mt-1 font-medium tracking-wide uppercase">
+                {products.length} Units Cataloged — {filteredProducts.length} Showing
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            {/* View Toggle */}
-            <div className="flex items-center bg-white rounded-lg border border-gray-200 p-1 self-center sm:self-auto">
-              <button
-                onClick={() => setViewMode('table')}
-                className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-md transition-all text-xs sm:text-sm ${
-                  viewMode === 'table' 
-                    ? 'bg-purple-600 text-white shadow-sm' 
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            {/* View Mode Switcher */}
+            <div className="flex bg-muted rounded-xl p-1 border">
+              <Button 
+                variant={viewMode === 'table' ? 'secondary' : 'ghost'} 
+                size="sm" 
+                onClick={() => setViewMode('table')} 
+                className="rounded-lg h-8 px-3"
               >
-                <List className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="font-medium">Table</span>
-              </button>
-              <button
-                onClick={() => setViewMode('card')}
-                className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-md transition-all text-xs sm:text-sm ${
-                  viewMode === 'card' 
-                    ? 'bg-purple-600 text-white shadow-sm' 
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                <List className="w-4 h-4 mr-2" /> <span className="text-xs">List</span>
+              </Button>
+              <Button 
+                variant={viewMode === 'card' ? 'secondary' : 'ghost'} 
+                size="sm" 
+                onClick={() => setViewMode('card')} 
+                className="rounded-lg h-8 px-3"
               >
-                <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="font-medium">Cards</span>
-              </button>
+                <LayoutGrid className="w-4 h-4 mr-2" /> <span className="text-xs">Grid</span>
+              </Button>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <Button 
-                variant="secondary" 
-                size="sm"
-                onClick={fetchProducts}
-                disabled={loading}
-                className="w-full sm:w-auto flex items-center justify-center"
-              >
-                <div className="flex items-center">
-                  <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  <span className="text-sm sm:text-base">Refresh</span>
-                </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={fetchProducts} disabled={loading} className="h-9 w-9 p-0">
+                <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
               </Button>
-
-              <Button 
-                variant="primary" 
-                size="sm"
-                onClick={() => navigate('/products/add')}
-                className="w-full sm:w-auto flex items-center justify-center"
-              >
-                <div className="flex items-center">
-                  <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  <span className="text-sm sm:text-base">Add Product</span>
-                </div>
+              <Button onClick={() => navigate('/products/add')} size="sm" className="h-9 gap-2 shadow-lg shadow-primary/20">
+                <Plus className="w-4 h-4" /> Add Asset
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Info Card */}
-      <InfoCard
-        type="info"
-        title="Product Catalog Management"
-        message="Maintain your complete product catalog with detailed information, categories, suppliers, and QR codes. Products are linked to purchase orders, inventory, and sales transactions for complete traceability."
-        icon={Info}
-      />
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+         <div className="bg-card border p-4 rounded-xl flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total SKU</p>
+              <p className="text-xl font-black tracking-tighter">{products.length}</p>
+            </div>
+            <div className="h-10 w-1 bg-primary/20 rounded-full" />
+         </div>
+         {/* Additional fast-stats can go here */}
+      </div>
 
-      {/* Filters */}
-      <ProductFilter
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-        products={products}
-        filteredProducts={filteredProducts}
-        categories={categories}
-        suppliers={suppliers}
-        resultsCount={filteredProducts.length}
-        totalCount={products.length}
-      />
-
-      {/* Content - Table or Card View */}
-      {viewMode === 'table' ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <SharedTable
-            columns={columns}
-            data={filteredProducts}
-            loading={loading}
-            renderRowActions={renderRowActions}
-            pageSize={10}
-          />
-        </div>
-      ) : (
-        <CardView />
-      )}
-
-      {/* View Product Modal */}
-      {selectedProduct && (
-        <ViewProductModal
-          isOpen={viewModalOpen}
-          onClose={() => setViewModalOpen(false)}
-          product={selectedProduct}
+      {/* Filters Area */}
+      <div className="bg-card border rounded-2xl p-4 shadow-sm">
+        <ProductFilter
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={handleClearFilters}
+          categories={getUniqueCategories(products)}
+          suppliers={getUniqueSuppliers(products)}
+          resultsCount={filteredProducts.length}
+          products={products}
+          filteredProducts={filteredProducts}
         />
-      )}
+        />
+      </div>
 
-      {/* Edit Product Modal */}
+      {/* Main Content Area */}
+      <div className="min-h-[400px]">
+        {viewMode === 'table' ? (
+          <div className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden">
+            <SharedTable
+              columns={columns}
+              data={filteredProducts}
+              loading={loading}
+              renderRowActions={renderRowActions}
+              pageSize={10}
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-64 rounded-2xl bg-muted animate-pulse border" />
+              ))
+            ) : filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  onView={() => handleAction(product, 'view')}
+                  onEdit={() => handleAction(product, 'edit')}
+                  onDelete={() => handleDelete(product)}
+                />
+              ))
+            ) : (
+              <div className="col-span-full py-20 text-center border-2 border-dashed rounded-3xl bg-muted/20">
+                <Search className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-muted-foreground">No Assets Found</h3>
+                <p className="text-sm text-muted-foreground/60 max-w-xs mx-auto mt-1">
+                  Adjust your search parameters or inventory classifications to find hidden entries.
+                </p>
+                <Button variant="link" onClick={handleClearFilters} className="mt-4 gap-1">
+                  Reset System Filters <ArrowRight className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Modals */}
+      <ViewProductModal
+        isOpen={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        product={selectedProduct}
+      />
+
       {selectedProduct && (
         <EditProductModal
           isOpen={editModalOpen}
           onClose={() => setEditModalOpen(false)}
           product={selectedProduct}
-          onSuccess={handleEditSuccess}
+          onSuccess={() => {
+            setEditModalOpen(false);
+            fetchProducts();
+          }}
         />
       )}
     </div>

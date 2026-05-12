@@ -1,6 +1,16 @@
 import React, { useState } from 'react'
-import SharedModal from '../../../Shared/SharedModal/SharedModal'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../../Components/UI/Dialog"
 import { Button } from '../../../Components/UI/Button'
+import { Input } from "../../../Components/UI/Input"
+import { Label } from "../../../Components/UI/Label"
+import { Loader2 } from "lucide-react"
 import Swal from 'sweetalert2'
 
 const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
@@ -20,35 +30,24 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
     setIsSubmitting(true)
 
     try {
-      // Show success message
-      await Swal.fire({
-        title: 'Success!',
-        text: `Category "${categoryName}" added successfully!`,
-        icon: 'success',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#3b82f6',
-        timer: 2000,
-        timerProgressBar: true
-      })
-
-      // Call the callback to add category to parent
+      // Simulate API call or logic
       if (onCategoryAdded) {
         onCategoryAdded(categoryName)
       }
 
-      // Reset and close
-      setCategoryName('')
-      setError('')
-      onClose()
-    } catch (error) {
-      console.error('Error adding category:', error)
       await Swal.fire({
-        title: 'Error!',
-        text: 'Failed to add category',
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#ef4444'
+        title: 'Success!',
+        text: `Category "${categoryName}" added successfully!`,
+        icon: 'success',
+        confirmButtonColor: 'hsl(var(--primary))',
+        timer: 1500,
+        showConfirmButton: false
       })
+
+      handleClose()
+    } catch (err) {
+      console.error('Error adding category:', err)
+      setError('Failed to add category. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -60,74 +59,73 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
     onClose()
   }
 
-  const modalFooter = (
-    <div className="flex justify-end space-x-3">
-      <Button
-        variant="secondary"
-        size="md"
-        onClick={handleClose}
-        disabled={isSubmitting}
-      >
-        Cancel
-      </Button>
-      <Button
-        variant="primary"
-        size="md"
-        onClick={handleSubmit}
-        loading={isSubmitting}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? 'Adding...' : 'Add Category'}
-      </Button>
-    </div>
-  )
-
   return (
-    <SharedModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title="Add New Category"
-      size="small"
-      footer={modalFooter}
-      closeOnOverlayClick={!isSubmitting}
-      closeOnEscape={!isSubmitting}
-    >
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
-          <p className="text-sm text-gray-500">
-            Add a new product category to your inventory
-          </p>
-          
-          <div className="space-y-1">
-            <label 
-              className="text-sm font-semibold text-gray-700" 
-              htmlFor="categoryName"
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[425px] gap-6">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold leading-none tracking-tight">
+            Add New Category
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground pt-2">
+            Add a new product category to your inventory. Click save when you're done.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid w-full items-center gap-2">
+            <Label 
+              htmlFor="categoryName" 
+              className={error ? "text-destructive" : "text-foreground"}
             >
-              Category Name <span className="text-red-500">*</span>
-            </label>
-            <input
+              Category Name <span className="text-destructive">*</span>
+            </Label>
+            <Input
               id="categoryName"
-              type="text"
-              placeholder="e.g. Furniture"
+              placeholder="e.g. Furniture, Electronics..."
               value={categoryName}
+              disabled={isSubmitting}
+              autoFocus
+              className={error ? "border-destructive focus-visible:ring-destructive" : ""}
               onChange={(e) => {
                 setCategoryName(e.target.value)
                 if (error) setError('')
               }}
-              className={`block w-full rounded-xl border ${
-                error ? 'border-red-500' : 'border-gray-300'
-              } hover:border-gray-400 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3.5 py-2.5 text-sm placeholder-gray-400`}
-              autoFocus
             />
             {error && (
-              <p className="text-xs text-red-600">{error}</p>
+              <p className="text-[0.8rem] font-medium text-destructive">
+                {error}
+              </p>
             )}
           </div>
-        </div>
-      </form>
-    </SharedModal>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="min-w-[120px]"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                'Add Category'
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
 export default AddCategoryModal
-
