@@ -1,5 +1,28 @@
 import React, { forwardRef } from 'react'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
+import { cn } from "@/lib/utils"
+
+// Shadcn UI Components
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../../Components/UI/Form"
+import { Input } from "../../Components/UI/Input"
+import { Button } from "../../Components/UI/Button"
+import { Textarea } from "../../Components/UI/Textarea"
+import { Checkbox } from "../../Components/UI/Checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../Components/UI/Select"
 
 const InputForm = forwardRef(({
   fields = [],
@@ -10,7 +33,7 @@ const InputForm = forwardRef(({
   className = '',
   hideSubmitButton = false
 }, ref) => {
-  const { register, control, handleSubmit, formState: { errors, isSubmitting } } = useForm({ defaultValues })
+  const form = useForm({ defaultValues })
 
   const gridCols = {
     1: 'grid-cols-1',
@@ -19,146 +42,137 @@ const InputForm = forwardRef(({
     4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
   }[columns] || 'grid-cols-1 sm:grid-cols-2'
 
-  const renderField = (field) => {
-    const {
-      name,
-      label,
-      type = 'text',
-      placeholder,
-      options = [],
-      rows = 3,
-      prefix,
-      suffix,
-      step,
-      min,
-      max,
-      validation = {},
-      disabled = false,
-    } = field
-
-    const error = errors?.[name]
-
-    const baseInputClass = 'block w-full rounded-xl border border-slate-300 hover:border-slate-400 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 px-3.5 py-2.5 text-sm placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-400'
-
-    if (type === 'select') {
-      return (
-        <div className="space-y-1" key={name}>
-          {label && <label className="text-sm font-semibold text-slate-700" htmlFor={name}>
-            {label} {validation?.required && <span className="text-red-500">*</span>}
-          </label>}
-          <select id={name} className={baseInputClass} disabled={disabled} {...register(name, validation)}>
-            <option value="" disabled={!!validation?.required}>Select...</option>
-            {options.map(opt => (
-              <option key={opt.value ?? opt} value={opt.value ?? opt}>{opt.label ?? opt}</option>
-            ))}
-          </select>
-          {error && <p className="text-xs text-red-600">{error.message || 'This field is required'}</p>}
-        </div>
-      )
-    }
-
-    if (type === 'textarea') {
-      return (
-        <div className="space-y-1" key={name}>
-          {label && <label className="text-sm font-semibold text-slate-700" htmlFor={name}>
-            {label} {validation?.required && <span className="text-red-500">*</span>}
-          </label>}
-          <textarea id={name} rows={rows} placeholder={placeholder} className={baseInputClass} disabled={disabled} {...register(name, validation)} />
-          {error && <p className="text-xs text-red-600">{error.message || 'This field is required'}</p>}
-        </div>
-      )
-    }
-
-    if (type === 'checkbox') {
-      return (
-        <div className="flex items-center gap-2" key={name}>
-          <input id={name} type="checkbox" className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" disabled={disabled} {...register(name, validation)} />
-          {label && <label className="text-sm text-slate-700" htmlFor={name}>
-            {label} {validation?.required && <span className="text-red-500">*</span>}
-          </label>}
-          {error && <p className="text-xs text-red-600">{error.message || 'This field is required'}</p>}
-        </div>
-      )
-    }
-
-    if (type === 'currency') {
-      // Simple currency input using Controller to preserve numeric value
-      return (
-        <div className="space-y-1" key={name}>
-          {label && <label className="text-sm font-semibold text-slate-700" htmlFor={name}>
-            {label} {validation?.required && <span className="text-red-500">*</span>}
-          </label>}
-          <Controller
-            control={control}
-            name={name}
-            rules={validation}
-            render={({ field: f }) => (
-              <div className="flex items-center gap-2">
-                {prefix && <span className="text-sm text-slate-500">{prefix}</span>}
-                <input
-                  id={name}
-                  type="number"
-                  inputMode="decimal"
-                  step={step ?? '0.01'}
-                  min={min}
-                  max={max}
-                  placeholder={placeholder}
-                  className={baseInputClass}
-                  disabled={disabled}
-                  value={f.value ?? ''}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    f.onChange(val === '' ? '' : Number(val))
-                  }}
-                />
-                {suffix && <span className="text-sm text-slate-500">{suffix}</span>}
-              </div>
-            )}
-          />
-          {error && <p className="text-xs text-red-600">{error.message || 'This field is required'}</p>}
-        </div>
-      )
-    }
-
-    // text | number | date
-    return (
-      <div className="space-y-1" key={name}>
-        {label && <label className="text-sm font-semibold text-slate-700" htmlFor={name}>
-          {label} {validation?.required && <span className="text-red-500">*</span>}
-        </label>}
-        <div className="flex items-center gap-2">
-          {prefix && <span className="text-sm text-slate-500">{prefix}</span>}
-          <input
-            id={name}
-            type={type}
-            placeholder={placeholder}
-            step={step}
-            min={min}
-            max={max}
-            disabled={disabled}
-            className={baseInputClass}
-            {...register(name, validation)}
-          />
-          {suffix && <span className="text-sm text-slate-500">{suffix}</span>}
-        </div>
-        {error && <p className="text-xs text-red-600">{error.message || 'This field is required'}</p>}
-      </div>
-    )
-  }
-
   return (
-    <form ref={ref} onSubmit={handleSubmit(onSubmit)} className={`space-y-6 ${className}`}>
-      <div className={`grid ${gridCols} gap-4`}>
-        {fields.map(renderField)}
-      </div>
-      {!hideSubmitButton && (
-        <div className="flex items-center justify-end gap-3">
-          <button type="submit" disabled={isSubmitting} className="inline-flex items-center justify-center rounded-xl bg-indigo-600 text-white px-4 py-2.5 text-sm font-semibold shadow hover:shadow-md transition hover:bg-indigo-700 disabled:opacity-60">
-            {isSubmitting ? 'Processing…' : submitLabel}
-          </button>
+    <Form {...form}>
+      <form 
+        ref={ref} 
+        onSubmit={form.handleSubmit(onSubmit)} 
+        className={cn("space-y-6", className)}
+      >
+        <div className={cn("grid gap-4", gridCols)}>
+          {fields.map((field) => (
+            <FormField
+              key={field.name}
+              control={form.control}
+              name={field.name}
+              rules={field.validation}
+              render={({ field: formField }) => (
+                <FormItem className={cn(
+                  field.type === 'checkbox' ? "flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm" : "space-y-2",
+                  field.className
+                )}>
+                  {field.type !== 'checkbox' && (
+                    <FormLabel className="font-semibold text-foreground">
+                      {field.label}
+                      {field.validation?.required && <span className="text-destructive ml-1">*</span>}
+                    </FormLabel>
+                  )}
+
+                  <FormControl>
+                    {(() => {
+                      switch (field.type) {
+                        case 'select':
+                          return (
+                            <Select 
+                              onValueChange={formField.onChange} 
+                              defaultValue={formField.value}
+                              disabled={field.disabled}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder={field.placeholder || "Select..."} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {field.options.map(opt => (
+                                  <SelectItem 
+                                    key={opt.value ?? opt} 
+                                    value={String(opt.value ?? opt)}
+                                  >
+                                    {opt.label ?? opt}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )
+                        case 'textarea':
+                          return (
+                            <Textarea 
+                              {...formField} 
+                              placeholder={field.placeholder} 
+                              rows={field.rows}
+                              disabled={field.disabled}
+                            />
+                          )
+                        case 'checkbox':
+                          return (
+                            <>
+                              <Checkbox
+                                checked={formField.value}
+                                onCheckedChange={formField.onChange}
+                                disabled={field.disabled}
+                              />
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                  {field.label}
+                                  {field.validation?.required && <span className="text-destructive ml-1">*</span>}
+                                </FormLabel>
+                                {field.description && <FormDescription>{field.description}</FormDescription>}
+                              </div>
+                            </>
+                          )
+                        case 'currency':
+                        case 'number':
+                          return (
+                            <div className="flex items-center gap-2">
+                              {field.prefix && <span className="text-sm text-muted-foreground">{field.prefix}</span>}
+                              <Input 
+                                {...formField}
+                                type="number"
+                                step={field.step || (field.type === 'currency' ? '0.01' : '1')}
+                                min={field.min}
+                                max={field.max}
+                                placeholder={field.placeholder}
+                                disabled={field.disabled}
+                                onChange={(e) => formField.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                              />
+                              {field.suffix && <span className="text-sm text-muted-foreground">{field.suffix}</span>}
+                            </div>
+                          )
+                        default:
+                          return (
+                            <div className="flex items-center gap-2">
+                              {field.prefix && <span className="text-sm text-muted-foreground">{field.prefix}</span>}
+                              <Input 
+                                {...formField} 
+                                type={field.type || 'text'} 
+                                placeholder={field.placeholder}
+                                disabled={field.disabled}
+                              />
+                              {field.suffix && <span className="text-sm text-muted-foreground">{field.suffix}</span>}
+                            </div>
+                          )
+                      }
+                    })()}
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+          ))}
         </div>
-      )}
-    </form>
+
+        {!hideSubmitButton && (
+          <div className="flex items-center justify-end gap-3 pt-4">
+            <Button 
+              type="submit" 
+              disabled={form.formState.isSubmitting}
+              className="px-8"
+            >
+              {form.formState.isSubmitting ? 'Processing...' : submitLabel}
+            </Button>
+          </div>
+        )}
+      </form>
+    </Form>
   )
 })
 
