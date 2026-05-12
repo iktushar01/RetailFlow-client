@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { DashboardLayout } from "../Layouts/DashboardLayout";
 import { HomePage } from "../Pages/HomePage/HomePage";
-import { NotificationsPage } from "../Pages/HomePage/NotificationsPage";
+import NotificationsPage from "../Pages/HomePage/NotificationsPage";
 import ErrorBoundary from "../Components/ErrorBoundary/ErrorBoundary";
 import SupplierPages from "../Pages/SuppliersPages/SupplierPages";
 import ProductAdd from "../Pages/ProductPages/ProductAdd";

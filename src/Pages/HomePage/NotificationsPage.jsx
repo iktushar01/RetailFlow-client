@@ -1,70 +1,63 @@
-import React, { useState, useEffect } from 'react'
-import { Bell, AlertTriangle, Clock, CreditCard, Package, TrendingUp, X, CheckCircle, Info, AlertCircle, RefreshCw } from 'lucide-react'
-import Swal from 'sweetalert2'
+import React, { useState, useEffect, useCallback } from 'react'
+import { 
+  Bell, AlertTriangle, Clock, CreditCard, Package, TrendingUp, 
+  X, CheckCircle, Info, RefreshCw, Inbox, Trash2, Check 
+} from 'lucide-react'
+
+// shadcn/ui imports
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+
 import { dashboardAPI } from './services/dashboardService'
-import { Button } from '../../Components/UI/Button'
 import { DashboardLoading } from '../../Components/UI/LoadingAnimation'
 
-export const NotificationsPage = () => {
+const NotificationsPage = () => {
   const [loading, setLoading] = useState(true)
   const [notifications, setNotifications] = useState([])
-  const [filter, setFilter] = useState('all') // all, unread, alerts, info
+  const [filter, setFilter] = useState('all')
   const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    fetchNotifications()
-  }, [])
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async (isSilent = false) => {
     try {
-      setLoading(true)
+      if (!isSilent) setLoading(true)
       const [alerts, activities] = await Promise.all([
         dashboardAPI.getAlerts(),
         dashboardAPI.getRecentActivities()
       ])
 
-      // Combine alerts and activities into notifications
       const allNotifications = [
         ...alerts.map(alert => ({
-          id: alert.id,
+          ...alert,
           type: 'alert',
           priority: alert.severity,
-          title: alert.title,
-          message: alert.message,
-          timestamp: alert.timestamp,
-          read: false,
           icon: getNotificationIcon(alert.icon),
-          color: getNotificationColor(alert.severity)
+          color: getSeverityStyles(alert.severity)
         })),
-        ...activities.slice(0, 10).map(activity => ({
-          id: activity.id,
+        ...activities.slice(0, 15).map(activity => ({
+          ...activity,
           type: 'activity',
           priority: 'info',
-          title: activity.title,
-          message: activity.description,
-          timestamp: activity.timestamp,
-          read: false,
           icon: getActivityIcon(activity.type),
-          color: 'text-blue-600 bg-blue-50'
+          color: "bg-blue-500/10 text-blue-600 dark:text-blue-400"
         }))
       ]
 
-      // Sort by timestamp (newest first)
       allNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-      
       setNotifications(allNotifications)
     } catch (error) {
-      console.error('Error fetching notifications:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to load notifications',
-        confirmButtonColor: '#3B82F6'
-      })
+      console.error('Notification Sync Error:', error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchNotifications()
+  }, [fetchNotifications])
 
   const getNotificationIcon = (type) => {
     switch (type) {
@@ -78,197 +71,236 @@ export const NotificationsPage = () => {
   const getActivityIcon = (type) => {
     switch (type) {
       case 'sale': return TrendingUp
-      case 'purchase': return Package
+      case 'purchase': 
       case 'grn': return Package
       default: return Info
     }
   }
 
-  const getNotificationColor = (severity) => {
+  const getSeverityStyles = (severity) => {
     switch (severity) {
-      case 'high': return 'text-red-600 bg-red-50'
-      case 'medium': return 'text-amber-600 bg-amber-50'
-      case 'low': return 'text-blue-600 bg-blue-50'
-      default: return 'text-gray-600 bg-gray-50'
+      case 'high': return 'bg-red-500/10 text-red-600 dark:text-red-400'
+      case 'medium': return 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+      default: return 'bg-slate-500/10 text-slate-600 dark:text-slate-400'
     }
   }
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    await fetchNotifications()
+    await fetchNotifications(true)
     setRefreshing(false)
   }
 
-  const markAsRead = (notificationId) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificationId ? { ...notif, read: true } : notif
-      )
-    )
+  const markAsRead = (id) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
   }
 
   const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, read: true }))
-    )
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
   }
 
-  const deleteNotification = (notificationId) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== notificationId))
+  const deleteNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id))
   }
 
   const filteredNotifications = notifications.filter(notif => {
-    switch (filter) {
-      case 'unread': return !notif.read
-      case 'alerts': return notif.type === 'alert'
-      case 'info': return notif.type === 'activity'
-      default: return true
-    }
+    if (filter === 'unread') return !notif.read
+    if (filter === 'alerts') return notif.type === 'alert'
+    if (filter === 'info') return notif.type === 'activity'
+    return true
   })
 
-  const unreadCount = notifications.filter(notif => !notif.read).length
+  const unreadCount = notifications.filter(n => !n.read).length
 
-  if (loading) {
-    return <DashboardLoading message="Loading notifications..." />
-  }
+  if (loading) return <DashboardLoading message="Syncing notifications..." />
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 to-white px-4 py-6">
-      <div className=" mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Notifications</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              {unreadCount} unread notifications out of {notifications.length} total
-            </p>
+    <div className="w-full max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 animate-in fade-in duration-500">
+      
+      {/* HEADER SECTION - Stacked on mobile, side-by-side on md+ */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6">
+        <div className="space-y-1 w-full">
+          <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-[0.2em] text-[10px]">
+            <Inbox className="w-3 h-3" />
+            Communication Hub
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              loading={refreshing}
-              variant="secondary"
-              size="sm"
-            >
-              <div className="flex items-center gap-2">
-                <RefreshCw className="w-4 h-4" />
-                {refreshing ? 'Refreshing...' : 'Refresh'}
-              </div>
-            </Button>
-            {unreadCount > 0 && (
-              <Button
-                onClick={markAllAsRead}
-                variant="primary"
-                size="sm"
-              >
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  Mark All Read
-                </div>
-              </Button>
-            )}
-          </div>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tighter italic leading-none">
+            NOTIFICATIONS<span className="text-muted-foreground/40 ml-2">CENTER</span>
+          </h1>
+          <p className="text-muted-foreground text-xs md:text-sm font-medium">
+            You have <span className="text-foreground font-bold">{unreadCount} unread</span> messages.
+          </p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-1 rounded-lg bg-white/70 backdrop-blur p-1 ring-1 ring-slate-200/70">
-          {[
-            { key: 'all', label: 'All', count: notifications.length },
-            { key: 'unread', label: 'Unread', count: unreadCount },
-            { key: 'alerts', label: 'Alerts', count: notifications.filter(n => n.type === 'alert').length },
-            { key: 'info', label: 'Activities', count: notifications.filter(n => n.type === 'activity').length }
-          ].map(({ key, label, count }) => (
-            <Button
-              key={key}
-              onClick={() => setFilter(key)}
-              variant={filter === key ? 'primary' : 'ghost'}
-              size="sm"
-              className="px-4 py-2 text-sm"
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh} 
+            disabled={refreshing} 
+            className="flex-1 md:flex-none rounded-xl font-bold uppercase text-[10px] tracking-widest h-9"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Sync
+          </Button>
+          {unreadCount > 0 && (
+            <Button 
+              size="sm" 
+              onClick={markAllAsRead} 
+              className="flex-1 md:flex-none rounded-xl font-bold uppercase text-[10px] tracking-widest h-9 shadow-lg shadow-primary/20"
             >
-              <div className="flex items-center gap-2">
-                {label} ({count})
-              </div>
+              <Check className="w-3.5 h-3.5 mr-2" />
+              Mark Read
             </Button>
-          ))}
-        </div>
-
-        {/* Notifications List */}
-        <div className="space-y-3">
-          {filteredNotifications.length > 0 ? (
-            filteredNotifications.map((notification) => {
-              const IconComponent = notification.icon
-              return (
-                <div
-                  key={notification.id}
-                  className={`rounded-xl ring-1 ring-slate-200/70 p-4 transition-all hover:shadow-md ${
-                    notification.read ? 'bg-white/50' : 'bg-white shadow-sm'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-lg ${notification.color}`}>
-                      <IconComponent className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className={`font-semibold ${notification.read ? 'text-gray-600' : 'text-gray-900'}`}>
-                            {notification.title}
-                          </h3>
-                          <p className={`text-sm mt-1 ${notification.read ? 'text-gray-500' : 'text-gray-700'}`}>
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-2">
-                            {new Date(notification.timestamp).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2 ml-4">
-                          {!notification.read && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          )}
-                          <Button
-                            onClick={() => markAsRead(notification.id)}
-                            variant="ghost"
-                            size="sm"
-                            className="p-1 min-w-0 w-8 h-8"
-                            title="Mark as read"
-                          >
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="w-4 h-4" />
-                            </div>
-                          </Button>
-                          <Button
-                            onClick={() => deleteNotification(notification.id)}
-                            variant="ghost"
-                            size="sm"
-                            className="p-1 min-w-0 w-8 h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            title="Delete notification"
-                          >
-                            <div className="flex items-center gap-2">
-                              <X className="w-4 h-4" />
-                            </div>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })
-          ) : (
-            <div className="text-center py-12">
-              <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">No notifications</h3>
-              <p className="text-gray-500">
-                {filter === 'all' 
-                  ? "You're all caught up! No notifications to show."
-                  : `No ${filter} notifications found.`
-                }
-              </p>
-            </div>
           )}
         </div>
       </div>
+
+      {/* FILTER TABS - Scrollable on very small screens */}
+      <Tabs defaultValue="all" className="w-full" onValueChange={setFilter}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div className="overflow-x-auto pb-1 sm:pb-0">
+            <TabsList className="bg-muted/50 p-1 rounded-xl border inline-flex">
+              <TabsTrigger value="all" className="rounded-lg px-4 md:px-6 font-bold text-[10px] md:text-xs uppercase tracking-wider">All</TabsTrigger>
+              <TabsTrigger value="unread" className="rounded-lg px-4 md:px-6 font-bold text-[10px] md:text-xs uppercase tracking-wider">Unread</TabsTrigger>
+              <TabsTrigger value="alerts" className="rounded-lg px-4 md:px-6 font-bold text-[10px] md:text-xs uppercase tracking-wider">Alerts</TabsTrigger>
+              <TabsTrigger value="info" className="rounded-lg px-4 md:px-6 font-bold text-[10px] md:text-xs uppercase tracking-wider">Activity</TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <Badge variant="outline" className="hidden sm:inline-flex rounded-full px-3 py-1 font-mono text-[10px] opacity-60">
+            LOG_COUNT: {notifications.length}
+          </Badge>
+        </div>
+
+        <Card className="rounded-2xl md:rounded-[2rem] border-muted/60 shadow-xl shadow-black/[0.02] overflow-hidden">
+          <CardContent className="p-0">
+            <ScrollArea className="h-[65vh] md:h-[60vh] w-full">
+              {filteredNotifications.length > 0 ? (
+                <div className="divide-y divide-border/40">
+                  {filteredNotifications.map((notif) => {
+                    const Icon = notif.icon
+                    return (
+                      <div 
+                        key={notif.id}
+                        className={`group relative flex flex-col sm:flex-row items-start gap-3 md:gap-4 p-4 md:p-5 transition-all hover:bg-muted/30 ${!notif.read ? 'bg-primary/[0.01]' : 'opacity-70'}`}
+                      >
+                        {/* Unread Indicator */}
+                        {!notif.read && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary sm:block" />}
+
+                        <div className="flex w-full gap-3 md:gap-4">
+                          {/* Icon */}
+                          <div className={`p-2.5 md:p-3 rounded-xl md:rounded-2xl shrink-0 h-fit ${notif.color}`}>
+                            <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <h3 className={`text-xs md:text-sm font-bold tracking-tight uppercase truncate ${notif.read ? 'text-muted-foreground' : 'text-foreground'}`}>
+                                {notif.title}
+                              </h3>
+                              <span className="shrink-0 text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase font-mono">
+                                {new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                            
+                            <p className="text-xs md:text-sm text-muted-foreground leading-relaxed line-clamp-2 sm:line-clamp-none">
+                              {notif.message}
+                            </p>
+
+                            <div className="flex items-center justify-between sm:justify-start gap-3 pt-2">
+                               <Badge variant="secondary" className="text-[8px] md:text-[9px] font-black uppercase tracking-tighter px-2 py-0 h-5 rounded-md">
+                                  {notif.type}
+                               </Badge>
+                               <span className="text-[9px] md:text-[10px] text-muted-foreground/50 font-medium italic">
+                                 {new Date(notif.timestamp).toLocaleDateString()}
+                               </span>
+                            </div>
+                          </div>
+
+                          {/* Desktop Actions - Visible on hover */}
+                          <div className="hidden lg:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            <ActionButtons 
+                               notif={notif} 
+                               markAsRead={markAsRead} 
+                               deleteNotification={deleteNotification} 
+                            />
+                          </div>
+                        </div>
+
+                        {/* Mobile Actions - Persistent on small screens */}
+                        <div className="flex lg:hidden w-full justify-end items-center gap-2 mt-2 pt-2 border-t border-border/20">
+                          <ActionButtons 
+                             notif={notif} 
+                             markAsRead={markAsRead} 
+                             deleteNotification={deleteNotification} 
+                             isMobile
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <EmptyState filter={filter} />
+              )}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </Tabs>
     </div>
   )
 }
+
+// Helper component for action buttons to avoid repetition
+const ActionButtons = ({ notif, markAsRead, deleteNotification, isMobile = false }) => (
+  <TooltipProvider delayDuration={0}>
+    {!notif.read && (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button 
+            variant={isMobile ? "secondary" : "ghost"} 
+            size="icon" 
+            onClick={() => markAsRead(notif.id)} 
+            className="h-8 w-8 rounded-lg text-primary"
+          >
+            <CheckCircle className="w-4 h-4" />
+            {isMobile && <span className="sr-only">Mark Read</span>}
+          </Button>
+        </TooltipTrigger>
+        {!isMobile && <TooltipContent>Mark as read</TooltipContent>}
+      </Tooltip>
+    )}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button 
+          variant={isMobile ? "secondary" : "ghost"} 
+          size="icon" 
+          onClick={() => deleteNotification(notif.id)} 
+          className="h-8 w-8 rounded-lg text-destructive"
+        >
+          <Trash2 className="w-4 h-4" />
+          {isMobile && <span className="sr-only">Delete</span>}
+        </Button>
+      </TooltipTrigger>
+      {!isMobile && <TooltipContent>Delete log</TooltipContent>}
+    </Tooltip>
+  </TooltipProvider>
+)
+
+const EmptyState = ({ filter }) => (
+  <div className="flex flex-col items-center justify-center py-16 md:py-24 text-center px-6">
+    <div className="p-4 md:p-6 bg-muted/50 rounded-full mb-4">
+      <Bell className="w-8 h-8 md:w-12 md:h-12 text-muted-foreground/30" />
+    </div>
+    <h3 className="text-base md:text-lg font-bold italic tracking-tight uppercase">Registry Clear</h3>
+    <p className="text-xs md:text-sm text-muted-foreground max-w-xs mx-auto">
+      {filter === 'all' 
+        ? "No system logs found in the current buffer." 
+        : `No ${filter} logs found.`}
+    </p>
+  </div>
+)
+
+export default NotificationsPage
