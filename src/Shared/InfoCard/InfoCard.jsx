@@ -1,66 +1,65 @@
-import React from 'react'
+import React from 'react';
+import { Info, AlertTriangle, CheckCircle2, AlertCircle } from 'lucide-react';
+import { cn } from "@/lib/utils"; // Standard shadcn utility
 
 /**
- * Reusable Info/Alert Card Component
- * @param {string} type - Card type: 'info', 'warning', 'success', 'error'
- * @param {string} title - Card title
- * @param {string} message - Card message
- * @param {JSX.Element} icon - Icon component
- * @param {JSX.Element} children - Custom content
+ * Reusable Info/Alert Card Component utilizing Shadcn/Tailwind v4 theme variables
  */
-const InfoCard = ({ type = 'info', title, message, icon: Icon, children }) => {
-  const typeStyles = {
+const InfoCard = ({ type = 'info', title, message, icon: Icon, children, className }) => {
+  // Mapping types to your theme-aware semantic colors
+  const typeConfigs = {
     info: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
-      titleColor: 'text-blue-900',
-      textColor: 'text-blue-700',
-      iconColor: 'text-blue-600'
+      styles: "bg-muted/50 border-border text-foreground",
+      iconColor: "text-primary",
+      defaultIcon: Info
     },
     warning: {
-      bg: 'bg-yellow-50',
-      border: 'border-yellow-200',
-      titleColor: 'text-yellow-900',
-      textColor: 'text-yellow-700',
-      iconColor: 'text-yellow-600'
+      // Using a slight transparency on foreground for the warning 'feel' if specific warning vars aren't in theme
+      styles: "bg-secondary/50 border-border text-foreground",
+      iconColor: "text-chart-4", 
+      defaultIcon: AlertTriangle
     },
     success: {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
-      titleColor: 'text-green-900',
-      textColor: 'text-green-700',
-      iconColor: 'text-green-600'
+      styles: "bg-accent/30 border-border text-foreground",
+      iconColor: "text-primary",
+      defaultIcon: CheckCircle2
     },
     error: {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      titleColor: 'text-red-900',
-      textColor: 'text-red-700',
-      iconColor: 'text-red-600'
+      styles: "bg-destructive/10 border-destructive/20 text-destructive",
+      iconColor: "text-destructive",
+      defaultIcon: AlertCircle
     }
-  }
+  };
 
-  const styles = typeStyles[type]
+  const config = typeConfigs[type] || typeConfigs.info;
+  const EffectiveIcon = Icon || config.defaultIcon;
 
   return (
-    <div className={`${styles.bg} p-4 rounded-lg border ${styles.border} flex items-start gap-3`}>
-      {Icon && (
-        <Icon className={`w-5 h-5 ${styles.iconColor} mt-0.5 flex-shrink-0`} />
+    <div 
+      className={cn(
+        "relative w-full rounded-lg border p-4 flex items-start gap-3 transition-colors",
+        config.styles,
+        className
+      )}
+    >
+      {EffectiveIcon && (
+        <EffectiveIcon className={cn("w-5 h-5 mt-0.5 flex-shrink-0", config.iconColor)} />
       )}
       <div className="flex-1">
         {title && (
-          <p className={`text-sm font-semibold ${styles.titleColor}`}>{title}</p>
+          <h5 className="font-semibold leading-none tracking-tight mb-1">
+            {title}
+          </h5>
         )}
         {message && (
-          <p className={`text-sm ${styles.textColor} ${title ? 'mt-1' : ''}`}>
+          <div className="text-sm opacity-90 leading-relaxed">
             {message}
-          </p>
+          </div>
         )}
-        {children}
+        {children && <div className="mt-2 text-sm">{children}</div>}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default InfoCard
-
+export default InfoCard;

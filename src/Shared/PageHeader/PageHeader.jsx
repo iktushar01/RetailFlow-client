@@ -1,55 +1,61 @@
-import React from 'react'
-import { Button } from '../../Components/UI/Button'
+import React from 'react';
+import { Button } from '../../Components/UI/Button';
+import { cn } from "@/lib/utils"; // Standard shadcn utility helper
 
 /**
  * Reusable Page Header Component
- * @param {string} title - Page title
- * @param {string} subtitle - Page subtitle/description
- * @param {JSX.Element} icon - Icon component
- * @param {Array} actions - Array of action button configs
- * @param {JSX.Element} children - Additional custom content
+ * Theme-aware using Shadcn/Tailwind v4 variables
  */
-const PageHeader = ({ title, subtitle, icon: Icon, actions = [], children }) => {
+const PageHeader = ({ title, subtitle, icon: Icon, actions = [], children, className }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div 
+      className={cn(
+        "bg-card text-card-foreground rounded-lg border border-border p-6 mb-6 shadow-sm",
+        className
+      )}
+    >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-4 mb-2">
             {Icon && (
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <Icon className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-md">
+                <Icon className="w-6 h-6" />
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-              {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                {title}
+              </h1>
+              {subtitle && (
+                <p className="text-muted-foreground mt-1 text-sm md:text-base">
+                  {subtitle}
+                </p>
+              )}
             </div>
           </div>
-          {children}
+          {children && <div className="mt-4">{children}</div>}
         </div>
 
         {actions.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 sm:mt-2 md:mt-0">
             {actions.map((action, index) => (
               <Button
                 key={index}
-                variant={action.variant || 'primary'}
-                size={action.size || 'md'}
+                variant={action.variant || 'default'} // Shadcn uses 'default' instead of 'primary'
+                size={action.size || 'default'}
                 onClick={action.onClick}
                 disabled={action.disabled}
+                className="gap-2" // Tailwind v4/Shadcn standard for spacing icons
               >
-                <div className="flex items-center">
-                  {action.icon && <action.icon className="w-5 h-5 mr-2" />}
-                  {action.label}
-                </div>
+                {action.icon && <action.icon className="w-4 h-4" />}
+                <span>{action.label}</span>
               </Button>
             ))}
           </div>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PageHeader
-
+export default PageHeader;
