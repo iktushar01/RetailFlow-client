@@ -65,7 +65,7 @@ const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
   }
 
   const modalFooter = (
-    <div className="flex items-center justify-between w-full border-t pt-4 mt-2">
+    <div className="flex items-center justify-between w-full border-t pt-4 mt-">
       <div className="flex items-center gap-2 text-muted-foreground">
         <AlertCircle className="w-3.5 h-3.5" />
         <span className="text-[10px] font-bold uppercase tracking-wider">

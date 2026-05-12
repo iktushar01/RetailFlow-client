@@ -1,9 +1,28 @@
 import React from 'react'
-import { X, Plus } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
+import { X, Plus, PackageOpen, AlertCircle } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { validateItem } from '../utils/poHelpers'
+import { cn } from "@/lib/utils"
 
 const POItemsTable = ({ items, products, onAddItem, onRemoveItem, onItemChange, hasAttemptedSubmit }) => {
+  
   const handleProductSelect = (itemId, productId) => {
     const selectedProduct = products.find(p => p._id === productId)
     if (selectedProduct) {
@@ -14,159 +33,137 @@ const POItemsTable = ({ items, products, onAddItem, onRemoveItem, onItemChange, 
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-3">
-        <label className="block text-sm font-semibold text-gray-700">
-          Items <span className="text-red-500">*</span>
-        </label>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={onAddItem}
-                type="button"
-                className="flex items-center"
-              >
-                <div className="flex items-center">
-                <Plus className="w-4 h-4 mr-1.5" />
-                <span>Add Item</span>
-                </div>
-              </Button>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <Label className="text-base font-bold flex items-center gap-2">
+          Order Items <span className="text-destructive">*</span>
+        </Label>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onAddItem}
+          type="button"
+          className="h-8 gap-1.5"
+        >
+          <Plus className="w-4 h-4" />
+          Add Item
+        </Button>
       </div>
 
-      <div className="border border-gray-200 rounded-lg">
-        <div className="overflow-x-auto overflow-visible">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Product
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Quantity
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Unit Price
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Subtotal
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-20">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {items.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="px-4 py-12 text-center">
-                    <div className="flex flex-col items-center justify-center space-y-3">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                        </svg>
+      <div className="rounded-md border border-border bg-background">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-[350px]">Product</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>Unit Price (BDT)</TableHead>
+              <TableHead>Subtotal</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-48 text-center">
+                  <div className="flex flex-col items-center justify-center text-muted-foreground">
+                    <PackageOpen className="h-10 w-10 mb-2 opacity-20" />
+                    <p className="font-medium">No items added yet</p>
+                    <p className="text-xs">Start building your purchase order by adding a product.</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              items.map((item) => {
+                const validation = validateItem(item)
+                const isProductInvalid = hasAttemptedSubmit && !validation.isValid && !item.product
+
+                return (
+                  <TableRow key={item.id} className="group transition-colors hover:bg-muted/30">
+                    <TableCell>
+                      <div className="space-y-1">
+                        <Select
+                          value={item.product || undefined}
+                          onValueChange={(val) => handleProductSelect(item.id, val)}
+                        >
+                          <SelectTrigger className={cn(
+                            "bg-background",
+                            isProductInvalid && "border-destructive ring-destructive/20"
+                          )}>
+                            <SelectValue placeholder={products.length === 0 ? "No products available" : "Select Product..."} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {products.map(product => (
+                              <SelectItem key={product._id} value={product._id}>
+                                {product.productName || product.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {isProductInvalid && (
+                          <p className="text-[10px] font-bold text-destructive flex items-center gap-1 uppercase">
+                            <AlertCircle className="w-3 h-3" /> Required
+                          </p>
+                        )}
                       </div>
-                      <div>
-                        <p className="text-gray-500 font-medium">No items added yet</p>
-                        <p className="text-gray-400 text-sm mt-1">Click "Add Item" to start building your purchase order</p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                items.map((item) => {
-                  const validation = validateItem(item)
-                  return (
-                      <tr key={item.id} className="hover:bg-blue-50/30 transition-colors">
-                          <td className="px-4 py-3">
-                            <select
-                              value={item.product || ''}
-                              onChange={(e) => handleProductSelect(item.id, e.target.value)}
-                              className={`w-full min-w-[250px] px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-                                hasAttemptedSubmit && !validation.isValid && !item.product ? 'border-red-500' : 'border-gray-300'
-                              }`}
-                            >
-                              <option value="">
-                                {products.length === 0 ? 'No products available for this supplier' : 'Select Product...'}
-                              </option>
-                              {products.map(product => (
-                                <option key={product._id} value={product._id}>
-                                  {product.productName || product.name}
-                                </option>
-                              ))}
-                            </select>
-                            {hasAttemptedSubmit && !validation.isValid && validation.errors.product && (
-                              <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
-                                <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
-                                {validation.errors.product}
-                              </p>
-                            )}
-                          </td>
-                      <td className="px-4 py-3">
-                        <input
+                    </TableCell>
+
+                    <TableCell>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={item.quantity || ''}
+                        onChange={(e) => onItemChange(item.id, 'quantity', Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-20 bg-background"
+                      />
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="relative">
+                        <Input
                           type="number"
-                          min="1"
-                          value={item.quantity || ''}
-                          onChange={(e) => onItemChange(item.id, 'quantity', Math.max(1, parseInt(e.target.value) || 1))}
-                          className={`w-24 px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                            !validation.isValid && validation.errors.quantity ? 'border-red-500' : 'border-gray-300'
-                          }`}
-                          placeholder="1"
+                          min="0"
+                          step="0.01"
+                          value={item.unitPrice || ''}
+                          onChange={(e) => onItemChange(item.id, 'unitPrice', Math.max(0, parseFloat(e.target.value) || 0))}
+                          className="w-32 bg-background pl-10"
                         />
-                        {!validation.isValid && validation.errors.quantity && (
-                          <p className="text-xs text-red-600 mt-1">{validation.errors.quantity}</p>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center">
-                          <span className="text-gray-500 mr-1">BDT</span>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.unitPrice || ''}
-                            onChange={(e) => onItemChange(item.id, 'unitPrice', Math.max(0, parseFloat(e.target.value) || 0))}
-                            className={`w-28 px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                              !validation.isValid && validation.errors.unitPrice ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            placeholder="0.00"
-                          />
-                        </div>
-                        {!validation.isValid && validation.errors.unitPrice && (
-                          <p className="text-xs text-red-600 mt-1">{validation.errors.unitPrice}</p>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="font-semibold text-gray-900">
-                          BDT {(item.subtotal || 0).toFixed(2)}
-                        </div>
-                      </td>
-                          <td className="px-4 py-3 text-center">
-                            <Button
-                              variant="delete"
-                              size="sm"
-                              type="button"
-                              onClick={() => onRemoveItem(item.id)}
-                              title="Remove item"
-                              className="flex items-center mx-auto"
-                            >
-                              <div className="flex items-center">
-                              <X className="w-4 h-4 mr-1" />
-                              <span>Remove</span>
-                              </div>
-                            </Button>
-                          </td>
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-muted-foreground">
+                          BDT
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="font-mono font-bold text-foreground">
+                        {(item.subtotal || 0).toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        onClick={() => onRemoveItem(item.id)}
+                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       {items.length > 0 && (
-        <div className="mt-2 text-sm text-gray-600">
-          <span className="font-medium">{items.length}</span> item{items.length !== 1 ? 's' : ''} added
+        <div className="flex items-center gap-2 px-1 text-xs text-muted-foreground font-medium uppercase tracking-wider">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">
+            {items.length}
+          </span>
+          item{items.length !== 1 ? 's' : ''} in this order
         </div>
       )}
     </div>
@@ -174,4 +171,3 @@ const POItemsTable = ({ items, products, onAddItem, onRemoveItem, onItemChange, 
 }
 
 export default POItemsTable
-

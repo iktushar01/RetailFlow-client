@@ -2,6 +2,7 @@ import React from 'react'
 import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
 
 const POFilter = ({ filters, onFilterChange, suppliers, resultsCount, totalCount }) => {
+  
   const filterConfig = [
     {
       type: 'select',
@@ -9,7 +10,7 @@ const POFilter = ({ filters, onFilterChange, suppliers, resultsCount, totalCount
       label: 'Status',
       placeholder: 'All Statuses',
       options: [
-        { value: '', label: 'All Statuses' },
+        { value: 'all', label: 'All Statuses' }, // Shadcn Select works better with 'all' than empty strings
         { value: 'Pending', label: '🟡 Pending' },
         { value: 'Sent', label: '🔵 Sent' },
         { value: 'Completed', label: '🟢 Completed' },
@@ -22,7 +23,7 @@ const POFilter = ({ filters, onFilterChange, suppliers, resultsCount, totalCount
       label: 'Supplier',
       placeholder: 'All Suppliers',
       options: [
-        { value: '', label: 'All Suppliers' },
+        { value: 'all', label: 'All Suppliers' },
         ...suppliers.map(supplier => ({
           value: supplier._id,
           label: supplier.supplierName
@@ -33,13 +34,13 @@ const POFilter = ({ filters, onFilterChange, suppliers, resultsCount, totalCount
       type: 'date',
       key: 'dateFrom',
       label: 'Date From',
-      placeholder: 'Start Date'
+      placeholder: 'Pick a date'
     },
     {
       type: 'date',
       key: 'dateTo',
       label: 'Date To',
-      placeholder: 'End Date'
+      placeholder: 'Pick a date'
     },
     {
       type: 'search',
@@ -51,17 +52,16 @@ const POFilter = ({ filters, onFilterChange, suppliers, resultsCount, totalCount
 
   const handleClearFilters = () => {
     onFilterChange({
-      status: '',
-      supplier: '',
-      dateFrom: '',
-      dateTo: '',
+      status: 'all',
+      supplier: 'all',
+      dateFrom: undefined,
+      dateTo: undefined,
       search: ''
     })
   }
 
   const handleExport = () => {
-    // TODO: Implement export functionality
-    console.log('Export PO data')
+    console.log('Exporting via Shadcn Button logic...')
   }
 
   const handleFilterChangeInternal = (key, value) => {
@@ -88,4 +88,3 @@ const POFilter = ({ filters, onFilterChange, suppliers, resultsCount, totalCount
 }
 
 export default POFilter
-

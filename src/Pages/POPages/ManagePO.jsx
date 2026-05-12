@@ -1,15 +1,40 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Plus, RefreshCw, FileText, Users, Package, Info } from 'lucide-react'
-import Swal from 'sweetalert2'
-import { Button } from '../../Components/UI/Button'
+import { Plus, RefreshCw, FileText, Users, Package, Info, ShoppingCart, CheckCircle2, AlertCircle } from 'lucide-react'
+
+// Shadcn UI Components
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Separator } from "@/components/ui/separator"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
+// Shared & Sub-components
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import POForm from './components/POForm'
 import POList from './components/POList'
 import POFilter from './components/POFilter'
+
+// Services & Helpers
 import { suppliersAPI, productsAPI, purchaseOrdersAPI } from './services/poService'
 import { getStatusColor, formatCurrency, formatDate } from './utils/poHelpers'
 
 const ManagePO = () => {
+  
+  // State Management
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [suppliers, setSuppliers] = useState([])
   const [products, setProducts] = useState([])
@@ -19,7 +44,13 @@ const ManagePO = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [editingPO, setEditingPO] = useState(null)
   
-  // Filter state
+  // Dialog States
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [selectedPO, setSelectedPO] = useState(null)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
+  const [confirmSendOpen, setConfirmSendOpen] = useState(false)
+  const [actionTarget, setActionTarget] = useState(null)
+
   const [filters, setFilters] = useState({
     status: '',
     supplier: '',
@@ -28,7 +59,6 @@ const ManagePO = () => {
     search: ''
   })
 
-  // Initial form state
   const initialFormState = {
     supplier: '',
     poNumber: '',
@@ -41,494 +71,262 @@ const ManagePO = () => {
 
   const [formData, setFormData] = useState(initialFormState)
 
-  // Fetch initial data
   useEffect(() => {
     fetchAllData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchAllData = async () => {
-    await Promise.all([
-      fetchSuppliers(),
-      fetchProducts(),
-      fetchPurchaseOrders()
-    ])
-  }
-
-  const fetchSuppliers = async () => {
+    setFetchLoading(true)
     try {
-      const data = await suppliersAPI.getAll()
-      setSuppliers(data || [])
+      const [suppliersRes, productsRes, poRes] = await Promise.all([
+        suppliersAPI.getAll(),
+        productsAPI.getAll(),
+        purchaseOrdersAPI.getAll()
+      ])
+      setSuppliers(suppliersRes || [])
+      setProducts(productsRes || [])
+      setPurchaseOrders(poRes || [])
     } catch (error) {
-      console.error('Error fetching suppliers:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch suppliers. Please try again.',
-        confirmButtonColor: '#3B82F6'
+      toast({
+        variant: "destructive",
+        title: "Fetch Error",
+        description: "Failed to sync dashboard data."
       })
-    }
-  }
-
-  const fetchProducts = async () => {
-    try {
-      const data = await productsAPI.getAll()
-      setProducts(data || [])
-    } catch (error) {
-      console.error('Error fetching products:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch products. Please try again.',
-        confirmButtonColor: '#3B82F6'
-      })
-    }
-  }
-
-  const fetchPurchaseOrders = async () => {
-    try {
-      setFetchLoading(true)
-      const data = await purchaseOrdersAPI.getAll()
-      setPurchaseOrders(data || [])
-    } catch (error) {
-      console.error('Error fetching purchase orders:', error)
     } finally {
       setFetchLoading(false)
     }
   }
 
-  // Filter handler
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters)
-  }
-
-  // Filtered and sorted purchase orders
   const filteredPurchaseOrders = useMemo(() => {
-    const filtered = purchaseOrders.filter(po => {
-      // Status filter
-      if (filters.status && po.status !== filters.status) {
-        return false
-      }
-
-      // Supplier filter
-      if (filters.supplier && po.supplier !== filters.supplier) {
-        return false
-      }
-
-      // Date from filter
-      if (filters.dateFrom) {
-        const poDate = new Date(po.poDate)
-        const fromDate = new Date(filters.dateFrom)
-        if (poDate < fromDate) {
-          return false
-        }
-      }
-
-      // Date to filter
-      if (filters.dateTo) {
-        const poDate = new Date(po.poDate)
-        const toDate = new Date(filters.dateTo)
-        if (poDate > toDate) {
-          return false
-        }
-      }
-
-      // Search filter (PO Number)
-      if (filters.search && typeof filters.search === 'string') {
-        const searchLower = filters.search.toLowerCase()
-        if (!po.poNumber.toLowerCase().includes(searchLower)) {
-          return false
-        }
-      }
-
-      return true
-    })
-
-    // Sort by newest first with multi-level fallback (createdAt -> _id -> poDate)
-    return filtered.sort((a, b) => {
-      // Try sorting by createdAt first
-      if (a.createdAt && b.createdAt) {
-        return new Date(b.createdAt) - new Date(a.createdAt)
-      }
-      
-      // Fallback to _id (MongoDB ObjectIds are sortable by creation time)
-      if (a._id && b._id && a._id !== b._id) {
-        return b._id.localeCompare(a._id)
-      }
-      
-      // Final fallback to poDate
-      if (a.poDate && b.poDate) {
-        return new Date(b.poDate) - new Date(a.poDate)
-      }
-      
-      return 0
-    })
+    return purchaseOrders
+      .filter(po => {
+        const matchesStatus = !filters.status || po.status === filters.status
+        const matchesSupplier = !filters.supplier || po.supplier === filters.supplier
+        const matchesSearch = !filters.search || po.poNumber.toLowerCase().includes(filters.search.toLowerCase())
+        return matchesStatus && matchesSupplier && matchesSearch
+      })
+      .sort((a, b) => new Date(b.createdAt || b.poDate) - new Date(a.createdAt || a.poDate))
   }, [purchaseOrders, filters])
 
-  const handleOpenModal = () => {
+  // --- UI Action Handlers ---
+
+  const handleView = (po) => {
+    setSelectedPO(po)
+    setViewDialogOpen(true)
+  }
+
+  const handleEdit = (po) => {
+    setEditingPO(po)
+    setFormData({
+      supplier: po.supplier,
+      poNumber: po.poNumber,
+      poDate: po.poDate,
+      expectedDeliveryDate: po.expectedDeliveryDate,
+      items: po.items || [],
+      notes: po.notes || '',
+      tax: po.tax || 0
+    })
+    setIsEditing(true)
     setIsModalOpen(true)
-    setIsEditing(false)
-    setEditingPO(null)
-    setFormData(initialFormState)
   }
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setIsEditing(false)
-    setEditingPO(null)
-    setFormData(initialFormState)
+  const handleDeleteTrigger = (po) => {
+    setActionTarget(po)
+    setConfirmDeleteOpen(true)
   }
 
-  const handleSubmit = async ({ subtotal, taxAmount, total }) => {
+  const confirmDelete = async () => {
     try {
-      setLoading(true)
-      
-      const poData = {
-        ...formData,
-        subtotal,
-        taxAmount,
-        total,
-        status: isEditing ? formData.status : 'Pending'
-      }
-
-      if (isEditing && editingPO) {
-        // Update existing PO
-        await purchaseOrdersAPI.update(editingPO._id, poData)
-        await Swal.fire({
-          icon: 'success',
-          title: 'Updated!',
-          text: 'Purchase Order updated successfully',
-          confirmButtonColor: '#3B82F6',
-          timer: 2000,
-          showConfirmButton: false
-        })
-      } else {
-        // Create new PO
-        await purchaseOrdersAPI.create(poData)
-        await Swal.fire({
-          icon: 'success',
-          title: 'Created!',
-          text: 'Purchase Order created successfully',
-          confirmButtonColor: '#3B82F6',
-          timer: 2000,
-          showConfirmButton: false
-        })
-      }
-
-      await fetchPurchaseOrders()
-      handleCloseModal()
+      await purchaseOrdersAPI.delete(actionTarget.id)
+      setPurchaseOrders(prev => prev.filter(p => p.id !== actionTarget.id))
+      toast({
+        title: "Order Deleted",
+        description: `${actionTarget.poNumber} has been removed.`,
+      })
     } catch (error) {
-      console.error('Error saving purchase order:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.message || 'Failed to save purchase order',
-        confirmButtonColor: '#3B82F6'
+      toast({
+        variant: "destructive",
+        title: "Delete Failed",
+        description: "Could not remove purchase order."
+      })
+    }
+  }
+
+  const handleSendTrigger = (po) => {
+    setActionTarget(po)
+    setConfirmSendOpen(true)
+  }
+
+  const confirmSend = async () => {
+    try {
+      await purchaseOrdersAPI.send(actionTarget.id)
+      setPurchaseOrders(prev => prev.map(p => 
+        p.id === actionTarget.id ? { ...p, status: 'Sent' } : p
+      ))
+      toast({
+        title: "PO Sent",
+        description: `Order successfully dispatched to supplier.`,
+      })
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Send Error",
+        description: "Failed to dispatch purchase order."
+      })
+    }
+  }
+
+  const handleSubmit = async (values) => {
+    setLoading(true)
+    try {
+      if (isEditing && editingPO) {
+        await purchaseOrdersAPI.update(editingPO.id, values)
+        toast({ title: "Updated!", description: "Order changes saved." })
+      } else {
+        await purchaseOrdersAPI.create(values)
+        toast({ title: "Created!", description: "New purchase order added." })
+      }
+      fetchAllData()
+      setIsModalOpen(false)
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Save Error",
+        description: error.message || "Could not save the order."
       })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleView = (po) => {
-    const supplier = suppliers.find(s => s._id === po.supplier)
-    const itemsTable = po.items?.map((item, index) => `
-      <tr class="border-b">
-        <td class="py-2 px-3 text-left">${index + 1}</td>
-        <td class="py-2 px-3 text-left">${item.productName || 'N/A'}</td>
-        <td class="py-2 px-3 text-center">${item.quantity}</td>
-        <td class="py-2 px-3 text-right">${formatCurrency(item.unitPrice)}</td>
-        <td class="py-2 px-3 text-right font-semibold">${formatCurrency(item.subtotal)}</td>
-      </tr>
-    `).join('') || '<tr><td colspan="5" class="py-4 text-center text-gray-500">No items</td></tr>'
-
-    Swal.fire({
-      title: `<div class="flex items-center justify-center"><svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Purchase Order: ${po.poNumber}</div>`,
-      html: `
-        <div class="text-left space-y-4 max-h-96 overflow-y-auto">
-          <div class="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <p class="text-gray-600 font-semibold">Supplier</p>
-              <p class="text-gray-900">${supplier?.supplierName || 'N/A'}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 font-semibold">PO Date</p>
-              <p class="text-gray-900">${formatDate(po.poDate)}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 font-semibold">Expected Delivery</p>
-              <p class="text-gray-900">${formatDate(po.expectedDeliveryDate)}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 font-semibold">Status</p>
-              <p><span class="px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(po.status)}">${po.status}</span></p>
-            </div>
-          </div>
-          
-          <div class="mt-4">
-            <p class="text-gray-600 font-semibold mb-2">Items</p>
-            <div class="overflow-x-auto border rounded-lg">
-              <table class="min-w-full text-sm">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="py-2 px-3 text-left">#</th>
-                    <th class="py-2 px-3 text-left">Product</th>
-                    <th class="py-2 px-3 text-center">Qty</th>
-                    <th class="py-2 px-3 text-right">Price</th>
-                    <th class="py-2 px-3 text-right">Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${itemsTable}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          
-          <div class="border-t pt-3 space-y-2">
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Subtotal:</span>
-              <span class="font-semibold">${formatCurrency(po.subtotal)}</span>
-            </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Tax (${po.tax}%):</span>
-              <span class="font-semibold">${formatCurrency(po.taxAmount)}</span>
-            </div>
-            <div class="flex justify-between text-lg font-bold border-t pt-2">
-              <span>Total:</span>
-              <span class="text-blue-600">${formatCurrency(po.total)}</span>
-            </div>
-          </div>
-          
-          ${po.notes ? `
-            <div class="mt-3">
-              <p class="text-gray-600 font-semibold mb-1">Notes</p>
-              <p class="text-gray-700 text-sm bg-gray-50 p-3 rounded">${po.notes}</p>
-            </div>
-          ` : ''}
-        </div>
-      `,
-      width: '800px',
-      confirmButtonColor: '#3B82F6',
-      confirmButtonText: 'Close',
-      customClass: {
-        htmlContainer: 'text-left'
-      }
-    })
-  }
-
-  const handleEdit = (po) => {
-    setIsEditing(true)
-    setEditingPO(po)
-    setFormData({
-      supplier: po.supplier,
-      poNumber: po.poNumber,
-      poDate: po.poDate?.split('T')[0] || po.poDate,
-      expectedDeliveryDate: po.expectedDeliveryDate?.split('T')[0] || po.expectedDeliveryDate,
-      items: po.items || [],
-      notes: po.notes || '',
-      tax: po.tax || 0,
-      status: po.status
-    })
-    setIsModalOpen(true)
-  }
-
-  const handleDelete = async (po) => {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      html: `<p>You are about to delete:</p><p class="font-bold text-lg mt-2">${po.poNumber}</p><p class="text-sm text-gray-600 mt-1">This action cannot be undone.</p>`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#EF4444',
-      cancelButtonColor: '#6B7280',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-      focusCancel: true
-    })
-
-    if (result.isConfirmed) {
-      try {
-        await purchaseOrdersAPI.delete(po._id)
-        await Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'Purchase order has been deleted.',
-          confirmButtonColor: '#3B82F6',
-          timer: 2000,
-          showConfirmButton: false
-        })
-        await fetchPurchaseOrders()
-      } catch (error) {
-        console.error('Error deleting purchase order:', error)
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.response?.data?.message || 'Failed to delete purchase order',
-          confirmButtonColor: '#3B82F6'
-        })
-      }
-    }
-  }
-
-  const handleSend = async (po) => {
-    const supplier = suppliers.find(s => s._id === po.supplier)
-    
-    const result = await Swal.fire({
-      title: 'Send Purchase Order?',
-      html: `
-        <div class="text-left space-y-2">
-          <p class="text-gray-700">You are about to send <strong>${po.poNumber}</strong> to:</p>
-          <div class="bg-blue-50 p-3 rounded-lg mt-2">
-            <p class="font-semibold text-gray-900">${supplier?.supplierName || 'N/A'}</p>
-            <p class="text-sm text-gray-600">${supplier?.email || 'No email available'}</p>
-          </div>
-          <p class="text-sm text-gray-600 mt-2">Total Amount: <strong>${formatCurrency(po.total)}</strong></p>
-        </div>
-      `,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3B82F6',
-      cancelButtonColor: '#6B7280',
-      confirmButtonText: 'Yes, send it!',
-      cancelButtonText: 'Cancel'
-    })
-
-    if (result.isConfirmed) {
-      try {
-        await purchaseOrdersAPI.send(po._id)
-        await Swal.fire({
-          icon: 'success',
-          title: 'Sent!',
-          text: 'Purchase order has been sent to supplier.',
-          confirmButtonColor: '#3B82F6',
-          timer: 2000,
-          showConfirmButton: false
-        })
-        await fetchPurchaseOrders()
-      } catch (error) {
-        console.error('Error sending purchase order:', error)
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.response?.data?.message || 'Failed to send purchase order',
-          confirmButtonColor: '#3B82F6'
-        })
-      }
-    }
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-              <svg className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Purchase Orders
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-2">
-              Create and manage purchase orders for your suppliers
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Button 
-              variant="secondary" 
-              size="sm"
-              onClick={fetchAllData}
-              disabled={fetchLoading}
-              loading={fetchLoading}
-              className="w-full sm:w-auto flex items-center justify-center"
-            >
-              <div className="flex items-center">
-                <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                <span className="text-sm sm:text-base">Refresh</span>
-              </div>
-            </Button>
-            <Button 
-              variant="primary" 
-              size="sm"
-              onClick={handleOpenModal}
-              className="w-full sm:w-auto flex items-center justify-center"
-            >
-              <div className="flex items-center">
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                <span className="text-sm sm:text-base">New Purchase Order</span>
-              </div>
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Info Card */}
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 flex items-start gap-3">
-        <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+    <div className="container mx-auto py-6 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
         <div>
-          <p className="text-sm font-semibold text-blue-900">Purchase Order Management</p>
-          <p className="text-sm text-blue-700 mt-1">
-            Create purchase orders for your suppliers, track their status, and manage the ordering process. 
-            POs can be sent to suppliers and converted to GRNs when goods are received.
-          </p>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <ShoppingCart className="w-6 h-6 text-primary" />
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Purchase Orders</h1>
+          </div>
+          <p className="text-muted-foreground mt-1">Manage Store-Xen procurement.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={fetchAllData} disabled={fetchLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
+            Sync
+          </Button>
+          <Button onClick={() => { setIsEditing(false); setFormData(initialFormState); setIsModalOpen(true); }}>
+            <Plus className="w-4 h-4 mr-2" /> New Order
+          </Button>
         </div>
       </div>
+
+      <Separator />
+
+      <Alert className="bg-primary/5 border-primary/20">
+        <Info className="h-4 w-4 text-primary" />
+        <AlertTitle className="font-bold text-primary">Overview</AlertTitle>
+        <AlertDescription className="text-muted-foreground">
+          You have {purchaseOrders.length} total orders in the system.
+        </AlertDescription>
+      </Alert>
       
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatsCard
-          label="Total Purchase Orders"
-          value={purchaseOrders.length}
-          icon={FileText}
-          color="blue"
-        />
-        <StatsCard
-          label="Active Suppliers"
-          value={suppliers.length}
-          icon={Users}
-          color="green"
-        />
-        <StatsCard
-          label="Available Products"
-          value={products.length}
-          icon={Package}
-          color="purple"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatsCard label="Total Orders" value={purchaseOrders.length} icon={FileText} color="blue" />
+        <StatsCard label="Suppliers" value={suppliers.length} icon={Users} color="green" />
+        <StatsCard label="Products" value={products.length} icon={Package} color="purple" />
       </div>
 
-      {/* Filter Section */}
-      <POFilter
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        suppliers={suppliers}
-        resultsCount={filteredPurchaseOrders.length}
-        totalCount={purchaseOrders.length}
+      <POFilter filters={filters} onFilterChange={setFilters} suppliers={suppliers} resultsCount={filteredPurchaseOrders.length} totalCount={purchaseOrders.length} />
+
+      <POList 
+        purchaseOrders={filteredPurchaseOrders} 
+        suppliers={suppliers} 
+        loading={fetchLoading} 
+        onView={handleView} 
+        onEdit={handleEdit} 
+        onDelete={handleDeleteTrigger} 
+        onSend={handleSendTrigger} 
       />
 
-      {/* PO List Table */}
-      <POList
-        purchaseOrders={filteredPurchaseOrders}
-        suppliers={suppliers}
-        loading={fetchLoading}
-        onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onSend={handleSend}
-      />
+      {/* --- SHADCN DIALOGS --- */}
 
-      {/* Create/Edit PO Form Modal */}
-      <POForm
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        formData={formData}
-        setFormData={setFormData}
-        suppliers={suppliers}
-        products={products}
-        loading={loading}
-        onSubmit={handleSubmit}
-        isEditing={isEditing}
-      />
+      {/* View Detail Modal */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <FileText className="text-primary w-6 h-6" />
+              {selectedPO?.poNumber}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-dashed border-border">
+            <div>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Supplier</p>
+              <p className="font-semibold">{selectedPO?.supplierName || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Status</p>
+              <p className="font-semibold text-primary">{selectedPO?.status}</p>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Date</p>
+              <p className="font-semibold">{formatDate(selectedPO?.poDate)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Total Amount</p>
+              <p className="font-bold text-lg">{formatCurrency(selectedPO?.total || 0)}</p>
+            </div>
+          </div>
+          <div className="bg-muted/50 p-4 rounded-lg">
+             <p className="text-xs font-bold mb-2">Order Items: {selectedPO?.items?.length || 0}</p>
+             {/* Add a mini table or list here if needed */}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{actionTarget?.poNumber}</strong>. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Send Confirmation */}
+      <AlertDialog open={confirmSendOpen} onOpenChange={setConfirmSendOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="text-emerald-500 w-5 h-5" />
+              Send to Supplier?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Ready to dispatch <strong>{actionTarget?.poNumber}</strong> to the supplier? 
+              This will update the order status to "Sent".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSend}>Send Now</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Main PO Form Modal */}
+      <POForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} formData={formData} setFormData={setFormData} suppliers={suppliers} products={products} loading={loading} onSubmit={handleSubmit} isEditing={isEditing} />
     </div>
   )
 }
