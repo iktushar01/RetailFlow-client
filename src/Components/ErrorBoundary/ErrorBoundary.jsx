@@ -8,7 +8,7 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null, errorInfo: null }
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     // Update state so the next render will show the fallback UI
     return { hasError: true }
   }
@@ -51,6 +51,7 @@ class ErrorBoundary extends React.Component {
             </p>
 
             {/* Error Details (in development) */}
+            {/* eslint-disable-next-line no-undef */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <div className="bg-gray-100 rounded-lg p-4 mb-6 text-left">
                 <h3 className="text-sm font-semibold text-gray-700 mb-2">Error Details:</h3>
