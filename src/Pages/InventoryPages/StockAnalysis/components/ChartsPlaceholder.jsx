@@ -8,8 +8,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+} from "@/Components/ui/card"
+import { Separator } from "@/Components/ui/separator"
 
 // Your Shared Components
 import { BarChart, PieChart } from '../../../../Shared/Charts'

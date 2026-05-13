@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { AlertTriangle, Package, RotateCcw, RefreshCw, Plus, Search } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/Components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
+import { Badge } from "@/Components/ui/badge"
 import { 
   Dialog, 
   DialogContent, 
@@ -12,9 +12,9 @@ import {
   DialogTitle, 
   DialogFooter,
   DialogDescription 
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/Components/ui/dialog"
+import { Input } from "@/Components/ui/input"
+import { Skeleton } from "@/Components/ui/skeleton"
 import { 
   inventoryAPI, 
   productsAPI, 

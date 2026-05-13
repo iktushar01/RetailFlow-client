@@ -3,7 +3,7 @@ import { FileText, ReceiptText } from 'lucide-react'
 import { SharedTable } from '../../../../Shared/SharedTable/SharedTable'
 
 // shadcn/ui or custom badge component
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/Components/ui/badge"
 
 const SalesTable = ({ 
   salesData, 

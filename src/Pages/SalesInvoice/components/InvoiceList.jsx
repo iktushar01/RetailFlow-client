@@ -1,7 +1,7 @@
 import React from 'react'
 import { Eye, Printer } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/Components/ui/button"
+import { Badge } from "@/Components/ui/badge"
 import {
   Table,
   TableBody,
@@ -9,9 +9,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Card } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/Components/ui/table"
+import { Card } from "@/Components/ui/card"
+import { Skeleton } from "@/Components/ui/skeleton"
 import { getPaymentStatusColor, formatCurrency, formatDateTime } from '../utils/invoiceHelpers'
 
 const InvoiceList = ({ invoices, onView, onPrint, loading }) => {

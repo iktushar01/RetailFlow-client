@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import { X, Save, Info, MessageSquare, ClipboardList } from 'lucide-react'
-import { Button } from "@/components/ui/button"
+import { Button } from "@/Components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
+} from "@/Components/ui/dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Progress } from "@/components/ui/progress"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
+} from "@/Components/ui/select"
+import { Input } from "@/Components/ui/input"
+import { Textarea } from "@/Components/ui/textarea"
+import { Progress } from "@/Components/ui/progress"
+import { Label } from "@/Components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
+import { ScrollArea } from "@/Components/ui/scroll-area"
 
 import GRNItemsTable from './GRNItemsTable'
 import { validateGRNForm, generateGRNNumber, MAX_NOTES_LENGTH } from '../utils/grnHelpers'

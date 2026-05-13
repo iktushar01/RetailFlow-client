@@ -1,8 +1,8 @@
 import React from 'react'
 import { Eye, Edit, Trash2, Send, MoreHorizontal } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/Components/ui/button"
+import { Badge } from "@/Components/ui/badge"
+import { Card, CardContent } from "@/Components/ui/card"
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { getStatusColor, formatCurrency, formatDate } from '../utils/poHelpers'
 import { cn } from "@/lib/utils"

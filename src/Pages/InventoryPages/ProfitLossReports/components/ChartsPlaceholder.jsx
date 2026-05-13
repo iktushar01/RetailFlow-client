@@ -8,9 +8,9 @@ import {
   CardHeader, 
   CardTitle,
   CardDescription 
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+} from "@/Components/ui/card"
+import { Badge } from "@/Components/ui/badge"
+import { Separator } from "@/Components/ui/separator"
 
 // Your Shared Components
 import { LineChart, PieChart } from '../../../../Shared/Charts'

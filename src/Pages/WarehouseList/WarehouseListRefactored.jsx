@@ -13,10 +13,10 @@ import {
 } from 'lucide-react'
 
 // Shadcn UI Components
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/Components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
+import { Badge } from "@/Components/ui/badge"
+import { Separator } from "@/Components/ui/separator"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/Components/ui/dropdown-menu"
 
 // Shared & Sub-components
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'

@@ -7,14 +7,14 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+} from "@/Components/ui/card"
+import { Badge } from "@/Components/ui/badge"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/Components/ui/tooltip"
 
 // Your Shared Table
 import { SharedTable } from '../../../../Shared/SharedTable/SharedTable'

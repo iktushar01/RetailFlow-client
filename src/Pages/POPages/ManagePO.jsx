@@ -2,15 +2,15 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Plus, RefreshCw, FileText, Users, Package, Info, ShoppingCart, CheckCircle2, AlertCircle } from 'lucide-react'
 
 // Shadcn UI Components
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/Components/ui/button"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
+import { Separator } from "@/Components/ui/separator"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/Components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +20,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/Components/ui/alert-dialog"
 
 // Shared & Sub-components
 import StatsCard from '../../Shared/StatsCard/StatsCard'

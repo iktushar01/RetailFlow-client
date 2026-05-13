@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { ShoppingCart, Plus, Minus, Trash2, Edit3, RotateCcw, Check, X } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/Components/ui/button"
+import { Input } from "@/Components/ui/input"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card"
+import { ScrollArea } from "@/Components/ui/scroll-area"
+import { Separator } from "@/Components/ui/separator"
+import { Badge } from "@/Components/ui/badge"
 import DiscountSelector from './DiscountSelector'
 import Swal from 'sweetalert2'
 

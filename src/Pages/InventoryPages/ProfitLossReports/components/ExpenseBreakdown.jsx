@@ -8,9 +8,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
+} from "@/Components/ui/card"
+import { Progress } from "@/Components/ui/progress"
+import { Badge } from "@/Components/ui/badge"
 
 const ExpenseBreakdown = ({ expenseBreakdown = [], formatCurrency }) => {
   // Calculate total to determine percentage for progress bars

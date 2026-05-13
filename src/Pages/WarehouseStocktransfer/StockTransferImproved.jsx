@@ -9,10 +9,10 @@ import {
   Search,
   ArrowRight
 } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/Components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
+import { Badge } from "@/Components/ui/badge"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
 import { toast } from "sonner"
 
 // Shared components refactored to Shadcn

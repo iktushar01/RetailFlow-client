@@ -10,13 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Button } from "@/components/ui/button"
+} from "@/Components/ui/dialog"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
+import { ScrollArea } from "@/Components/ui/scroll-area"
+import { Separator } from "@/Components/ui/separator"
+import { Badge } from "@/Components/ui/badge"
+import { Skeleton } from "@/Components/ui/skeleton"
+import { Button } from "@/Components/ui/button"
 
 const CustomerHistory = ({ customer, isOpen, onClose }) => {
   const [salesHistory, setSalesHistory] = useState([])

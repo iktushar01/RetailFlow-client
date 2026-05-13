@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Tag, X, Check, AlertCircle, Loader2, ChevronDown } from 'lucide-react'
-import { Button } from "@/components/ui/button"
+import { Button } from "@/Components/ui/button"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
+} from "@/Components/ui/popover"
+import { Badge } from "@/Components/ui/badge"
+import { ScrollArea } from "@/Components/ui/scroll-area"
+import { Separator } from "@/Components/ui/separator"
 import { discountsAPI } from '../services/posService'
 import { getApplicableDiscounts, isDiscountApplicable } from '../utils/posHelpers'
 import Swal from 'sweetalert2'

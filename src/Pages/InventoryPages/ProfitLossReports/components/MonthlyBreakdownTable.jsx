@@ -8,8 +8,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+} from "@/Components/ui/card"
+import { Badge } from "@/Components/ui/badge"
 
 // Your Shared Table
 import { SharedTable } from '../../../../Shared/SharedTable/SharedTable'

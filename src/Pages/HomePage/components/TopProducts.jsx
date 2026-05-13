@@ -1,7 +1,7 @@
 import React from 'react'
 import { BarChart3, TrendingUp, Package } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
+import { Badge } from "@/Components/ui/badge"
 import { cn } from "@/lib/utils"
 
 const TopProducts = ({ data }) => {

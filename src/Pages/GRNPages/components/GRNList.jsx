@@ -1,7 +1,7 @@
 import React from 'react'
 import { Eye, Edit, Trash2, CheckCircle, Calendar, Hash } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/Components/ui/button'
+import { Badge } from '@/Components/ui/badge'
 import { SharedTable } from '@/Shared/SharedTable/SharedTable'
 import { formatDate, getStatusColor } from '../utils/grnHelpers'
 import { cn } from "@/lib/utils"

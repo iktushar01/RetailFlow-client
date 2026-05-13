@@ -15,11 +15,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Card } from "@/components/ui/card"
+} from "@/Components/ui/dialog"
+import { ScrollArea } from "@/Components/ui/scroll-area"
+import { Badge } from "@/Components/ui/badge"
+import { Separator } from "@/Components/ui/separator"
+import { Card } from "@/Components/ui/card"
 import { formatTransferDate } from '../utils/stockTransferHelpers'
 
 /**

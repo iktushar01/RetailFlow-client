@@ -7,8 +7,8 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+} from "@/Components/ui/card"
+import { Badge } from "@/Components/ui/badge"
 
 const KeyMetrics = ({ summary, filters, formatCurrency, formatPercentage, getProfitColor }) => {
   // Format the date for the period card

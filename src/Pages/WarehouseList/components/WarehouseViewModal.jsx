@@ -16,11 +16,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+} from "@/Components/ui/dialog"
+import { Badge } from "@/Components/ui/badge"
+import { Separator } from "@/Components/ui/separator"
+import { Card, CardContent } from "@/Components/ui/card"
+import { Button } from "@/Components/ui/button"
 
 /**
  * Warehouse View Modal refactored with Shadcn UI

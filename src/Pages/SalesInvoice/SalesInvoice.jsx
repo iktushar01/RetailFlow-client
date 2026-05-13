@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { FileText, RefreshCw, Info } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/Components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
 import { toast } from "sonner" // Shadcn recommended toast
 
 import InvoiceList from './components/InvoiceList'

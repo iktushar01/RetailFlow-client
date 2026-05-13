@@ -6,15 +6,15 @@ import {
 import Swal from 'sweetalert2'
 
 // shadcn/ui components
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/Components/ui/button"
+import { Input } from "@/Components/ui/input"
+import { Badge } from "@/Components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/Components/ui/dialog"
+import { Switch } from "@/Components/ui/switch"
+import { Label } from "@/Components/ui/label"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
 
 // APIs & Helpers
 import { inventoryAPI } from './services/barcodeService'

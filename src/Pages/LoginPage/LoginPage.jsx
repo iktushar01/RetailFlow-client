@@ -4,11 +4,11 @@ import { LogIn, Lock, User, Eye, EyeOff, AlertCircle, Info, Loader2 } from 'luci
 import { useAuth } from '../../contexts/AuthContext'
 
 // Shadcn UI Components
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/Components/ui/button"
+import { Input } from "@/Components/ui/input"
+import { Label } from "@/Components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/Components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
 
 const LoginPage = () => {
   const navigate = useNavigate()

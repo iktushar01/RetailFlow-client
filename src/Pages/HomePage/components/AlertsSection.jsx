@@ -6,12 +6,12 @@ import {
   CardContent, 
   CardHeader, 
   CardTitle 
-} from "@/components/ui/card"
+} from "@/Components/ui/card"
 import { 
   Alert, 
   AlertDescription, 
   AlertTitle 
-} from "@/components/ui/alert"
+} from "@/Components/ui/alert"
 
 const AlertsSection = ({ data }) => {
   const navigate = useNavigate()

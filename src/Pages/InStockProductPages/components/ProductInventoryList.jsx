@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import { Eye, MapPin, Package, Calendar, Hash, Inbox } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/Components/ui/button"
+import { Badge } from "@/Components/ui/badge"
+import { Card } from "@/Components/ui/card"
+import { Skeleton } from "@/Components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/Components/ui/table"
 import {
   formatDate,
   getStockStatusColor,

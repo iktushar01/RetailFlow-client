@@ -11,11 +11,11 @@ import {
   FileText
 } from 'lucide-react'
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/Components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
+import { Badge } from "@/Components/ui/badge"
+import { Skeleton } from "@/Components/ui/skeleton"
 
 // Shared components (Assuming these are also refactored to Shadcn)
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'

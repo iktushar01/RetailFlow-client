@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { RotateCcw, Plus, RefreshCw, Info, XCircle, Calendar, User, FileText, ClipboardList } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/Components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
+import { Badge } from "@/Components/ui/badge"
+import { Separator } from "@/Components/ui/separator"
+import { ScrollArea } from "@/Components/ui/scroll-area"
 import { toast } from "sonner"
 import {
   Dialog,
@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription
-} from "@/components/ui/dialog"
+} from "@/Components/ui/dialog"
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/Components/ui/table"
 
 import ReturnsList from './components/ReturnsList'
 import ReturnFilter from './components/ReturnFilter'

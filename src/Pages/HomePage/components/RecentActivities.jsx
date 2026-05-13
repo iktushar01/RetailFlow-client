@@ -1,6 +1,6 @@
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
+import { ScrollArea } from "@/Components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
 const RecentActivities = ({ data }) => {

@@ -7,10 +7,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/Components/ui/table"
+import { Badge } from "@/Components/ui/badge"
+import { Card, CardHeader, CardTitle, CardContent } from "@/Components/ui/card"
+import { Skeleton } from "@/Components/ui/skeleton"
 
 const StockTable = ({ stockData, loading, getStockStatus, getStatusIcon }) => {
   

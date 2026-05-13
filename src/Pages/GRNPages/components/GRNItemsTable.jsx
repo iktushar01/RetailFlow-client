@@ -7,9 +7,9 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+} from "@/Components/ui/table"
+import { Input } from "@/Components/ui/input"
+import { Badge } from "@/Components/ui/badge"
 import { getItemStatus } from '../utils/grnHelpers'
 import { cn } from "@/lib/utils"
 

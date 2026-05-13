@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react'
 import { BarChart3, Info } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
 import { 
   Tooltip, 
   TooltipContent, 
   TooltipProvider, 
   TooltipTrigger 
-} from "@/components/ui/tooltip"
+} from "@/Components/ui/tooltip"
 import TimeFilter from './TimeFilter'
 import { AreaChart } from '../../../Shared/Charts'
 
