@@ -5,17 +5,17 @@ import Swal from 'sweetalert2'
 import { Button } from '../../Components/UI/Button'
 import ProductForm from './components/ProductForm'
 import { productsAPI, suppliersAPI, imageAPI } from './services/productService'
-import { 
-  generateQRCode, 
-  validateProductForm, 
-  validateImageFile, 
-  prepareProductData, 
-  DEFAULT_CATEGORIES 
+import {
+  generateQRCode,
+  validateProductForm,
+  validateImageFile,
+  prepareProductData,
+  DEFAULT_CATEGORIES
 } from './utils/productHelpers'
 
 const ProductAdd = () => {
   const navigate = useNavigate()
-  
+
   const initialFormState = {
     productName: '',
     category: '',
@@ -191,7 +191,7 @@ const ProductAdd = () => {
       <div className="relative overflow-hidden bg-card border rounded-2xl p-8 shadow-sm">
         {/* Decorative Background Blur */}
         <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-        
+
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
@@ -203,14 +203,14 @@ const ProductAdd = () => {
               </h1>
             </div>
             <p className="text-muted-foreground text-sm max-w-md">
-              Initialize a new entry into the global inventory system. 
+              Initialize a new entry into the global inventory system.
               QR identifiers are auto-generated upon entry.
             </p>
           </div>
 
           <div className="flex gap-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => navigate('/products/manage')}
               className="gap-2"
             >
@@ -228,7 +228,7 @@ const ProductAdd = () => {
         <div>
           <h4 className="text-sm font-bold text-primary uppercase tracking-wider">System Integrity</h4>
           <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-            Ensure SKU and Product Names are unique to prevent collisions in the database. 
+            Ensure SKU and Product Names are unique to prevent collisions in the database.
             All uploads are routed through encrypted image servers.
           </p>
         </div>

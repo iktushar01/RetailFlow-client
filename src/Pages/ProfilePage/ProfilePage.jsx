@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
-import { 
-  User, 
-  Mail, 
-  Briefcase, 
-  Clock, 
-  Calendar, 
-  Save, 
-  Edit2, 
-  ShieldCheck, 
+import {
+  User,
+  Mail,
+  Briefcase,
+  Clock,
+  Calendar,
+  Save,
+  Edit2,
+  ShieldCheck,
   X,
   Camera
 } from 'lucide-react'
@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils"
 const ProfilePage = () => {
   const { user, updateUser } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
-  
+
   const initialFormState = {
     name: user?.name || '',
     email: user?.email || '',
@@ -79,8 +79,8 @@ const ProfilePage = () => {
           placeholder={placeholder}
           className={cn(
             "block w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border transition-all duration-200",
-            isEditing && !disabled 
-              ? "bg-background border-primary/30 ring-2 ring-primary/5 focus:ring-primary/20 focus:border-primary outline-none" 
+            isEditing && !disabled
+              ? "bg-background border-primary/30 ring-2 ring-primary/5 focus:ring-primary/20 focus:border-primary outline-none"
               : "bg-muted/30 border-transparent text-foreground cursor-not-allowed"
           )}
         />
@@ -93,7 +93,7 @@ const ProfilePage = () => {
       {/* Dynamic Hero Section */}
       <div className="relative overflow-hidden bg-card border rounded-3xl p-8 shadow-sm">
         <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-        
+
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
           {/* Avatar with Camera Overlay */}
           <div className="relative group">
@@ -149,24 +149,24 @@ const ProfilePage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField 
-                  label="Display Name" 
-                  icon={User} 
-                  name="name" 
+                <InputField
+                  label="Display Name"
+                  icon={User}
+                  name="name"
                   placeholder="Operational Handle"
                 />
-                <InputField 
-                  label="Email Link" 
-                  icon={Mail} 
-                  name="email" 
-                  type="email" 
+                <InputField
+                  label="Email Link"
+                  icon={Mail}
+                  name="email"
+                  type="email"
                   placeholder="contact@system.com"
                 />
-                <InputField 
-                  label="System Role" 
-                  icon={Briefcase} 
-                  name="role" 
-                  disabled 
+                <InputField
+                  label="System Role"
+                  icon={Briefcase}
+                  name="role"
+                  disabled
                 />
               </div>
             </form>
@@ -179,7 +179,7 @@ const ProfilePage = () => {
             <h4 className="font-bold text-[11px] uppercase tracking-widest text-muted-foreground mb-6">
               Activity Metrics
             </h4>
-            
+
             <div className="space-y-5">
               <div className="flex items-start gap-4">
                 <div className="p-2 bg-muted rounded-lg shrink-0">

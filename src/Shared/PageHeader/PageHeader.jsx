@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"; // Standard shadcn utility helper
  */
 const PageHeader = ({ title, subtitle, icon: Icon, actions = [], children, className }) => {
   return (
-    <div 
+    <div
       className={cn(
         "bg-card text-card-foreground rounded-lg border border-border p-6 mb-6 shadow-sm",
         className

@@ -8,9 +8,9 @@ import BarcodeList from './components/BarcodeList'
 import SharedModal from '../../Shared/SharedModal/SharedModal'
 import { inventoryAPI } from './services/barcodeService'
 import { productsAPI } from '../ProductPages/services/productService'
-import { 
-  applyBarcodeFilters, 
-  calculateBarcodeStats, 
+import {
+  applyBarcodeFilters,
+  calculateBarcodeStats,
   generateCode
 } from './utils/barcodeHelpers'
 
@@ -21,7 +21,7 @@ const WarehouseBarcode = () => {
   const [loading, setLoading] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
-  
+
   const [formData, setFormData] = useState({
     barcode: '',
     qrCode: '',
@@ -46,7 +46,7 @@ const WarehouseBarcode = () => {
         inventoryAPI.getAll(),
         productsAPI.getAll()
       ])
-      
+
       // Normalize field names
       const normalizedInventory = (inventoryData || []).map(item => ({
         ...item,
@@ -54,7 +54,7 @@ const WarehouseBarcode = () => {
         expiry: item.expiry || item.expiryDate || '',
         qrCode: item.qrCode || ''
       }))
-      
+
       setInventory(normalizedInventory)
       setProducts(productsData || [])
     } catch (error) {
@@ -171,10 +171,10 @@ const WarehouseBarcode = () => {
   // Handle edit barcode
   const handleEditBarcode = (item) => {
     setSelectedItem(item)
-    
+
     // Get product QR code if available
     const product = products.find(p => p._id === item.productId)
-    
+
     setFormData({
       barcode: item.barcode || product?.barcode || '',
       qrCode: item.qrCode || product?.qrCode || '',
@@ -203,8 +203,8 @@ const WarehouseBarcode = () => {
             </p>
           </div>
 
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             size="sm"
             onClick={fetchInventory}
             loading={loading}

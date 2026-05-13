@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { 
-  Settings, 
-  Lock, 
-  Bell, 
-  Globe, 
-  Moon, 
+import {
+  Settings,
+  Lock,
+  Bell,
+  Globe,
+  Moon,
   Monitor,
   Save,
   AlertCircle,
@@ -129,8 +129,8 @@ const SettingsPage = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all uppercase tracking-tighter",
-                  activeTab === tab.id 
-                    ? "bg-card text-primary shadow-sm border border-primary/10" 
+                  activeTab === tab.id
+                    ? "bg-card text-primary shadow-sm border border-primary/10"
                     : "text-muted-foreground hover:bg-card/50 hover:text-foreground"
                 )}
               >
@@ -144,7 +144,7 @@ const SettingsPage = () => {
         {/* Content Area */}
         <main className="flex-1 min-h-[500px]">
           <div className="bg-card border rounded-3xl p-8 shadow-sm h-full">
-            
+
             {activeTab === 'general' && (
               <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -152,7 +152,7 @@ const SettingsPage = () => {
                     <label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] ml-1">Locale & Language</label>
                     <div className="relative">
                       <Languages className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                      <select 
+                      <select
                         value={settings.language}
                         onChange={(e) => handleSettingChange('language', e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-muted/20 border rounded-xl focus:ring-2 ring-primary/20 outline-none appearance-none font-medium text-sm"
@@ -167,7 +167,7 @@ const SettingsPage = () => {
                     <label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] ml-1">Timezone Engine</label>
                     <div className="relative">
                       <Clock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                      <select 
+                      <select
                         value={settings.timezone}
                         onChange={(e) => handleSettingChange('timezone', e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-muted/20 border rounded-xl focus:ring-2 ring-primary/20 outline-none appearance-none font-medium text-sm"
@@ -183,20 +183,20 @@ const SettingsPage = () => {
 
             {activeTab === 'notifications' && (
               <div className="divide-y border-t animate-in slide-in-from-right-4 duration-300">
-                <Toggle 
-                  label="Inventory Alerts" 
+                <Toggle
+                  label="Inventory Alerts"
                   description="Real-time notification when SKUs drop below threshold"
                   enabled={settings.lowStockAlerts}
                   onChange={() => handleSettingChange('lowStockAlerts', !settings.lowStockAlerts)}
                 />
-                <Toggle 
-                  label="Sales Reporting" 
+                <Toggle
+                  label="Sales Reporting"
                   description="Summarized daily reports of all finalized transactions"
                   enabled={settings.salesNotifications}
                   onChange={() => handleSettingChange('salesNotifications', !settings.salesNotifications)}
                 />
-                <Toggle 
-                  label="Push Protocol" 
+                <Toggle
+                  label="Push Protocol"
                   description="Enable native browser desktop notifications"
                   enabled={settings.pushNotifications}
                   onChange={() => handleSettingChange('pushNotifications', !settings.pushNotifications)}
@@ -206,23 +206,23 @@ const SettingsPage = () => {
 
             {activeTab === 'display' && (
               <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
-                 <div className="grid grid-cols-3 gap-4">
-                    {['light', 'dark', 'auto'].map((t) => (
-                      <button 
-                        key={t}
-                        onClick={() => handleSettingChange('theme', t)}
-                        className={cn(
-                          "p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all",
-                          settings.theme === t ? "border-primary bg-primary/5" : "border-transparent bg-muted/30 hover:bg-muted/50"
-                        )}
-                      >
-                        {t === 'dark' ? <Moon className="w-5 h-5" /> : t === 'light' ? <Monitor className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        <span className="text-[10px] font-bold uppercase tracking-widest">{t}</span>
-                      </button>
-                    ))}
-                 </div>
-                 <Toggle 
-                  label="Compact View" 
+                <div className="grid grid-cols-3 gap-4">
+                  {['light', 'dark', 'auto'].map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => handleSettingChange('theme', t)}
+                      className={cn(
+                        "p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all",
+                        settings.theme === t ? "border-primary bg-primary/5" : "border-transparent bg-muted/30 hover:bg-muted/50"
+                      )}
+                    >
+                      {t === 'dark' ? <Moon className="w-5 h-5" /> : t === 'light' ? <Monitor className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      <span className="text-[10px] font-bold uppercase tracking-widest">{t}</span>
+                    </button>
+                  ))}
+                </div>
+                <Toggle
+                  label="Compact View"
                   description="Optimize layout for high-density information displays"
                   enabled={settings.compactMode}
                   onChange={() => handleSettingChange('compactMode', !settings.compactMode)}
@@ -237,24 +237,24 @@ const SettingsPage = () => {
                   <p className="text-xs text-destructive/80 font-medium">Changing your password will terminate all active sessions across other devices.</p>
                 </div>
                 <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                   <input 
-                      type="password" 
-                      placeholder="Current Security Key"
+                  <input
+                    type="password"
+                    placeholder="Current Security Key"
+                    className="w-full px-4 py-2.5 bg-muted/20 border rounded-xl outline-none focus:ring-2 ring-primary/20 text-sm"
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="password"
+                      placeholder="New Password"
                       className="w-full px-4 py-2.5 bg-muted/20 border rounded-xl outline-none focus:ring-2 ring-primary/20 text-sm"
-                   />
-                   <div className="grid grid-cols-2 gap-4">
-                    <input 
-                        type="password" 
-                        placeholder="New Password"
-                        className="w-full px-4 py-2.5 bg-muted/20 border rounded-xl outline-none focus:ring-2 ring-primary/20 text-sm"
                     />
-                    <input 
-                        type="password" 
-                        placeholder="Confirm New Password"
-                        className="w-full px-4 py-2.5 bg-muted/20 border rounded-xl outline-none focus:ring-2 ring-primary/20 text-sm"
+                    <input
+                      type="password"
+                      placeholder="Confirm New Password"
+                      className="w-full px-4 py-2.5 bg-muted/20 border rounded-xl outline-none focus:ring-2 ring-primary/20 text-sm"
                     />
-                   </div>
-                   <Button variant="outline" className="w-full rounded-xl border-destructive/20 text-destructive hover:bg-destructive/5">Update Credentials</Button>
+                  </div>
+                  <Button variant="outline" className="w-full rounded-xl border-destructive/20 text-destructive hover:bg-destructive/5">Update Credentials</Button>
                 </form>
               </div>
             )}

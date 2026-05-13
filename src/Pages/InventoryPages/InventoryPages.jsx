@@ -6,7 +6,7 @@ import InfoCard from '../../Shared/InfoCard/InfoCard'
 
 const InventoryPages = () => {
   const location = useLocation()
-  
+
   const inventoryPages = [
     {
       id: 'stock-dashboard',
@@ -125,16 +125,15 @@ const InventoryPages = () => {
         {inventoryPages.map((page) => {
           const Icon = page.icon
           const isActive = location.pathname === page.path
-          
+
           return (
             <Link
               key={page.id}
               to={page.path}
-              className={`block p-6 rounded-lg border-2 transition-all duration-200 hover:shadow-lg ${
-                isActive 
-                  ? 'border-blue-500 bg-blue-50 shadow-md' 
+              className={`block p-6 rounded-lg border-2 transition-all duration-200 hover:shadow-lg ${isActive
+                  ? 'border-blue-500 bg-blue-50 shadow-md'
                   : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
+                }`}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className={`w-12 h-12 rounded-lg ${getColorClasses(page.color)} flex items-center justify-center`}>
@@ -144,15 +143,15 @@ const InventoryPages = () => {
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 )}
               </div>
-              
+
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 {page.title}
               </h3>
-              
+
               <p className="text-gray-600 text-sm mb-4">
                 {page.description}
               </p>
-              
+
               <div className="space-y-2">
                 <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                   Key Features
@@ -166,7 +165,7 @@ const InventoryPages = () => {
                   ))}
                 </ul>
               </div>
-              
+
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <Button
                   variant={isActive ? "primary" : "ghost"}

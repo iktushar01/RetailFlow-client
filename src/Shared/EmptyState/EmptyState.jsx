@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils"
  * @param {string} message - Supporting description
  * @param {Object} action - Action config {label, onClick, icon, variant}
  */
-const EmptyState = ({ 
-  icon: Icon, 
-  title, 
-  message, 
+const EmptyState = ({
+  icon: Icon,
+  title,
+  message,
   action,
-  className 
+  className
 }) => {
   return (
     <div className={cn(
@@ -32,7 +32,7 @@ const EmptyState = ({
       <h3 className="text-xl font-semibold tracking-tight text-foreground mb-2">
         {title}
       </h3>
-      
+
       {message && (
         <p className="text-sm text-muted-foreground max-w-[420px] mb-8 leading-relaxed">
           {message}

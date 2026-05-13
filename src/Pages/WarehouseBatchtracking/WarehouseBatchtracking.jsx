@@ -7,9 +7,9 @@ import BatchFilter from './components/BatchFilter'
 import BatchList from './components/BatchList'
 import SharedModal from '../../Shared/SharedModal/SharedModal'
 import { inventoryAPI } from './services/batchService'
-import { 
-  applyBatchFilters, 
-  calculateBatchStats, 
+import {
+  applyBatchFilters,
+  calculateBatchStats,
   getExpiryStatus,
   generateBatchNumber,
   validateBatchData,
@@ -22,7 +22,7 @@ const WarehouseBatchtracking = () => {
   const [loading, setLoading] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
-  
+
   const [formData, setFormData] = useState({
     batch: '',
     expiry: ''
@@ -43,14 +43,14 @@ const WarehouseBatchtracking = () => {
     setLoading(true)
     try {
       const inventoryData = await inventoryAPI.getAll()
-      
+
       // Normalize field names (handle both batch/batchNumber and expiry/expiryDate)
       const normalizedInventory = (inventoryData || []).map(item => ({
         ...item,
         batch: item.batch || item.batchNumber || '',
         expiry: item.expiry || item.expiryDate || ''
       }))
-      
+
       setInventory(normalizedInventory)
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -125,7 +125,7 @@ const WarehouseBatchtracking = () => {
         confirmButtonColor: '#3B82F6',
         timer: 2000
       })
-      
+
       setModalOpen(false)
       fetchAllData()
     } catch (error) {
@@ -160,9 +160,9 @@ const WarehouseBatchtracking = () => {
               Track batch numbers and expiry dates for inventory items
             </p>
           </div>
-          
-          <Button 
-            variant="secondary" 
+
+          <Button
+            variant="secondary"
             size="md"
             onClick={fetchAllData}
             loading={loading}
@@ -334,14 +334,13 @@ const WarehouseBatchtracking = () => {
                 {formData.expiry && (
                   <p className="text-sm text-green-800">
                     <span className="font-medium">Expiry:</span> {new Date(formData.expiry).toLocaleDateString()}
-                    <span className={`ml-2 font-semibold ${
-                      getExpiryStatus(formData.expiry) === 'expired' ? 'text-red-600' :
-                      getExpiryStatus(formData.expiry) === 'near-expiry' ? 'text-yellow-600' :
-                      'text-green-600'
-                    }`}>
+                    <span className={`ml-2 font-semibold ${getExpiryStatus(formData.expiry) === 'expired' ? 'text-red-600' :
+                        getExpiryStatus(formData.expiry) === 'near-expiry' ? 'text-yellow-600' :
+                          'text-green-600'
+                      }`}>
                       ({getExpiryStatus(formData.expiry) === 'expired' ? 'Expired' :
                         getExpiryStatus(formData.expiry) === 'near-expiry' ? 'Expiring Soon' :
-                        'Valid'})
+                          'Valid'})
                     </span>
                   </p>
                 )}

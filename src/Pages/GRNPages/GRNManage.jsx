@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Plus, RefreshCw, ClipboardList, ShoppingCart, Users, Info, CheckCircle2, AlertCircle } from 'lucide-react'
 // UI Components - using relative paths
-import { Button } from '../../Components/UI/button'
+import { Button } from '../../Components/UI/Button'
 import {
   AlertDialog,
   AlertDialogAction,

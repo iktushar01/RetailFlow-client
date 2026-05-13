@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { 
-  LayoutGrid, 
-  List, 
-  Eye, 
-  Pencil, 
-  Trash2, 
-  Plus, 
-  Package, 
-  Info, 
+import {
+  LayoutGrid,
+  List,
+  Eye,
+  Pencil,
+  Trash2,
+  Plus,
+  Package,
+  Info,
   RefreshCw,
   Search,
   ArrowRight
@@ -30,12 +30,12 @@ const ProductManage = () => {
   const [products, setProducts] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [viewMode, setViewMode] = useState('table') 
-  
+  const [viewMode, setViewMode] = useState('table')
+
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
-  
+
   const [filters, setFilters] = useState({
     search: '',
     category: '',
@@ -111,8 +111,8 @@ const ProductManage = () => {
       header: 'Assets',
       cell: ({ row }) => (
         <div className="relative w-10 h-10 group cursor-pointer" onClick={() => handleAction(row.original, 'view')}>
-          <img 
-            src={row.original.productImage || 'https://via.placeholder.com/50'} 
+          <img
+            src={row.original.productImage || 'https://via.placeholder.com/50'}
             alt={row.original.productName}
             className="w-full h-full object-cover rounded-lg border bg-muted group-hover:scale-110 transition-transform"
           />
@@ -182,7 +182,7 @@ const ProductManage = () => {
       {/* Dynamic Dashboard Header */}
       <div className="relative overflow-hidden bg-card border rounded-2xl p-6 shadow-sm">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
-        
+
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/10">
@@ -201,18 +201,18 @@ const ProductManage = () => {
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             {/* View Mode Switcher */}
             <div className="flex bg-muted rounded-xl p-1 border">
-              <Button 
-                variant={viewMode === 'table' ? 'secondary' : 'ghost'} 
-                size="sm" 
-                onClick={() => setViewMode('table')} 
+              <Button
+                variant={viewMode === 'table' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('table')}
                 className="rounded-lg h-8 px-3"
               >
                 <List className="w-4 h-4 mr-2" /> <span className="text-xs">List</span>
               </Button>
-              <Button 
-                variant={viewMode === 'card' ? 'secondary' : 'ghost'} 
-                size="sm" 
-                onClick={() => setViewMode('card')} 
+              <Button
+                variant={viewMode === 'card' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('card')}
                 className="rounded-lg h-8 px-3"
               >
                 <LayoutGrid className="w-4 h-4 mr-2" /> <span className="text-xs">Grid</span>
@@ -233,14 +233,14 @@ const ProductManage = () => {
 
       {/* Stats Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-         <div className="bg-card border p-4 rounded-xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total SKU</p>
-              <p className="text-xl font-black tracking-tighter">{products.length}</p>
-            </div>
-            <div className="h-10 w-1 bg-primary/20 rounded-full" />
-         </div>
-         {/* Additional fast-stats can go here */}
+        <div className="bg-card border p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total SKU</p>
+            <p className="text-xl font-black tracking-tighter">{products.length}</p>
+          </div>
+          <div className="h-10 w-1 bg-primary/20 rounded-full" />
+        </div>
+        {/* Additional fast-stats can go here */}
       </div>
 
       {/* Filters Area */}

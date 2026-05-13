@@ -15,9 +15,9 @@ import { cn } from "@/lib/utils"
 
 export const ReusableFilter = ({
   filters = {},
-  onFilterChange = () => {},
-  onClearFilters = () => {},
-  onExport = () => {},
+  onFilterChange = () => { },
+  onClearFilters = () => { },
+  onExport = () => { },
   filterConfig = [],
   title = "Filters & Search",
   showExport = true,
@@ -69,7 +69,7 @@ export const ReusableFilter = ({
             <Label className="text-sm font-medium text-muted-foreground">
               {config.label}
             </Label>
-            
+
             {config.type === 'search' ? (
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -81,8 +81,8 @@ export const ReusableFilter = ({
                 />
               </div>
             ) : config.type === 'select' ? (
-              <Select 
-                value={filters[config.key] || ""} 
+              <Select
+                value={filters[config.key] || ""}
                 onValueChange={(val) => onFilterChange(config.key, val)}
               >
                 <SelectTrigger className="w-full">
@@ -123,11 +123,11 @@ export const ReusableFilter = ({
               if (!value) return null;
               const config = filterConfig.find(c => c.key === key);
               if (!config) return null;
-              
+
               return (
-                <Badge 
-                  key={key} 
-                  variant="secondary" 
+                <Badge
+                  key={key}
+                  variant="secondary"
                   className="rounded-md font-normal px-2 py-0.5"
                 >
                   <span className="opacity-70 mr-1">{config.label}:</span>

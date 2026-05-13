@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Tag, Plus, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react'
 // Importing via relative paths to ensure Vite resolves them correctly
-import { Button } from '../../Components/UI/button' 
+import { Button } from '../../Components/UI/Button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,10 +33,10 @@ const DiscountsPages = () => {
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedDiscount, setSelectedDiscount] = useState(null)
-  
+
   // Local notification state
   const [notification, setNotification] = useState(null)
-  
+
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [discountToDelete, setDiscountToDelete] = useState(null)
 
