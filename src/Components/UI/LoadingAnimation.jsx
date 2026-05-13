@@ -142,4 +142,12 @@ export const SmallLoading = (props) => (
   />
 )
 
+export const ReportLoading = (props) => (
+  <LoadingAnimation 
+    variant="report" 
+    fullScreen 
+    {...props} 
+  />
+)
+
 export default LoadingAnimation
