@@ -1,18 +1,30 @@
 import React, { useMemo } from 'react'
-import { TrendingUp, PieChart as PieChartIcon } from 'lucide-react'
+import { TrendingUp, PieChart as PieChartIcon, Calendar, ArrowUpRight, Wallet } from 'lucide-react'
+
+// shadcn/ui components
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle,
+  CardDescription 
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+
+// Your Shared Components
 import { LineChart, PieChart } from '../../../../Shared/Charts'
 
 const ChartsPlaceholder = ({ monthlyBreakdown = [], expenseBreakdown = [] }) => {
   // Process monthly breakdown data for profit trend chart
   const profitTrendData = useMemo(() => {
     if (!monthlyBreakdown || monthlyBreakdown.length === 0) {
-      // Generate sample data for last 12 months
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-      return months.map((month, index) => ({
+      return months.map((month) => ({
         month,
-        profit: Math.floor(Math.random() * 10000) - 2000, // Random profit between -2000 and 8000
-        sales: Math.floor(Math.random() * 15000) + 5000, // Random sales between 5000 and 20000
-        expenses: Math.floor(Math.random() * 8000) + 2000 // Random expenses between 2000 and 10000
+        profit: Math.floor(Math.random() * 10000) - 2000,
+        sales: Math.floor(Math.random() * 15000) + 5000,
+        expenses: Math.floor(Math.random() * 8000) + 2000
       }))
     }
 
@@ -27,7 +39,6 @@ const ChartsPlaceholder = ({ monthlyBreakdown = [], expenseBreakdown = [] }) => 
   // Process expense breakdown data for pie chart
   const expenseData = useMemo(() => {
     if (!expenseBreakdown || expenseBreakdown.length === 0) {
-      // Generate sample data
       return [
         { name: 'Purchase Orders', value: 15000, color: '#3b82f6' },
         { name: 'Other Payments', value: 8000, color: '#ef4444' },
@@ -45,134 +56,128 @@ const ChartsPlaceholder = ({ monthlyBreakdown = [], expenseBreakdown = [] }) => 
     })).filter(expense => expense.value > 0)
   }, [expenseBreakdown])
 
-  // Calculate summary statistics
-  const totalProfit = useMemo(() => {
-    return profitTrendData.reduce((sum, month) => sum + month.profit, 0)
-  }, [profitTrendData])
-
-  const totalExpenses = useMemo(() => {
-    return expenseData.reduce((sum, expense) => sum + expense.value, 0)
-  }, [expenseData])
-
-  const profitableMonths = useMemo(() => {
-    return profitTrendData.filter(month => month.profit > 0).length
-  }, [profitTrendData])
-
+  // Summary logic
+  const totalProfit = useMemo(() => profitTrendData.reduce((sum, m) => sum + m.profit, 0), [profitTrendData])
+  const totalExpenses = useMemo(() => expenseData.reduce((sum, e) => sum + e.value, 0), [expenseData])
+  const profitableMonths = useMemo(() => profitTrendData.filter(m => m.profit > 0).length, [profitTrendData])
+  
   const bestMonth = useMemo(() => {
-    return profitTrendData.reduce((best, month) => 
-      month.profit > best.profit ? month : best, 
+    return profitTrendData.reduce((best, m) => 
+      m.profit > best.profit ? m : best, 
       profitTrendData[0] || { month: 'N/A', profit: 0 }
     )
   }, [profitTrendData])
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Profit Trend Chart */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <TrendingUp className="w-5 h-5 mr-2 text-yellow-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Profit Trend</h3>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
+      {/* Profit Trend Chart Card */}
+      <Card className="shadow-sm border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+          <div className="space-y-1">
+            <CardTitle className="text-xl flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              Profit Trend
+            </CardTitle>
+            <CardDescription>Monthly financial performance overview</CardDescription>
           </div>
-          <div className="flex gap-4 text-sm">
-            <div className="text-right">
-              <p className="text-gray-500">Total Profit</p>
-              <p className={`font-semibold ${totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                BDT {totalProfit.toLocaleString()}
+          <Badge variant="outline" className="font-mono px-2 py-1">
+            {profitableMonths}/12 Profitable
+          </Badge>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {/* Internal Stats Bar */}
+          <div className="grid grid-cols-3 gap-2 bg-muted/40 p-3 rounded-lg border border-dashed">
+            <div className="text-center md:text-left">
+              <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Total Profit</p>
+              <p className={`text-sm font-bold ${totalProfit >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                ৳{totalProfit.toLocaleString()}
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-gray-500">Profitable Months</p>
-              <p className="font-semibold text-blue-600">{profitableMonths}/12</p>
+            <div className="text-center border-x border-border/50">
+              <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Best Period</p>
+              <p className="text-sm font-bold text-primary flex items-center justify-center gap-1">
+                <Calendar className="w-3 h-3" /> {bestMonth.month}
+              </p>
             </div>
-            <div className="text-right">
-              <p className="text-gray-500">Best Month</p>
-              <p className="font-semibold text-purple-600">{bestMonth.month}</p>
+            <div className="text-center md:text-right">
+              <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Peak Profit</p>
+              <p className="text-sm font-bold text-orange-500">
+                ৳{bestMonth.profit.toLocaleString()}
+              </p>
             </div>
           </div>
-        </div>
-        
-        <div className="bg-gradient-to-b from-slate-50/50 to-white rounded-lg border border-gray-200 p-4">
-          <LineChart
-            data={profitTrendData}
-            lines={[
-              { 
-                dataKey: 'profit', 
-                stroke: '#f59e0b', 
-                name: 'Net Profit (BDT)',
-                strokeWidth: 3
-              },
-              { 
-                dataKey: 'sales', 
-                stroke: '#10b981', 
-                name: 'Sales (BDT)',
-                strokeWidth: 2
-              },
-              { 
-                dataKey: 'expenses', 
-                stroke: '#ef4444', 
-                name: 'Expenses (BDT)',
-                strokeWidth: 2
-              }
-            ]}
-            xAxisKey="month"
-            height={280}
-            showGrid={true}
-            showLegend={true}
-            dot={true}
-          />
-        </div>
-        
-        <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500">
-            Monthly profit trend over the year
-          </p>
-        </div>
-      </div>
-      
-      {/* Expense vs Sales Pie Chart */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <PieChartIcon className="w-5 h-5 mr-2 text-yellow-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Expense vs Sales</h3>
+
+          <div className="h-[280px] w-full mt-2">
+            <LineChart
+              data={profitTrendData}
+              lines={[
+                { dataKey: 'profit', stroke: 'hsl(var(--primary))', name: 'Net Profit', strokeWidth: 3 },
+                { dataKey: 'sales', stroke: '#10b981', name: 'Sales', strokeWidth: 2 },
+                { dataKey: 'expenses', stroke: '#ef4444', name: 'Expenses', strokeWidth: 2 }
+              ]}
+              xAxisKey="month"
+              height={280}
+              showGrid={true}
+              showLegend={true}
+              dot={true}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Expense vs Sales Pie Chart Card */}
+      <Card className="shadow-sm border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+          <div className="space-y-1">
+            <CardTitle className="text-xl flex items-center gap-2">
+              <PieChartIcon className="w-5 h-5 text-primary" />
+              Expense Distribution
+            </CardTitle>
+            <CardDescription>Breakdown by spending category</CardDescription>
           </div>
           <div className="text-right">
-            <p className="text-gray-500">Total Expenses</p>
-            <p className="font-semibold text-red-600">BDT {totalExpenses.toLocaleString()}</p>
+            <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Total Outflow</p>
+            <p className="text-sm font-bold text-destructive">৳{totalExpenses.toLocaleString()}</p>
           </div>
-        </div>
+        </CardHeader>
         
-        <div className="bg-gradient-to-b from-slate-50/50 to-white rounded-lg border border-gray-200 p-4">
-          <PieChart
-            data={expenseData}
-            dataKey="value"
-            nameKey="name"
-            colors={expenseData.map(expense => expense.color)}
-            height={280}
-            showLegend={true}
-            innerRadius={0}
-            outerRadius={80}
-          />
-        </div>
-        
-        <div className="mt-4 grid grid-cols-1 gap-2">
-          {expenseData.map((expense, index) => (
-            <div key={index} className="flex items-center justify-between text-sm">
-              <div className="flex items-center">
-                <div 
-                  className="w-3 h-3 rounded-full mr-2" 
-                  style={{ backgroundColor: expense.color }}
-                ></div>
-                <span className="text-gray-700">{expense.name}</span>
+        <CardContent>
+          <div className="h-[280px] w-full flex items-center justify-center">
+            <PieChart
+              data={expenseData}
+              dataKey="value"
+              nameKey="name"
+              colors={expenseData.map(e => e.color)}
+              height={280}
+              showLegend={false} // Custom legend used below
+              innerRadius={60} // Changed to Donut for a more modern look
+              outerRadius={90}
+            />
+          </div>
+
+          <Separator className="my-4" />
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {expenseData.map((expense, index) => (
+              <div key={index} className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div 
+                    className="w-2 h-2 rounded-full shrink-0" 
+                    style={{ backgroundColor: expense.color }}
+                  ></div>
+                  <span className="text-xs text-muted-foreground truncate">{expense.name}</span>
+                </div>
+                <span className="text-xs font-mono font-bold">
+                  ৳{expense.value.toLocaleString()}
+                </span>
               </div>
-              <span className="font-medium text-gray-900">
-                BDT {expense.value.toLocaleString()}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
     </div>
   )
 }
