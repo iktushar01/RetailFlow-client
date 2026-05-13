@@ -1,4 +1,5 @@
-# 🏪 Store-Xen POS Management System - Frontend
+# 🏪 
+RetailFlow POS Management System - Frontend
 
 A modern, full-featured React application for comprehensive store management with procurement workflows, inventory tracking, and supplier management.
 

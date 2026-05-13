@@ -383,7 +383,8 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
               <Store className="h-4 w-4 text-white" />
             </div>
             <span className={`sb-logo-text ${isCollapsed ? 'collapsed' : ''}`}>
-              Store-Xen POS
+              
+RetailFlow
             </span>
           </Link>
         </div>

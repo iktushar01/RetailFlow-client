@@ -66,7 +66,8 @@ const LoginPage = () => {
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
             <LogIn className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Store-Xen POS</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+RetailFlow</h1>
           <p className="text-gray-600 mt-2">Sign in to your account</p>
         </div>
 
@@ -186,7 +187,8 @@ const LoginPage = () => {
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-500">
-          © 2025 Store-Xen POS. All rights reserved.
+          © 2025 
+RetailFlow. All rights reserved.
         </p>
       </div>
     </div>

@@ -59,7 +59,8 @@ export const Footer = () => {
           <div className="ftr-brand-icon">
             <Store size={11} color="white" />
           </div>
-          Store-Xen POS
+          
+RetailFlow
         </div>
         <span className="ftr-copy">© {year} Store-Xen. All rights reserved.</span>
         <span className="ftr-tag">PREMIUM</span>

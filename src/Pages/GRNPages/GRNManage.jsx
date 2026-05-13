@@ -157,7 +157,7 @@ const GRNManage = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
+    <div className="space-y-6 mx-auto p-4 sm:p-6">
       {/* Toast Notification Area */}
       {notification && (
         <div className="fixed top-4 right-4 z-[100] w-full max-w-sm animate-in slide-in-from-right-5">
