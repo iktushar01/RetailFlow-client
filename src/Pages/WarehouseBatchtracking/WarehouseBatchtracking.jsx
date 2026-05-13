@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Package, Plus, Pencil, AlertTriangle, Calendar, Clock, Info, CheckCircle, XCircle, RefreshCw } from 'lucide-react'
 import Swal from 'sweetalert2'
-import { Button } from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/button'
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import BatchFilter from './components/BatchFilter'
 import BatchList from './components/BatchList'
@@ -335,8 +335,8 @@ const WarehouseBatchtracking = () => {
                   <p className="text-sm text-green-800">
                     <span className="font-medium">Expiry:</span> {new Date(formData.expiry).toLocaleDateString()}
                     <span className={`ml-2 font-semibold ${getExpiryStatus(formData.expiry) === 'expired' ? 'text-red-600' :
-                        getExpiryStatus(formData.expiry) === 'near-expiry' ? 'text-yellow-600' :
-                          'text-green-600'
+                      getExpiryStatus(formData.expiry) === 'near-expiry' ? 'text-yellow-600' :
+                        'text-green-600'
                       }`}>
                       ({getExpiryStatus(formData.expiry) === 'expired' ? 'Expired' :
                         getExpiryStatus(formData.expiry) === 'near-expiry' ? 'Expiring Soon' :

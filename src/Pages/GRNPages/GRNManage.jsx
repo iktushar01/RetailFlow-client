@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Plus, RefreshCw, ClipboardList, ShoppingCart, Users, Info, CheckCircle2, AlertCircle } from 'lucide-react'
 // UI Components - using relative paths
-import { Button } from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,17 +36,17 @@ const GRNManage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isViewOpen, setIsViewOpen] = useState(false)
   const [selectedGRN, setSelectedGRN] = useState(null)
-  
+
   const [suppliers, setSuppliers] = useState([])
   const [purchaseOrders, setPurchaseOrders] = useState([])
   const [grns, setGrns] = useState([])
   const [loading, setLoading] = useState(false)
   const [fetchLoading, setFetchLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  
+
   // Notification State
   const [notification, setNotification] = useState(null)
-  
+
   // Dialog States
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [approveDialogOpen, setApproveDialogOpen] = useState(false)
@@ -210,10 +210,10 @@ const GRNManage = () => {
 
       <GRNFilter filters={filters} onFilterChange={setFilters} suppliers={suppliers} resultsCount={filteredGRNs.length} totalCount={grns.length} />
 
-      <GRNList 
-        grns={filteredGRNs} 
-        suppliers={suppliers} 
-        loading={fetchLoading} 
+      <GRNList
+        grns={filteredGRNs}
+        suppliers={suppliers}
+        loading={fetchLoading}
         onView={(grn) => { setSelectedGRN(grn); setIsViewOpen(true); }}
         onEdit={(grn) => { setGrnToProcess(grn); setIsEditing(true); setFormData(grn); setIsModalOpen(true); }}
         onDelete={(grn) => { setGrnToProcess(grn); setDeleteDialogOpen(true); }}
@@ -222,7 +222,7 @@ const GRNManage = () => {
 
       {/* Modals & Dialogs */}
       <GRNForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} formData={formData} setFormData={setFormData} purchaseOrders={purchaseOrders} loading={loading} onSubmit={handleSubmit} isEditing={isEditing} />
-      
+
       {/* Separated View Component for cleaner logic */}
       <GRNViewModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} grn={selectedGRN} suppliers={suppliers} />
 

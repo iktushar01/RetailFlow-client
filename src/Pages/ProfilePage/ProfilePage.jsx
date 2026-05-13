@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import Swal from 'sweetalert2'
-import { Button } from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/button'
 import { cn } from "@/lib/utils"
 
 const ProfilePage = () => {

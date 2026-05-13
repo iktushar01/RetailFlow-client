@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Tag, Plus, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react'
 // Importing via relative paths to ensure Vite resolves them correctly
-import { Button } from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/button'
 import {
   AlertDialog,
   AlertDialogAction,

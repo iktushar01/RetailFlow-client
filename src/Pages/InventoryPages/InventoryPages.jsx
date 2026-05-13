@@ -1,7 +1,7 @@
 import React from 'react'
 import { BarChart3, AlertTriangle, RotateCcw, Calculator, TrendingUp, PieChart, Activity } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import { Button } from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/button'
 import InfoCard from '../../Shared/InfoCard/InfoCard'
 
 const InventoryPages = () => {
@@ -131,8 +131,8 @@ const InventoryPages = () => {
               key={page.id}
               to={page.path}
               className={`block p-6 rounded-lg border-2 transition-all duration-200 hover:shadow-lg ${isActive
-                  ? 'border-blue-500 bg-blue-50 shadow-md'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                ? 'border-blue-500 bg-blue-50 shadow-md'
+                : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
             >
               <div className="flex items-start justify-between mb-4">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '../../Components/UI/Button';
+import { Button } from '../../Components/UI/button';
 import { cn } from "@/lib/utils"; // Standard shadcn utility helper
 
 /**

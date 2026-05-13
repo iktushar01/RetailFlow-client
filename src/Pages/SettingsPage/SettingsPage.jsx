@@ -15,7 +15,7 @@ import {
   Eye
 } from 'lucide-react'
 import Swal from 'sweetalert2'
-import { Button } from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/button'
 import { cn } from "@/lib/utils"
 
 const SettingsPage = () => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Eye, Pencil, Trash2, Box, Tag, Calendar, User } from 'lucide-react'
-import { Button } from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/button'
 
 const ProductCard = ({ product, onView, onEdit, onDelete }) => {
   return (

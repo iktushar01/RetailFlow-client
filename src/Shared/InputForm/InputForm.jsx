@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "../../Components/UI/Form"
 import { Input } from "../../Components/UI/Input"
-import { Button } from "../../Components/UI/Button"
+import { Button } from "../../Components/UI/button"
 import { Textarea } from "../../Components/UI/Textarea"
 import { Checkbox } from "../../Components/UI/Checkbox"
 import {

@@ -1,8 +1,8 @@
 import React from 'react'
 import { Filter, Download, RefreshCw, Search } from 'lucide-react'
-import { Button } from '../../Components/UI/Button'
+import { Button } from '../../Components/UI/button'
 import { Input } from '../../Components/UI/Input'
-import { Label } from '../../Components/UI/Label'
+import { Label } from '../../Components/UI/label'
 import { Badge } from '../../Components/UI/badge'
 import {
   Select,

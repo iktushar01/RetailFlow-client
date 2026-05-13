@@ -11,7 +11,7 @@ import {
   ExternalLink
 } from 'lucide-react'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
-import { Button } from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/button'
 import { Badge } from "../../../Components/UI/badge"
 import { cn } from "@/lib/utils"
 

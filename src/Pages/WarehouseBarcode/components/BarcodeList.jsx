@@ -1,6 +1,6 @@
 import React from 'react'
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
-import { Button } from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/button'
 import { QrCode, Barcode, Pencil } from 'lucide-react'
 import { 
   getBarcodeStatusColor, 

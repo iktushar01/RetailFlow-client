@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../Components/UI/Table"
-import { Button } from "../../Components/UI/Button"
+import { Button } from "../../Components/UI/button"
 import { 
   ChevronLeft, 
   ChevronRight, 

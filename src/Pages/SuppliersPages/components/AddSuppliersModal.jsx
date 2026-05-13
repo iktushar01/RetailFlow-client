@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { AddSuppliersFrom } from './AddSuppliersFrom'
-import { Button } from '../../../Components/UI/Button'
+import { Button } from '../../../Components/UI/button'
 import { suppliersAPI } from '../services/supplierService'
 import { X, UserPlus, AlertCircle } from 'lucide-react'
 import Swal from 'sweetalert2'
