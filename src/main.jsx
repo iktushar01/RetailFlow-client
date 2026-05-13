@@ -5,7 +5,7 @@ import { RouterProvider } from 'react-router-dom'
 import router from './Routes/PublicRoute.jsx'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './providers/theme-provider.jsx'
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/Components/UI/sonner"
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
