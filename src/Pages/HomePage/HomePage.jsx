@@ -17,25 +17,35 @@ import {
 export const HomePage = () => {
   const [timeFilter, setTimeFilter] = useState('today')
   
-  // Custom hooks for data management
   const { data, loading, refreshing, handleRefresh } = useDashboardData(timeFilter)
   const metrics = useDashboardMetrics(data)
+
+  // Configure SweetAlert2 to match Shadcn's aesthetic
+  const swalConfig = {
+    confirmButtonColor: 'hsl(var(--primary))',
+    background: 'hsl(var(--card))',
+    color: 'hsl(var(--card-foreground))',
+    customClass: {
+      popup: 'rounded-xl border border-border shadow-lg',
+      confirmButton: 'rounded-md px-4 py-2 text-sm font-medium transition-colors',
+    }
+  }
 
   const handleExport = async () => {
     try {
       await dashboardAPI.exportData('overview')
       Swal.fire({
+        ...swalConfig,
         icon: 'success',
         title: 'Export Successful',
         text: 'Dashboard data has been exported',
-        confirmButtonColor: '#3B82F6'
       })
     } catch {
       Swal.fire({
+        ...swalConfig,
         icon: 'error',
         title: 'Export Failed',
         text: 'Failed to export dashboard data',
-        confirmButtonColor: '#3B82F6'
       })
     }
   }
@@ -45,9 +55,14 @@ export const HomePage = () => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 to-white px-4 py-6">
-      <div className="mx-auto space-y-6">
-        {/* Header Section */}
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      {/* 
+          Container with responsive padding and max-width 
+          matching Shadcn dashboard templates 
+      */}
+      <main className="mx-auto space-y-8 p-4 md:p-8 pt-6">
+        
+        {/* Top Section: Title & Global Actions */}
         <DashboardHeader
           timeFilter={timeFilter}
           setTimeFilter={setTimeFilter}
@@ -56,31 +71,40 @@ export const HomePage = () => {
           refreshing={refreshing}
         />
 
-        {/* Key Metrics */}
-        <MetricsGrid metrics={metrics} data={data} />
+        {/* High-Level KPIs */}
+        <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <MetricsGrid metrics={metrics} data={data} />
+        </section>
 
-        {/* Charts & Graphs */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-          <SalesTrendChart
-            data={data}
-            timeFilter={timeFilter}
-            setTimeFilter={setTimeFilter}
-          />
+        {/* Primary Data Visuals */}
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <div className="xl:col-span-2">
+            <SalesTrendChart
+              data={data}
+              timeFilter={timeFilter}
+              setTimeFilter={setTimeFilter}
+            />
+          </div>
           <StockDistribution data={data} />
         </div>
 
-        {/* Top Selling Products */}
-        <TopProducts data={data} />
+        {/* Secondary Insights */}
+        <section className="space-y-6">
+          <TopProducts data={data} />
+          
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <AlertsSection data={data} />
+            </div>
+            <QuickActions />
+          </div>
+        </section>
 
-        {/* Alerts & Notifications + Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <AlertsSection data={data} />
-          <QuickActions />
-        </div>
-
-        {/* Recent Activities */}
-        <RecentActivities data={data} />
-      </div>
+        {/* Audit Trail / Feed */}
+        <section className="pb-10">
+          <RecentActivities data={data} />
+        </section>
+      </main>
     </div>
   )
 }

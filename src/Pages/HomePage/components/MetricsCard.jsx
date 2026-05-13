@@ -1,49 +1,69 @@
 import React from 'react'
+import { Card, CardContent } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 const MetricsCard = ({ 
   label, 
   value, 
   subtitle, 
-  icon: Icon, // eslint-disable-line no-unused-vars
-  color = 'blue', 
+  icon: Icon,
+  color = 'primary', // Default to primary variable
   onClick,
-  className = '' 
+  className = "" 
 }) => {
-  const colorClasses = {
-    blue: 'from-indigo-50 to-indigo-100 text-indigo-700',
-    green: 'from-green-50 to-green-100 text-green-700',
-    emerald: 'from-emerald-50 to-emerald-100 text-emerald-700',
-    red: 'from-red-50 to-red-100 text-red-700',
-    amber: 'from-amber-50 to-amber-100 text-amber-700'
+  
+  // Instead of hardcoded tailwind colors, we use functional semantic classes
+  // that leverage the CSS variables in your index.css
+  const colorVariants = {
+    primary: "bg-primary/10 text-primary",
+    green: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    red: "bg-destructive/10 text-destructive",
+    amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    blue: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
   }
-
-  const textColorClasses = {
-    blue: 'text-slate-500',
-    green: 'text-slate-500',
-    emerald: 'text-emerald-600',
-    red: 'text-red-600',
-    amber: 'text-amber-600'
-  }
-
-  const CardComponent = onClick ? 'div' : 'div'
-  const cardProps = onClick ? { onClick, className: 'cursor-pointer' } : {}
 
   return (
-    <CardComponent
-      {...cardProps}
-      className={`group rounded-2xl bg-white/70 backdrop-blur ring-1 ring-slate-200/70 p-5 shadow-sm hover:shadow-xl transition-all ${className}`}
+    <Card 
+      onClick={onClick}
+      className={cn(
+        "group relative overflow-hidden transition-all hover:shadow-md",
+        "bg-card/70 backdrop-blur border-border",
+        onClick && "cursor-pointer active:scale-[0.98]",
+        className
+      )}
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-          <p className="text-3xl font-bold mt-1">{value}</p>
-          <p className={`text-xs mt-1 ${textColorClasses[color]}`}>{subtitle}</p>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {label}
+            </p>
+            <p className="text-3xl font-bold tracking-tight text-foreground">
+              {value}
+            </p>
+            {subtitle && (
+              <p className="text-xs font-medium text-muted-foreground">
+                {subtitle}
+              </p>
+            )}
+          </div>
+
+          {/* Icon Badge */}
+          <div className={cn(
+            "flex h-12 w-12 items-center justify-center rounded-xl transition-colors",
+            colorVariants[color] || colorVariants.primary
+          )}>
+            {Icon && <Icon className="h-6 w-6" />}
+          </div>
         </div>
-        <div className={`p-3 rounded-xl bg-gradient-to-br ${colorClasses[color]}`}>
-          <Icon />
-        </div>
-      </div>
-    </CardComponent>
+        
+        {/* Subtle hover effect bar at the bottom */}
+        <div className={cn(
+          "absolute bottom-0 left-0 h-1 w-0 transition-all group-hover:w-full",
+          color === 'primary' ? 'bg-primary' : `bg-${color}-500`
+        )} />
+      </CardContent>
+    </Card>
   )
 }
 

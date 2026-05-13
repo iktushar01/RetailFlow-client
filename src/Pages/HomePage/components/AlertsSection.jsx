@@ -1,6 +1,17 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, CreditCard, Clock } from 'lucide-react'
+import { AlertTriangle, CreditCard, Clock, Bell } from 'lucide-react'
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card"
+import { 
+  Alert, 
+  AlertDescription, 
+  AlertTitle 
+} from "@/components/ui/alert"
 
 const AlertsSection = ({ data }) => {
   const navigate = useNavigate()
@@ -14,12 +25,11 @@ const AlertsSection = ({ data }) => {
     }
   }
 
-  const getAlertColor = (severity) => {
+  // Maps severity to Shadcn Alert variants or custom color logic
+  const getAlertVariant = (severity) => {
     switch (severity) {
-      case 'high': return 'text-red-800 bg-red-50 ring-red-200'
-      case 'medium': return 'text-amber-900 bg-amber-50 ring-amber-200'
-      case 'low': return 'text-blue-800 bg-blue-50 ring-blue-200'
-      default: return 'text-gray-800 bg-gray-50 ring-gray-200'
+      case 'high': return "destructive" // Shadcn default destructive
+      default: return "default"
     }
   }
 
@@ -43,42 +53,45 @@ const AlertsSection = ({ data }) => {
   }
 
   return (
-    <div className="rounded-2xl bg-white/70 backdrop-blur ring-1 ring-slate-200/70 p-5 shadow-sm lg:col-span-2">
-      <div className="flex items-center gap-2 mb-4">
-        <AlertTriangle className="text-red-600" />
-        <h2 className="font-semibold">Alerts & Notifications</h2>
-      </div>
-      <ul className="space-y-3">
-        {data.alerts.length > 0 ? (
-          data.alerts.slice(0, 3).map((alert, index) => {
-            const IconComponent = getAlertIcon(alert.icon)
-            const colorClasses = getAlertColor(alert.severity)
-            
-            return (
-              <li 
-                key={alert.id || index} 
-                className={`flex items-start gap-3 text-sm rounded-xl p-3 ring-1 cursor-pointer hover:shadow-md transition ${colorClasses}`}
-                onClick={() => handleAlertClick(alert)}
-              >
-                <IconComponent className="w-4 h-4 mt-0.5" />
-                <div>
-                  <p className="font-semibold">{alert.title}</p>
-                  <p>{alert.message}</p>
-                </div>
-              </li>
-            )
-          })
-        ) : (
-          <li className="flex items-center gap-3 text-sm rounded-xl p-3 ring-1 ring-slate-200/60 bg-slate-50/60 text-slate-600">
-            <AlertTriangle className="w-4 h-4" />
-            <div>
-              <p className="font-semibold">No Alerts</p>
-              <p>All systems running smoothly</p>
-            </div>
-          </li>
-        )}
-      </ul>
-    </div>
+    <Card className="lg:col-span-2 shadow-sm border-border bg-card/70 backdrop-blur">
+      <CardHeader className="flex flex-row items-center gap-2 pb-4">
+        <Bell className="w-5 h-5 text-primary" />
+        <CardTitle className="text-lg font-semibold">Alerts & Notifications</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {data.alerts && data.alerts.length > 0 ? (
+            data.alerts.slice(0, 3).map((alert, index) => {
+              const IconComponent = getAlertIcon(alert.icon)
+              const variant = getAlertVariant(alert.severity)
+              
+              return (
+                <Alert 
+                  key={alert.id || index} 
+                  variant={variant}
+                  className="cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors"
+                  onClick={() => handleAlertClick(alert)}
+                >
+                  <IconComponent className="h-4 w-4" />
+                  <AlertTitle className="font-semibold">{alert.title}</AlertTitle>
+                  <AlertDescription>
+                    {alert.message}
+                  </AlertDescription>
+                </Alert>
+              )
+            })
+          ) : (
+            <Alert variant="outline" className="border-dashed">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>No Alerts</AlertTitle>
+              <AlertDescription>
+                All systems running smoothly
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 

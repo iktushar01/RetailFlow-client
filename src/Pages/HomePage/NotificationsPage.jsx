@@ -115,7 +115,7 @@ const NotificationsPage = () => {
   if (loading) return <DashboardLoading message="Syncing notifications..." />
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 animate-in fade-in duration-500">
+    <div className="w-full  mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 animate-in fade-in duration-500">
       
       {/* HEADER SECTION - Stacked on mobile, side-by-side on md+ */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6">
