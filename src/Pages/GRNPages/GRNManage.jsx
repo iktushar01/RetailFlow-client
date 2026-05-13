@@ -11,15 +11,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../../components/ui/alert-dialog"
+} from "../../Components/UI/alert-dialog"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert"
+} from "../../Components/UI/card"
+import { Alert, AlertDescription, AlertTitle } from "../../Components/UI/alert"
 
 // Internal Components
 import StatsCard from '../../Shared/StatsCard/StatsCard'

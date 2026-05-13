@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { RefreshCw, Receipt, DollarSign, CheckCircle, AlertCircle, Info, History, Eye, ExternalLink } from 'lucide-react'
 import { toast } from "sonner"
-import { Button } from "@/Components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
-import { Badge } from "@/Components/ui/badge"
-import { Separator } from "@/Components/ui/separator"
-import { ScrollArea } from "@/Components/ui/scroll-area"
+import { Button } from "@/Components/UI/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/UI/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
+import { Badge } from "@/Components/UI/badge"
+import { Separator } from "@/Components/UI/separator"
+import { ScrollArea } from "@/Components/UI/scroll-area"
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription
-} from "@/Components/ui/dialog"
+} from "@/Components/UI/dialog"
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/Components/ui/table"
+} from "@/Components/UI/table"
 
 import PaymentsList from './components/PaymentsList'
 import PaymentsFilter from './components/PaymentsFilter'

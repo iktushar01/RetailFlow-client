@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { Plus, Users, Info, Building2, ShieldCheck, Activity } from "lucide-react";
 
 // shadcn/ui components
-import { Button } from "@/Components/ui/button";
+import { Button } from "@/Components/UI/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/Components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert";
-import { Separator } from "@/Components/ui/separator";
+} from "@/Components/UI/card";
+import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert";
+import { Separator } from "@/Components/UI/separator";
 
 // Project specific components
 import SuppliersList from "./components/SuppliersList";

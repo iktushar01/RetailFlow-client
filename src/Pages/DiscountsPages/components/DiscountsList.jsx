@@ -1,7 +1,7 @@
 import React from 'react'
 import { Pencil, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Badge } from "@/Components/ui/badge"
+import { Button } from "@/Components/UI/button"
+import { Badge } from "@/Components/UI/badge"
 import {
   Table,
   TableBody,
@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/Components/ui/table"
+} from "@/Components/UI/table"
 import { getStatusColor, getStatusLabel } from '../utils/discountsHelpers'
 
 const DiscountsList = ({ discounts, onEdit, onDelete, onToggleStatus, loading }) => {

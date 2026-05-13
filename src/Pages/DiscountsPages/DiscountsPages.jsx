@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Tag, Plus, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react'
 // Importing via relative paths to ensure Vite resolves them correctly
-import { Button } from '../../components/ui/button' 
+import { Button } from '../../Components/UI/button' 
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,14 +11,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../../components/ui/alert-dialog"
+} from "../../Components/UI/alert-dialog"
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert"
+} from "../../Components/UI/card"
+import { Alert, AlertDescription, AlertTitle } from "../../Components/UI/alert"
 
 import DiscountsList from './components/DiscountsList'
 import DiscountFilter from './components/DiscountFilter'

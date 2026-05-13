@@ -5,17 +5,17 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogFooter 
-} from "@/Components/ui/dialog"
-import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
-import { Label } from "@/Components/ui/label"
+} from "@/Components/UI/dialog"
+import { Button } from "@/Components/UI/button"
+import { Input } from "@/Components/UI/input"
+import { Label } from "@/Components/UI/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select"
+} from "@/Components/UI/select"
 import { validateDiscountForm, formatDateForInput } from '../utils/discountsHelpers'
 
 const DiscountModal = ({ isOpen, onClose, discount, onSave }) => {

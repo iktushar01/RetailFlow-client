@@ -5,12 +5,12 @@ import {
 } from 'lucide-react'
 
 // shadcn/ui imports
-import { Button } from "@/Components/ui/button"
-import { Card, CardContent } from "@/Components/ui/card"
-import { Badge } from "@/Components/ui/badge"
-import { Tabs, TabsList, TabsTrigger } from "@/Components/ui/tabs"
-import { ScrollArea } from "@/Components/ui/scroll-area"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/Components/ui/tooltip"
+import { Button } from "@/Components/UI/button"
+import { Card, CardContent } from "@/Components/UI/card"
+import { Badge } from "@/Components/UI/badge"
+import { Tabs, TabsList, TabsTrigger } from "@/Components/UI/tabs"
+import { ScrollArea } from "@/Components/UI/scroll-area"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/Components/UI/tooltip"
 
 import { dashboardAPI } from './services/dashboardService'
 import { DashboardLoading } from '../../Components/UI/LoadingAnimation'
