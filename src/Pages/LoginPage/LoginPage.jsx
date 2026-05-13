@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogIn, Lock, User, Eye, EyeOff, AlertCircle, Info } from 'lucide-react'
+import { LogIn, Lock, User, Eye, EyeOff, AlertCircle, Info, Loader2 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+
+// Shadcn UI Components
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 const LoginPage = () => {
   const navigate = useNavigate()
   const { login, isAuthenticated } = useAuth()
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  })
+  
+  const [formData, setFormData] = useState({ username: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated()) {
       navigate('/dashboard/overview')
@@ -24,7 +28,7 @@ const LoginPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-    setError('') // Clear error when typing
+    if (error) setError('')
   }
 
   const handleSubmit = async (e) => {
@@ -33,162 +37,142 @@ const LoginPage = () => {
     setLoading(true)
 
     try {
-      const result = login(formData.username, formData.password)
-      
+      const result = await login(formData.username, formData.password)
       if (result.success) {
-        // Small delay for better UX
-        setTimeout(() => {
-          navigate('/dashboard/overview')
-        }, 300)
+        setTimeout(() => navigate('/dashboard/overview'), 300)
       } else {
-        setError(result.error)
+        setError(result.error || 'Invalid credentials')
       }
     } catch (err) {
-      setError('An error occurred. Please try again.')
+      setError('Connection error. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
   const fillDemoCredentials = () => {
-    setFormData({
-      username: 'xenuser',
-      password: 'xenuser123'
-    })
+    setFormData({ username: 'xenuser', password: 'xenuser123' })
     setError('')
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-6">
-        {/* Logo and Header */}
-        <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg mb-4">
-            <LogIn className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 selection:bg-primary/20">
+      <div className="max-w-md w-full space-y-8 animate-in fade-in zoom-in-95 duration-500">
+        
+        {/* Branding */}
+        <div className="text-center space-y-2">
+          <div className="mx-auto w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-xl shadow-primary/20 mb-4">
+            <LogIn className="w-7 h-7 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">
-RetailFlow</h1>
-          <p className="text-gray-600 mt-2">Sign in to your account</p>
+          <h1 className="text-4xl font-black tracking-tight text-foreground">
+            Retail<span className="text-primary">Flow</span>
+          </h1>
+          <p className="text-muted-foreground font-medium">Enterprise Management Suite</p>
         </div>
 
-        {/* Login Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
-              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-red-800">{error}</p>
-              </div>
-            </div>
-          )}
+        <Card className="border-border shadow-2xl bg-card/50 backdrop-blur-sm">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl">Sign In</CardTitle>
+            <CardDescription>Enter your credentials to access your dashboard</CardDescription>
+          </CardHeader>
 
-          {/* Demo Credentials Card */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start space-x-3">
-              <Info className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-blue-900 mb-2">Demo Credentials</p>
-                <div className="text-sm text-blue-800 space-y-1">
-                  <p className="font-mono bg-white px-2 py-1 rounded">Username: <span className="font-semibold">xenuser</span></p>
-                  <p className="font-mono bg-white px-2 py-1 rounded">Password: <span className="font-semibold">xenuser123</span></p>
+          <CardContent className="space-y-4">
+            {/* Error Message */}
+            {error && (
+              <Alert variant="destructive" className="animate-in slide-in-from-top-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Demo Credentials Alert */}
+            <Alert className="bg-muted/50 border-primary/20">
+              <Info className="h-4 w-4 text-primary" />
+              <AlertTitle className="text-xs uppercase tracking-widest font-bold opacity-70">Quick Access</AlertTitle>
+              <AlertDescription className="mt-2">
+                <div className="flex flex-col gap-1 text-xs font-mono">
+                  <div className="flex justify-between"><span>User:</span> <span className="font-bold text-primary">xenuser</span></div>
+                  <div className="flex justify-between"><span>Pass:</span> <span className="font-bold text-primary">xenuser123</span></div>
                 </div>
-                <button
-                  type="button"
+                <Button 
+                  variant="link" 
+                  size="sm" 
                   onClick={fillDemoCredentials}
-                  className="mt-3 text-xs text-blue-700 hover:text-blue-900 font-medium hover:underline"
+                  className="h-auto p-0 mt-2 text-primary hover:no-underline font-bold"
                 >
-                  Click to fill credentials
-                </button>
-              </div>
-            </div>
-          </div>
+                  Auto-fill Demo Details
+                </Button>
+              </AlertDescription>
+            </Alert>
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username Field */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Username
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="username"
+                    name="username"
+                    placeholder="admin_user"
+                    className="pl-10"
+                    value={formData.username}
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                  />
                 </div>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter your username"
-                  disabled={loading}
-                />
               </div>
-            </div>
 
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    className="pl-10 pr-10"
+                    value={formData.password}
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter your password"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  disabled={loading}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  )}
-                </button>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Signing in...</span>
-                </>
-              ) : (
-                <>
-                  <LogIn className="w-5 h-5" />
-                  <span>Sign In</span>
-                </>
-              )}
-            </button>
-          </form>
-        </div>
+              <Button type="submit" className="w-full h-11 text-base font-bold shadow-lg shadow-primary/20" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Authenticating...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Sign In
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+          
+          <CardFooter>
+            <p className="w-full text-center text-xs text-muted-foreground">
+              Secure SSL Encrypted Environment
+            </p>
+          </CardFooter>
+        </Card>
 
-        {/* Footer */}
-        <p className="text-center text-sm text-gray-500">
-          © 2025 
-RetailFlow. All rights reserved.
+        <p className="text-center text-xs text-muted-foreground/60 font-medium">
+          &copy; {new Date().getFullYear()} RetailFlow Systems • v2.4.0
         </p>
       </div>
     </div>
@@ -196,4 +180,3 @@ RetailFlow. All rights reserved.
 }
 
 export default LoginPage
-
