@@ -3,19 +3,19 @@ import { Search, Package, Plus, Edit3, Check, X, AlertTriangle } from 'lucide-re
 import Swal from 'sweetalert2'
 
 // Shadcn UI Components
-import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
+import { Button } from "@/Components/UI/button"
+import { Input } from "@/Components/UI/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select"
-import { Badge } from "@/Components/ui/badge"
-import { ScrollArea } from "@/Components/ui/scroll-area"
-import { Card } from "@/Components/ui/card"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/Components/ui/tooltip"
+} from "@/Components/UI/select"
+import { Badge } from "@/Components/UI/badge"
+import { ScrollArea } from "@/Components/UI/scroll-area"
+import { Card } from "@/Components/UI/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/Components/UI/tooltip"
 
 const ProductList = ({ products, inventory, onAddToCart, onUpdateProductPrice, filters, onFilterChange }) => {
   const [editingPrice, setEditingPrice] = useState(null)
@@ -198,3 +198,4 @@ const ProductList = ({ products, inventory, onAddToCart, onUpdateProductPrice, f
 }
 
 export default ProductList
+

@@ -15,11 +15,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/Components/ui/dialog"
-import { ScrollArea } from "@/Components/ui/scroll-area"
-import { Badge } from "@/Components/ui/badge"
-import { Separator } from "@/Components/ui/separator"
-import { Card } from "@/Components/ui/card"
+} from "@/Components/UI/dialog"
+import { ScrollArea } from "@/Components/UI/scroll-area"
+import { Badge } from "@/Components/UI/badge"
+import { Separator } from "@/Components/UI/separator"
+import { Card } from "@/Components/UI/card"
 import { formatTransferDate } from '../utils/stockTransferHelpers'
 
 /**
@@ -145,3 +145,4 @@ const TransferCard = ({ transfer }) => {
 }
 
 export default TransferHistoryModal
+

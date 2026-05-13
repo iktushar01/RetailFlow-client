@@ -1,8 +1,8 @@
 import React from 'react'
 import { Calculator, Receipt, DollarSign, Info } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { Input } from "@/Components/ui/input"
-import { Label } from "@/Components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
+import { Input } from "@/Components/UI/input"
+import { Label } from "@/Components/UI/label"
 import { formatCurrency } from '../utils/poHelpers'
 import { cn } from "@/lib/utils"
 
@@ -76,3 +76,4 @@ const POSummary = ({ subtotal, taxAmount, total, taxRate, onTaxRateChange }) => 
 }
 
 export default POSummary
+

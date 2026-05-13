@@ -1,8 +1,8 @@
 import React from 'react'
 import { PieChart, Layers } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { Badge } from "@/Components/ui/badge"
-import { Progress } from "@/Components/ui/progress"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
+import { Badge } from "@/Components/UI/badge"
+import { Progress } from "@/Components/UI/progress"
 import { cn } from "@/lib/utils"
 
 const CategoryBreakdown = ({ categoryBreakdown = [], getMarginColor, className }) => {
@@ -74,3 +74,4 @@ const CategoryBreakdown = ({ categoryBreakdown = [], getMarginColor, className }
 }
 
 export default CategoryBreakdown
+

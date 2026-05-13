@@ -5,22 +5,22 @@ import { Slot } from "radix-ui"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
-import { Separator } from "@/Components/ui/separator"
+import { Button } from "@/Components/UI/button"
+import { Input } from "@/Components/UI/input"
+import { Separator } from "@/Components/UI/separator"
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/Components/ui/sheet"
-import { Skeleton } from "@/Components/ui/skeleton"
+} from "@/Components/UI/sheet"
+import { Skeleton } from "@/Components/UI/skeleton"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/Components/ui/tooltip"
+} from "@/Components/UI/tooltip"
 import { PanelLeftIcon } from "lucide-react"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
@@ -656,3 +656,4 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+

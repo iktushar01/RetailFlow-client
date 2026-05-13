@@ -1,6 +1,6 @@
 import React from 'react'
 import { TrendingUp, RefreshCw, LayoutDashboard } from 'lucide-react'
-import { Button } from '@/Components/ui/button' // Adjusted to standard shadcn path
+import { Button } from '@/Components/UI/button' // Adjusted to standard shadcn path
 
 const SalesReportsHeader = ({ onRefresh, isRefreshing = false }) => {
   return (
@@ -45,3 +45,4 @@ const SalesReportsHeader = ({ onRefresh, isRefreshing = false }) => {
 }
 
 export default SalesReportsHeader
+

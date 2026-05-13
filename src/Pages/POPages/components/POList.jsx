@@ -1,8 +1,8 @@
 import React from 'react'
 import { Eye, Edit, Trash2, Send, MoreHorizontal } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Badge } from "@/Components/ui/badge"
-import { Card, CardContent } from "@/Components/ui/card"
+import { Button } from "@/Components/UI/button"
+import { Badge } from "@/Components/UI/badge"
+import { Card, CardContent } from "@/Components/UI/card"
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { getStatusColor, formatCurrency, formatDate } from '../utils/poHelpers'
 import { cn } from "@/lib/utils"
@@ -178,3 +178,4 @@ const POList = ({
 }
 
 export default POList
+

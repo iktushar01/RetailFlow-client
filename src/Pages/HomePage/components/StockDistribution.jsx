@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { PieChart as PieChartIcon, Package } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/Components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/Components/UI/card"
 import { PieChart } from '../../../Shared/Charts'
 
 const StockDistribution = ({ data }) => {
@@ -118,3 +118,4 @@ const StockDistribution = ({ data }) => {
 }
 
 export default StockDistribution
+

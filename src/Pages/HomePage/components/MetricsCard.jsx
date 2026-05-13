@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardContent } from "@/Components/ui/card"
+import { Card, CardContent } from "@/Components/UI/card"
 import { cn } from "@/lib/utils"
 
 const MetricsCard = ({ 
@@ -68,3 +68,4 @@ const MetricsCard = ({
 }
 
 export default MetricsCard
+

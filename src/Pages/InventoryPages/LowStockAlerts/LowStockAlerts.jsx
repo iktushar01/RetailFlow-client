@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { AlertTriangle, Package, RotateCcw, RefreshCw, Plus, Search } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
-import { Badge } from "@/Components/ui/badge"
+import { Button } from "@/Components/UI/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/UI/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/UI/table"
+import { Badge } from "@/Components/UI/badge"
 import { 
   Dialog, 
   DialogContent, 
@@ -12,9 +12,9 @@ import {
   DialogTitle, 
   DialogFooter,
   DialogDescription 
-} from "@/Components/ui/dialog"
-import { Input } from "@/Components/ui/input"
-import { Skeleton } from "@/Components/ui/skeleton"
+} from "@/Components/UI/dialog"
+import { Input } from "@/Components/UI/input"
+import { Skeleton } from "@/Components/UI/skeleton"
 import { 
   inventoryAPI, 
   productsAPI, 
@@ -289,3 +289,4 @@ const StatsCard = ({ label, value, variant = "default" }) => (
 )
 
 export default LowStockAlerts
+

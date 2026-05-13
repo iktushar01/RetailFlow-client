@@ -6,12 +6,12 @@ import {
   CardContent, 
   CardHeader, 
   CardTitle 
-} from "@/Components/ui/card"
+} from "@/Components/UI/card"
 import { 
   Alert, 
   AlertDescription, 
   AlertTitle 
-} from "@/Components/ui/alert"
+} from "@/Components/UI/alert"
 
 const AlertsSection = ({ data }) => {
   const navigate = useNavigate()
@@ -96,3 +96,4 @@ const AlertsSection = ({ data }) => {
 }
 
 export default AlertsSection
+

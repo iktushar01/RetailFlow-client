@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react'
 import { BarChart3, Info } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/UI/card"
 import { 
   Tooltip, 
   TooltipContent, 
   TooltipProvider, 
   TooltipTrigger 
-} from "@/Components/ui/tooltip"
+} from "@/Components/UI/tooltip"
 import TimeFilter from './TimeFilter'
 import { AreaChart } from '../../../Shared/Charts'
 
@@ -96,3 +96,4 @@ const SalesTrendChart = ({ data, timeFilter, setTimeFilter }) => {
 }
 
 export default SalesTrendChart
+

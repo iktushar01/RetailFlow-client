@@ -5,11 +5,11 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogFooter 
-} from "@/Components/ui/dialog"
-import { Button } from "@/Components/ui/button"
-import { Badge } from "@/Components/ui/badge"
-import { Separator } from "@/Components/ui/separator"
-import { ScrollArea } from "@/Components/ui/scroll-area"
+} from "@/Components/UI/dialog"
+import { Button } from "@/Components/UI/button"
+import { Badge } from "@/Components/UI/badge"
+import { Separator } from "@/Components/UI/separator"
+import { ScrollArea } from "@/Components/UI/scroll-area"
 import { 
   Table, 
   TableBody, 
@@ -17,7 +17,7 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "@/Components/ui/table"
+} from "@/Components/UI/table"
 import { FileText, Truck, Calendar, User, PackageCheck } from 'lucide-react'
 import { formatDate, getTotalReceivedQty } from '../utils/stockInHelpers'
 
@@ -130,3 +130,4 @@ const InfoBlock = ({ label, value, icon: Icon }) => (
     </div>
   </div>
 )
+

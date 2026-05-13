@@ -1,7 +1,7 @@
 import React from 'react'
 import { CheckCircle, XCircle, Trash2, Eye } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Badge } from "@/Components/ui/badge"
+import { Button } from "@/Components/UI/button"
+import { Badge } from "@/Components/UI/badge"
 import {
   Table,
   TableBody,
@@ -9,9 +9,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/Components/ui/table"
-import { Card } from "@/Components/ui/card"
-import { Skeleton } from "@/Components/ui/skeleton"
+} from "@/Components/UI/table"
+import { Card } from "@/Components/UI/card"
+import { Skeleton } from "@/Components/UI/skeleton"
 import { getStatusColor, formatDateTime } from '../utils/returnsHelpers'
 
 const ReturnsList = ({ returns, onApprove, onReject, onDelete, onView, loading }) => {
@@ -145,3 +145,4 @@ const ReturnsList = ({ returns, onApprove, onReject, onDelete, onView, loading }
 }
 
 export default ReturnsList
+

@@ -7,10 +7,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/Components/ui/dialog"
-import { Button } from "@/Components/ui/button"
-import { ScrollArea } from "@/Components/ui/scroll-area"
-import { Separator } from "@/Components/ui/separator"
+} from "@/Components/UI/dialog"
+import { Button } from "@/Components/UI/button"
+import { ScrollArea } from "@/Components/UI/scroll-area"
+import { Separator } from "@/Components/UI/separator"
 
 const GenerateAllModal = ({ 
   isOpen, 
@@ -82,3 +82,4 @@ const GenerateAllModal = ({
 }
 
 export default GenerateAllModal
+

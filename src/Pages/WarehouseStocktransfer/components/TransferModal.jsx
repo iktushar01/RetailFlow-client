@@ -17,21 +17,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/Components/ui/dialog"
+} from "@/Components/UI/dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select"
-import { Input } from "@/Components/ui/input"
-import { Button } from "@/Components/ui/button"
-import { Badge } from "@/Components/ui/badge"
-import { Separator } from "@/Components/ui/separator"
-import { Alert, AlertDescription } from "@/Components/ui/alert"
-import { Label } from "@/Components/ui/label"
-import { Card } from "@/Components/ui/card"
+} from "@/Components/UI/select"
+import { Input } from "@/Components/UI/input"
+import { Button } from "@/Components/UI/button"
+import { Badge } from "@/Components/UI/badge"
+import { Separator } from "@/Components/UI/separator"
+import { Alert, AlertDescription } from "@/Components/UI/alert"
+import { Label } from "@/Components/UI/label"
+import { Card } from "@/Components/UI/card"
 
 // Utils
 import { validateTransferForm } from '../utils/stockTransferHelpers'
@@ -226,3 +226,4 @@ const TransferModal = ({
 }
 
 export default TransferModal
+

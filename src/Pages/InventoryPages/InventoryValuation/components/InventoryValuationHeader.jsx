@@ -1,7 +1,7 @@
 import React from 'react'
 import { Calculator, RefreshCw } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Card, CardContent } from "@/Components/ui/card"
+import { Button } from "@/Components/UI/button"
+import { Card, CardContent } from "@/Components/UI/card"
 import { cn } from "@/lib/utils"
 
 const InventoryValuationHeader = ({ onRefresh, className }) => {
@@ -47,3 +47,4 @@ const InventoryValuationHeader = ({ onRefresh, className }) => {
 }
 
 export default InventoryValuationHeader
+

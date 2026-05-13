@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { Activity, RefreshCw, Box, Layers } from 'lucide-react'
 
 // shadcn/ui components
-import { Button } from "@/Components/ui/button"
-import { Badge } from "@/Components/ui/badge"
+import { Button } from "@/Components/UI/button"
+import { Badge } from "@/Components/UI/badge"
 
 const StockAnalysisHeader = ({ onRefresh }) => {
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -68,3 +68,4 @@ const StockAnalysisHeader = ({ onRefresh }) => {
 }
 
 export default StockAnalysisHeader
+

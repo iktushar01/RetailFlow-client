@@ -122,3 +122,4 @@ const DiscountsList = ({ discounts, onEdit, onDelete, onToggleStatus, loading })
 }
 
 export default DiscountsList
+

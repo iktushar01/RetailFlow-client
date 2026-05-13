@@ -118,3 +118,4 @@ const SupplierPages = () => {
 };
 
 export default SupplierPages;
+

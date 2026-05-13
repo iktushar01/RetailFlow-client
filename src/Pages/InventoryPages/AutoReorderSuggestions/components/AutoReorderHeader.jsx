@@ -1,7 +1,7 @@
 import React from 'react'
 import { RotateCcw, CheckCircle, RefreshCw } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Card, CardContent } from "@/Components/ui/card"
+import { Button } from "@/Components/UI/button"
+import { Card, CardContent } from "@/Components/UI/card"
 
 const AutoReorderHeader = ({ onGenerateAll, onRefresh, hasSuggestions }) => {
   return (
@@ -52,3 +52,4 @@ const AutoReorderHeader = ({ onGenerateAll, onRefresh, hasSuggestions }) => {
 }
 
 export default AutoReorderHeader
+

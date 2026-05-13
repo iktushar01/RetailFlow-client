@@ -6,15 +6,15 @@ import {
 import Swal from 'sweetalert2'
 
 // shadcn/ui components
-import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
-import { Badge } from "@/Components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/Components/ui/dialog"
-import { Switch } from "@/Components/ui/switch"
-import { Label } from "@/Components/ui/label"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
+import { Button } from "@/Components/UI/button"
+import { Input } from "@/Components/UI/input"
+import { Badge } from "@/Components/UI/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/UI/select"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/Components/UI/dialog"
+import { Switch } from "@/Components/UI/switch"
+import { Label } from "@/Components/UI/label"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
 
 // APIs & Helpers
 import { inventoryAPI } from './services/barcodeService'
@@ -355,3 +355,4 @@ const RotateCcw = ({ className }) => (
 )
 
 export default InventoryTracking
+

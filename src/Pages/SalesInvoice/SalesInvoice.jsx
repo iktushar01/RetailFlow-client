@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { FileText, RefreshCw, Info } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
+import { Button } from "@/Components/UI/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/UI/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
 import { toast } from "sonner" // Shadcn recommended toast
 
 import InvoiceList from './components/InvoiceList'
@@ -138,3 +138,4 @@ const SalesInvoice = () => {
 }
 
 export default SalesInvoice
+

@@ -13,10 +13,10 @@ import {
 } from 'lucide-react'
 
 // Shadcn UI Components
-import { Button } from "@/Components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
-import { Badge } from "@/Components/ui/badge"
-import { Separator } from "@/Components/ui/separator"
+import { Button } from "@/Components/UI/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/UI/card"
+import { Badge } from "@/Components/UI/badge"
+import { Separator } from "@/Components/UI/separator"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu"
+} from "@/Components/UI/dropdown-menu"
 
 // Shared & Sub-components
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'
@@ -301,3 +301,4 @@ const WarehouseListRefactored = () => {
 }
 
 export default WarehouseListRefactored
+

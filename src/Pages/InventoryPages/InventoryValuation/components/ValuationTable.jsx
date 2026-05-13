@@ -7,10 +7,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/Components/ui/table"
-import { Badge } from "@/Components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { Skeleton } from "@/Components/ui/skeleton"
+} from "@/Components/UI/table"
+import { Badge } from "@/Components/UI/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
+import { Skeleton } from "@/Components/UI/skeleton"
 import { cn } from "@/lib/utils"
 
 const ValuationTable = ({ 
@@ -120,3 +120,4 @@ const ValuationTable = ({
 }
 
 export default ValuationTable
+

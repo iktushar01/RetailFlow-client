@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import { X, Save, Info, MessageSquare, ClipboardList } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
+import { Button } from "@/Components/UI/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/Components/ui/dialog"
+} from "@/Components/UI/dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select"
-import { Input } from "@/Components/ui/input"
-import { Textarea } from "@/Components/ui/textarea"
-import { Progress } from "@/Components/ui/progress"
-import { Label } from "@/Components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { ScrollArea } from "@/Components/ui/scroll-area"
+} from "@/Components/UI/select"
+import { Input } from "@/Components/UI/input"
+import { Textarea } from "@/Components/UI/textarea"
+import { Progress } from "@/Components/UI/progress"
+import { Label } from "@/Components/UI/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
+import { ScrollArea } from "@/Components/UI/scroll-area"
 
 import GRNItemsTable from './GRNItemsTable'
 import { validateGRNForm, generateGRNNumber, MAX_NOTES_LENGTH } from '../utils/grnHelpers'
@@ -307,3 +307,4 @@ const GRNForm = ({
 }
 
 export default GRNForm
+

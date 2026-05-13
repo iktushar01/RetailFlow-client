@@ -1,7 +1,7 @@
 import React from 'react'
 import { BarChart3, RefreshCw } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Card, CardHeader } from "@/Components/ui/card"
+import { Button } from "@/Components/UI/button"
+import { Card, CardHeader } from "@/Components/UI/card"
 
 const StockDashboardHeader = ({ onRefresh }) => {
   return (
@@ -35,3 +35,4 @@ const StockDashboardHeader = ({ onRefresh }) => {
 }
 
 export default StockDashboardHeader
+

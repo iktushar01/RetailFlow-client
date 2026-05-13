@@ -8,9 +8,9 @@ import {
   CardHeader, 
   CardTitle,
   CardDescription 
-} from "@/Components/ui/card"
-import { Badge } from "@/Components/ui/badge"
-import { Separator } from "@/Components/ui/separator"
+} from "@/Components/UI/card"
+import { Badge } from "@/Components/UI/badge"
+import { Separator } from "@/Components/UI/separator"
 
 // Your Shared Components
 import { LineChart, PieChart } from '../../../../Shared/Charts'
@@ -183,3 +183,4 @@ const ChartsPlaceholder = ({ monthlyBreakdown = [], expenseBreakdown = [] }) => 
 }
 
 export default ChartsPlaceholder
+

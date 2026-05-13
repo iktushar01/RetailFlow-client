@@ -16,17 +16,17 @@ import {
 } from './utils/posHelpers'
 
 // Shadcn UI Components
-import { Button } from "@/Components/ui/button"
+import { Button } from "@/Components/UI/button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select"
-import { Badge } from "@/Components/ui/badge"
-import { Card } from "@/Components/ui/card"
-import { Separator } from "@/Components/ui/separator"
+} from "@/Components/UI/select"
+import { Badge } from "@/Components/UI/badge"
+import { Card } from "@/Components/UI/card"
+import { Separator } from "@/Components/UI/separator"
 import { SalesLoading } from '../../Components/UI/LoadingAnimation'
 
 const PosTerminalPage = () => {
@@ -285,3 +285,4 @@ const PosTerminalPage = () => {
 }
 
 export default PosTerminalPage
+

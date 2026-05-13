@@ -8,8 +8,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/Components/ui/card"
-import { Badge } from "@/Components/ui/badge"
+} from "@/Components/UI/card"
+import { Badge } from "@/Components/UI/badge"
 
 // Your Shared Table
 import { SharedTable } from '../../../../Shared/SharedTable/SharedTable'
@@ -140,3 +140,4 @@ const MonthlyBreakdownTable = ({
 }
 
 export default MonthlyBreakdownTable
+

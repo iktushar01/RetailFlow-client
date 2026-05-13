@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { PieChart, RefreshCw, Download, FileText } from 'lucide-react'
 
 // shadcn/ui components
-import { Button } from "@/Components/ui/button"
+import { Button } from "@/Components/UI/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu"
+} from "@/Components/UI/dropdown-menu"
 
 const ProfitLossHeader = ({ onRefresh }) => {
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -83,3 +83,4 @@ const ProfitLossHeader = ({ onRefresh }) => {
 }
 
 export default ProfitLossHeader
+

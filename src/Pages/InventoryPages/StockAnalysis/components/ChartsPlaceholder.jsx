@@ -8,8 +8,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/Components/ui/card"
-import { Separator } from "@/Components/ui/separator"
+} from "@/Components/UI/card"
+import { Separator } from "@/Components/UI/separator"
 
 // Your Shared Components
 import { BarChart, PieChart } from '../../../../Shared/Charts'
@@ -197,3 +197,4 @@ const ChartsPlaceholder = ({ analysisData = [] }) => {
 }
 
 export default ChartsPlaceholder
+

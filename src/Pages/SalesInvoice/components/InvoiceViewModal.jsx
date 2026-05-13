@@ -1,13 +1,13 @@
 import React from 'react'
 import { Printer, Download, User, Calendar, CreditCard } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
+import { Button } from "@/Components/UI/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/Components/ui/dialog"
+} from "@/Components/UI/dialog"
 import {
   Table,
   TableBody,
@@ -15,10 +15,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/Components/ui/table"
-import { Badge } from "@/Components/ui/badge"
-import { Separator } from "@/Components/ui/separator"
-import { ScrollArea } from "@/Components/ui/scroll-area"
+} from "@/Components/UI/table"
+import { Badge } from "@/Components/UI/badge"
+import { Separator } from "@/Components/UI/separator"
+import { ScrollArea } from "@/Components/UI/scroll-area"
 import { formatCurrency, formatDateTime } from '../utils/invoiceHelpers'
 
 const InvoiceViewModal = ({ isOpen, onClose, invoice, onPrint }) => {
@@ -172,3 +172,4 @@ const InvoiceViewModal = ({ isOpen, onClose, invoice, onPrint }) => {
 }
 
 export default InvoiceViewModal
+

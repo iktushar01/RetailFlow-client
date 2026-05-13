@@ -1,7 +1,7 @@
 import React from 'react'
 import { Eye, Edit, Trash2, CheckCircle, Calendar, Hash } from 'lucide-react'
-import { Button } from '@/Components/ui/button'
-import { Badge } from '@/Components/ui/badge'
+import { Button } from '@/Components/UI/button'
+import { Badge } from '@/Components/UI/badge'
 import { SharedTable } from '@/Shared/SharedTable/SharedTable'
 import { formatDate, getStatusColor } from '../utils/grnHelpers'
 import { cn } from "@/lib/utils"
@@ -174,3 +174,4 @@ const GRNList = ({
 }
 
 export default GRNList
+

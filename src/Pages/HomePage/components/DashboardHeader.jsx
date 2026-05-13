@@ -1,7 +1,7 @@
 import React from 'react'
 import { RefreshCw, Download, Loader2, LayoutDashboard } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Separator } from "@/Components/ui/separator"
+import { Button } from "@/Components/UI/button"
+import { Separator } from "@/Components/UI/separator"
 import TimeFilter from './TimeFilter'
 import { cn } from "@/lib/utils"
 
@@ -83,3 +83,4 @@ const DashboardHeader = ({
 }
 
 export default DashboardHeader
+

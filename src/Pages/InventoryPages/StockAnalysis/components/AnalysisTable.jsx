@@ -7,14 +7,14 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/Components/ui/card"
-import { Badge } from "@/Components/ui/badge"
+} from "@/Components/UI/card"
+import { Badge } from "@/Components/UI/badge"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/Components/ui/tooltip"
+} from "@/Components/UI/tooltip"
 
 // Your Shared Table
 import { SharedTable } from '../../../../Shared/SharedTable/SharedTable'
@@ -155,3 +155,4 @@ const AnalysisTable = ({ analysisData, loading }) => {
 }
 
 export default AnalysisTable
+

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { CreditCard, RefreshCw, Info } from 'lucide-react'
 import { toast } from "sonner"
-import { Button } from "@/Components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
+import { Button } from "@/Components/UI/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/UI/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
 
 import PaymentsList from './components/PaymentsList'
 import PaymentFilter from './components/PaymentFilter'
@@ -118,3 +118,4 @@ const SalesPaymentPage = () => {
 }
 
 export default SalesPaymentPage
+

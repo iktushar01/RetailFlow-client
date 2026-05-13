@@ -6,10 +6,10 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "@/Components/ui/table"
-import { Badge } from "@/Components/ui/badge"
-import { Card } from "@/Components/ui/card"
-import { Skeleton } from "@/Components/ui/skeleton"
+} from "@/Components/UI/table"
+import { Badge } from "@/Components/UI/badge"
+import { Card } from "@/Components/UI/card"
+import { Skeleton } from "@/Components/UI/skeleton"
 import { getPaymentMethodColor, formatCurrency, formatDateTime } from '../utils/paymentsHelpers'
 
 const PaymentsList = ({ payments, loading }) => {
@@ -80,3 +80,4 @@ const PaymentsList = ({ payments, loading }) => {
 }
 
 export default PaymentsList
+

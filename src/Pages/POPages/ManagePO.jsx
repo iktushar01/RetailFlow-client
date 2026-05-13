@@ -2,15 +2,15 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Plus, RefreshCw, FileText, Users, Package, Info, ShoppingCart, CheckCircle2, AlertCircle } from 'lucide-react'
 
 // Shadcn UI Components
-import { Button } from "@/Components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
-import { Separator } from "@/Components/ui/separator"
+import { Button } from "@/Components/UI/button"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
+import { Separator } from "@/Components/UI/separator"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/Components/ui/dialog"
+} from "@/Components/UI/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +20,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/Components/ui/alert-dialog"
+} from "@/Components/UI/alert-dialog"
 
 // Shared & Sub-components
 import StatsCard from '../../Shared/StatsCard/StatsCard'
@@ -332,3 +332,4 @@ const ManagePO = () => {
 }
 
 export default ManagePO
+

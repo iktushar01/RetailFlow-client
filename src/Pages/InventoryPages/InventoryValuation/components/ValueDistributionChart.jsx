@@ -2,8 +2,8 @@ import React, { useMemo } from 'react'
 import { BarChart3, TrendingUp, Info } from 'lucide-react'
 // Adjusted this import to point to your actual shared BarChart component
 import { BarChart } from '../../../../Shared/Charts' 
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { Badge } from "@/Components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
+import { Badge } from "@/Components/UI/badge"
 import { cn } from "@/lib/utils"
 
 const ValueDistributionChart = ({ valuationData = [], className }) => {
@@ -123,3 +123,4 @@ const StatBox = ({ label, value, subValue, icon }) => (
 )
 
 export default ValueDistributionChart
+

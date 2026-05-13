@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Tag, X, Check, AlertCircle, Loader2, ChevronDown } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
+import { Button } from "@/Components/UI/button"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/Components/ui/popover"
-import { Badge } from "@/Components/ui/badge"
-import { ScrollArea } from "@/Components/ui/scroll-area"
-import { Separator } from "@/Components/ui/separator"
+} from "@/Components/UI/popover"
+import { Badge } from "@/Components/UI/badge"
+import { ScrollArea } from "@/Components/UI/scroll-area"
+import { Separator } from "@/Components/UI/separator"
 import { discountsAPI } from '../services/posService'
 import { getApplicableDiscounts, isDiscountApplicable } from '../utils/posHelpers'
 import Swal from 'sweetalert2'
@@ -209,3 +209,4 @@ const DiscountSelector = ({ cartItems, appliedDiscounts, onApplyDiscount, onRemo
 }
 
 export default DiscountSelector
+

@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import { Eye, MapPin, Package, Calendar, Hash, Inbox } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Badge } from "@/Components/ui/badge"
-import { Card } from "@/Components/ui/card"
-import { Skeleton } from "@/Components/ui/skeleton"
+import { Button } from "@/Components/UI/button"
+import { Badge } from "@/Components/UI/badge"
+import { Card } from "@/Components/UI/card"
+import { Skeleton } from "@/Components/UI/skeleton"
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/Components/ui/table"
+} from "@/Components/UI/table"
 import {
   formatDate,
   getStockStatusColor,
@@ -200,3 +200,4 @@ const ProductInventoryList = ({
 }
 
 export default ProductInventoryList
+

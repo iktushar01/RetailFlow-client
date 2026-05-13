@@ -7,9 +7,9 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "@/Components/ui/table"
-import { Input } from "@/Components/ui/input"
-import { Badge } from "@/Components/ui/badge"
+} from "@/Components/UI/table"
+import { Input } from "@/Components/UI/input"
+import { Badge } from "@/Components/UI/badge"
 import { getItemStatus } from '../utils/grnHelpers'
 import { cn } from "@/lib/utils"
 
@@ -194,3 +194,4 @@ const GRNItemsTable = ({
 }
 
 export default GRNItemsTable
+

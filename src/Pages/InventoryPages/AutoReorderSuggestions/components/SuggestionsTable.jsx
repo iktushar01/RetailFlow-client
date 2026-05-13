@@ -7,11 +7,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/Components/ui/table"
-import { Button } from "@/Components/ui/button"
-import { Badge } from "@/Components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { Skeleton } from "@/Components/ui/skeleton"
+} from "@/Components/UI/table"
+import { Button } from "@/Components/UI/button"
+import { Badge } from "@/Components/UI/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
+import { Skeleton } from "@/Components/UI/skeleton"
 
 const SuggestionsTable = ({ 
   suggestions = [], 
@@ -141,3 +141,4 @@ const SuggestionsTable = ({
 }
 
 export default SuggestionsTable
+

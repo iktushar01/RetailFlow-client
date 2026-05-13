@@ -10,20 +10,20 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/Components/ui/dialog"
-import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
-import { Label } from "@/Components/ui/label"
+} from "@/Components/UI/dialog"
+import { Button } from "@/Components/UI/button"
+import { Input } from "@/Components/UI/input"
+import { Label } from "@/Components/UI/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select"
-import { Card, CardContent } from "@/Components/ui/card"
-import { Separator } from "@/Components/ui/separator"
-import { Badge } from "@/Components/ui/badge"
+} from "@/Components/UI/select"
+import { Card, CardContent } from "@/Components/UI/card"
+import { Separator } from "@/Components/UI/separator"
+import { Badge } from "@/Components/UI/badge"
 
 const PaymentSection = ({ 
   customers, 
@@ -278,3 +278,4 @@ const PaymentSection = ({
 }
 
 export default PaymentSection
+

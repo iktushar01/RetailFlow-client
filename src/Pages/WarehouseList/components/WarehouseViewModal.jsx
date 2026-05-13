@@ -16,11 +16,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/Components/ui/dialog"
-import { Badge } from "@/Components/ui/badge"
-import { Separator } from "@/Components/ui/separator"
-import { Card, CardContent } from "@/Components/ui/card"
-import { Button } from "@/Components/ui/button"
+} from "@/Components/UI/dialog"
+import { Badge } from "@/Components/UI/badge"
+import { Separator } from "@/Components/UI/separator"
+import { Card, CardContent } from "@/Components/UI/card"
+import { Button } from "@/Components/UI/button"
 
 /**
  * Warehouse View Modal refactored with Shadcn UI
@@ -147,3 +147,4 @@ const WarehouseViewModal = ({ isOpen, onClose, warehouse }) => {
 }
 
 export default WarehouseViewModal
+

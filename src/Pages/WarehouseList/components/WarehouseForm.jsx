@@ -7,12 +7,12 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/Components/ui/dialog"
-import { Input } from "@/Components/ui/input"
-import { Label } from "@/Components/ui/label"
-import { Textarea } from "@/Components/ui/textarea"
-import { Button } from "@/Components/ui/button"
-import { Separator } from "@/Components/ui/separator"
+} from "@/Components/UI/dialog"
+import { Input } from "@/Components/UI/input"
+import { Label } from "@/Components/UI/label"
+import { Textarea } from "@/Components/UI/textarea"
+import { Button } from "@/Components/UI/button"
+import { Separator } from "@/Components/UI/separator"
 import { validateWarehouseForm } from '../utils/warehouseHelpers'
 import { toast } from "sonner"
 
@@ -212,3 +212,4 @@ const WarehouseForm = ({
 }
 
 export default WarehouseForm
+

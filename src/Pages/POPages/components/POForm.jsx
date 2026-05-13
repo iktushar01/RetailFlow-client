@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { X, Plus, Edit, Info, AlertTriangle, FileText, Calendar as CalendarIcon } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
-import { Label } from "@/Components/ui/label"
-import { Textarea } from "@/Components/ui/textarea"
+import { Button } from "@/Components/UI/button"
+import { Input } from "@/Components/UI/input"
+import { Label } from "@/Components/UI/label"
+import { Textarea } from "@/Components/UI/textarea"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
+} from "@/Components/UI/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import POItemsTable from './POItemsTable'
 import POSummary from './POSummary'
@@ -243,3 +243,4 @@ const POForm = ({
 }
 
 export default POForm
+

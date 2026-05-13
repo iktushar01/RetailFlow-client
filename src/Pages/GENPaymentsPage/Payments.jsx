@@ -337,3 +337,4 @@ const DetailRow = ({ label, value, mono }) => (
 )
 
 export default Payments
+

@@ -11,11 +11,11 @@ import {
   FileText
 } from 'lucide-react'
 import { toast } from "sonner"
-import { Button } from "@/Components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert"
-import { Badge } from "@/Components/ui/badge"
-import { Skeleton } from "@/Components/ui/skeleton"
+import { Button } from "@/Components/UI/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/UI/card"
+import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
+import { Badge } from "@/Components/UI/badge"
+import { Skeleton } from "@/Components/UI/skeleton"
 
 // Shared components (Assuming these are also refactored to Shadcn)
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'
@@ -256,3 +256,4 @@ const StockInPages = () => {
 }
 
 export default StockInPages
+

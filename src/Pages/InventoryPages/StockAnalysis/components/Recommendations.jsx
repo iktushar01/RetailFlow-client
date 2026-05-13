@@ -8,7 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/Components/ui/card"
+} from "@/Components/UI/card"
 
 const Recommendations = () => {
   const cards = [
@@ -82,3 +82,4 @@ const Recommendations = () => {
 }
 
 export default Recommendations
+

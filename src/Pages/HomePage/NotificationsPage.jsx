@@ -304,3 +304,4 @@ const EmptyState = ({ filter }) => (
 )
 
 export default NotificationsPage
+

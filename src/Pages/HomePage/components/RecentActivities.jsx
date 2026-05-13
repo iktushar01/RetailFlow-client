@@ -1,6 +1,6 @@
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { ScrollArea } from "@/Components/ui/scroll-area"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
+import { ScrollArea } from "@/Components/UI/scroll-area"
 import { cn } from "@/lib/utils"
 
 const RecentActivities = ({ data }) => {
@@ -54,3 +54,4 @@ const RecentActivities = ({ data }) => {
 }
 
 export default RecentActivities
+

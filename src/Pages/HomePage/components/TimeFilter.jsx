@@ -1,6 +1,6 @@
 import React from 'react'
 import { cn } from "@/lib/utils"
-import { Tabs, TabsList, TabsTrigger } from "@/Components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/Components/UI/tabs"
 
 const TimeFilter = ({ timeFilter, setTimeFilter, className, size = 'sm' }) => {
   const options = [
@@ -46,3 +46,4 @@ const TimeFilter = ({ timeFilter, setTimeFilter, className, size = 'sm' }) => {
 }
 
 export default TimeFilter
+

@@ -1,8 +1,8 @@
 import React from 'react'
 import { X, Plus, PackageOpen, AlertCircle } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
-import { Label } from "@/Components/ui/label"
+import { Button } from "@/Components/UI/button"
+import { Input } from "@/Components/UI/input"
+import { Label } from "@/Components/UI/label"
 import {
   Table,
   TableBody,
@@ -10,14 +10,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/Components/ui/table"
+} from "@/Components/UI/table"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select"
+} from "@/Components/UI/select"
 import { validateItem } from '../utils/poHelpers'
 import { cn } from "@/lib/utils"
 
@@ -171,3 +171,4 @@ const POItemsTable = ({ items, products, onAddItem, onRemoveItem, onItemChange, 
 }
 
 export default POItemsTable
+

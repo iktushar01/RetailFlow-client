@@ -8,12 +8,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/Components/ui/card"
+} from "@/Components/UI/card"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/Components/ui/chart"
+} from "@/Components/UI/chart"
 
 const ProductStockChart = ({ inventory = [] }) => {
   // Memoized data transformation
@@ -141,3 +141,4 @@ const ProductStockChart = ({ inventory = [] }) => {
 }
 
 export default ProductStockChart
+
