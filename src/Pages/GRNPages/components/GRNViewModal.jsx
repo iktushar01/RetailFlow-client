@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "../../../components/ui/dialog"
+} from "../../../Components/UI/dialog"
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table"
+} from "../../../Components/UI/table"
 import { Badge } from "../../../Components/UI/badge"
 import { formatDate, getStatusColor } from '../utils/grnHelpers'
 
