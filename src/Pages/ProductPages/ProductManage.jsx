@@ -15,8 +15,7 @@ import {
 } from 'lucide-react'
 import Swal from 'sweetalert2'
 import { Button } from '../../Components/UI/Button'
-import { Badge } from "../../Components/UI/Badge"
-import InfoCard from '../../Shared/InfoCard/InfoCard'
+import { Badge } from "../../Components/UI/badge"
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'
 import ViewProductModal from './components/ViewProductModal'
 import EditProductModal from './components/EditProductModal'

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { Button } from '../../../Components/UI/Button'
-import { Badge } from "../../../Components/UI/Badge"
+import { Badge } from "../../../Components/UI/badge"
 import { cn } from "@/lib/utils"
 
 const ViewProductModal = ({ isOpen, onClose, product }) => {

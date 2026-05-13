@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../../components/ui/table"
-import { Badge } from "../../../components/ui/badge"
+import { Badge } from "../../../Components/UI/badge"
 import { formatDate, getStatusColor } from '../utils/grnHelpers'
 
 const GRNViewModal = ({ isOpen, onClose, grn, suppliers }) => {

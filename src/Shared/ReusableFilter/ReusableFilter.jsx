@@ -3,7 +3,7 @@ import { Filter, Download, RefreshCw, Search } from 'lucide-react'
 import { Button } from '../../Components/UI/Button'
 import { Input } from '../../Components/UI/Input'
 import { Label } from '../../Components/UI/Label'
-import { Badge } from '../../Components/UI/Badge'
+import { Badge } from '../../Components/UI/badge'
 import {
   Select,
   SelectContent,
