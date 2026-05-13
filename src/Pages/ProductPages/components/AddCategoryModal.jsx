@@ -6,9 +6,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../../Components/UI/Dialog"
+} from "../../../Components/UI/dialog"
 import { Button } from '../../../Components/UI/button'
-import { Input } from "../../../Components/UI/Input"
+import { Input } from "../../../Components/UI/input"
 import { Label } from "../../../Components/UI/label"
 import { Loader2 } from "lucide-react"
 import Swal from 'sweetalert2'

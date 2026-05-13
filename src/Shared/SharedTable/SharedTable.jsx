@@ -14,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../Components/UI/Table"
+} from "../../Components/UI/table"
 import { Button } from "../../Components/UI/button"
 import { 
   ChevronLeft, 

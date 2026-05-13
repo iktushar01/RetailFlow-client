@@ -12,17 +12,17 @@ import {
   FormLabel,
   FormMessage,
 } from "../../Components/UI/Form"
-import { Input } from "../../Components/UI/Input"
+import { Input } from "../../Components/UI/input"
 import { Button } from "../../Components/UI/button"
-import { Textarea } from "../../Components/UI/Textarea"
-import { Checkbox } from "../../Components/UI/Checkbox"
+import { Textarea } from "../../Components/UI/textarea"
+import { Checkbox } from "../../Components/UI/checkbox"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../Components/UI/Select"
+} from "../../Components/UI/select"
 
 const InputForm = forwardRef(({
   fields = [],

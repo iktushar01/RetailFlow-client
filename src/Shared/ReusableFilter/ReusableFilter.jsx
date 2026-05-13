@@ -1,7 +1,7 @@
 import React from 'react'
 import { Filter, Download, RefreshCw, Search } from 'lucide-react'
 import { Button } from '../../Components/UI/button'
-import { Input } from '../../Components/UI/Input'
+import { Input } from '../../Components/UI/input'
 import { Label } from '../../Components/UI/label'
 import { Badge } from '../../Components/UI/badge'
 import {
@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../Components/UI/Select"
+} from "../../Components/UI/select"
 import { cn } from "@/lib/utils"
 
 export const ReusableFilter = ({

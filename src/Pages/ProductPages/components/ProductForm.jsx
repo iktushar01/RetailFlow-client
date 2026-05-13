@@ -10,16 +10,16 @@ import {
   Package 
 } from 'lucide-react'
 import { Button } from '../../../Components/UI/button'
-import { Input } from "../../../Components/UI/Input"
+import { Input } from "../../../Components/UI/input"
 import { Label } from "../../../Components/UI/label"
-import { Textarea } from "../../../Components/UI/Textarea"
+import { Textarea } from "../../../Components/UI/textarea"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../Components/UI/Select"
+} from "../../../Components/UI/select"
 import AddCategoryModal from './AddCategoryModal'
 import { cn } from "@/lib/utils"
 

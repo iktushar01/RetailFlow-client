@@ -13,14 +13,14 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from "../../Components/UI/Card"
+} from "../../Components/UI/card"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
-} from "../../Components/UI/Chart"
+} from "../../Components/UI/chart"
 import { cn } from "@/lib/utils"
 
 /**

@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../Components/UI/Dialog"
+} from "../../Components/UI/dialog"
 import { cn } from "@/lib/utils"
 
 const SharedModal = ({
