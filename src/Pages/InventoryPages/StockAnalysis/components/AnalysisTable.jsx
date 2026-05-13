@@ -1,101 +1,156 @@
-import React from 'react'
-import { Activity } from 'lucide-react'
+import React, { useMemo } from 'react'
+import { Activity, Box, Calendar, TrendingUp, Info } from 'lucide-react'
+
+// shadcn/ui components
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
+// Your Shared Table
 import { SharedTable } from '../../../../Shared/SharedTable/SharedTable'
 
 const AnalysisTable = ({ analysisData, loading }) => {
-  const tableColumns = [
+  const tableColumns = useMemo(() => [
     {
       id: 'product',
       accessorKey: 'productName',
-      header: 'Product',
+      header: 'Product Details',
       cell: ({ row }) => (
-        <div>
-          <div className="font-medium text-gray-900">{row.original.productName}</div>
-          <div className="text-sm text-gray-500">SKU: {row.original.sku}</div>
-          <div className="text-xs text-gray-400">{row.original.category}</div>
+        <div className="flex flex-col gap-0.5">
+          <div className="font-bold text-foreground leading-tight">
+            {row.original.productName}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 rounded">
+              {row.original.sku}
+            </span>
+            <span className="text-[10px] text-muted-foreground italic">
+              {row.original.category}
+            </span>
+          </div>
         </div>
       )
     },
     {
       id: 'totalSold',
       accessorKey: 'totalSold',
-      header: 'Total Sold',
+      header: () => <div className="text-center">Total Sold</div>,
       cell: ({ row }) => (
         <div className="text-center">
-          <div className="text-lg font-semibold text-gray-900">{row.original.totalSold}</div>
-          <div className="text-xs text-gray-500">units</div>
+          <div className="text-sm font-bold text-foreground">{row.original.totalSold}</div>
+          <div className="text-[10px] text-muted-foreground uppercase tracking-tighter font-medium">units</div>
         </div>
       )
     },
     {
       id: 'lastSaleDate',
       accessorKey: 'lastSaleDate',
-      header: 'Last Sale Date',
-      cell: ({ row }) => (
-        <div className="text-center">
-          <div className="font-medium text-gray-900">
-            {row.original.lastSaleDate ? new Date(row.original.lastSaleDate).toLocaleDateString() : 'Never'}
-          </div>
-          {row.original.daysSinceLastSale !== null && (
-            <div className="text-xs text-gray-500">
-              {row.original.daysSinceLastSale} days ago
+      header: () => <div className="text-center">Last Movement</div>,
+      cell: ({ row }) => {
+        const hasDate = !!row.original.lastSaleDate;
+        return (
+          <div className="text-center">
+            <div className={`text-sm font-medium ${hasDate ? 'text-foreground' : 'text-muted-foreground/50'}`}>
+              {hasDate ? new Date(row.original.lastSaleDate).toLocaleDateString() : 'No Activity'}
             </div>
-          )}
-        </div>
-      )
+            {row.original.daysSinceLastSale !== null && (
+              <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {row.original.daysSinceLastSale}d ago
+              </div>
+            )}
+          </div>
+        );
+      }
     },
     {
       id: 'currentStock',
       accessorKey: 'currentStock',
-      header: 'Stock Qty',
+      header: () => <div className="text-center">Stock Level</div>,
       cell: ({ row }) => (
         <div className="text-center">
-          <div className="text-lg font-semibold text-gray-900">{row.original.currentStock}</div>
-          <div className="text-xs text-gray-500">units</div>
+          <Badge variant="outline" className="font-mono bg-background shadow-sm border-muted-foreground/20">
+            {row.original.currentStock}
+          </Badge>
+          <div className="text-[10px] text-muted-foreground mt-1 uppercase font-medium">In Hand</div>
         </div>
       )
     },
     {
       id: 'velocity',
       accessorKey: 'velocity',
-      header: 'Velocity',
+      header: () => (
+        <div className="flex items-center justify-center gap-1">
+          Velocity
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Info className="w-3 h-3 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs text-center">Avg. units sold per day</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ),
       cell: ({ row }) => (
         <div className="text-center">
-          <div className="font-medium text-gray-900">{row.original.velocity.toFixed(2)}</div>
-          <div className="text-xs text-gray-500">units/day</div>
+          <div className="flex items-center justify-center gap-1 font-bold text-primary">
+            <TrendingUp className="w-3 h-3" />
+            {row.original.velocity.toFixed(2)}
+          </div>
+          <div className="text-[10px] text-muted-foreground">units / day</div>
         </div>
       )
     },
     {
       id: 'status',
       accessorKey: 'status',
-      header: 'Status',
+      header: () => <div className="text-center">Status</div>,
       cell: ({ row }) => (
-        <div className="flex items-center justify-center">
-          <span className="text-lg mr-2">{row.original.statusIcon}</span>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.original.statusColor}`}>
-            {row.original.status}
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-base grayscale-[0.5] group-hover:grayscale-0 transition-all">
+            {row.original.statusIcon}
           </span>
+          <Badge 
+            variant="secondary" 
+            className={`text-[10px] font-bold uppercase tracking-tight shadow-sm ${row.original.statusColor}`}
+          >
+            {row.original.status}
+          </Badge>
         </div>
       )
     }
-  ]
+  ], []);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="mb-6 pb-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Activity className="w-5 h-5 mr-2 text-gray-600" />
+    <Card className="shadow-sm border-border bg-card animate-in fade-in zoom-in-95 duration-500">
+      <CardHeader className="border-b pb-4">
+        <CardTitle className="text-lg flex items-center gap-2 font-bold tracking-tight">
+          <Activity className="w-5 h-5 text-primary" />
           Stock Movement Analysis
-        </h3>
-      </div>
-      <SharedTable
-        data={analysisData}
-        columns={tableColumns}
-        loading={loading}
-        emptyMessage="No analysis data available"
-      />
-    </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-6 px-0 sm:px-6">
+        <SharedTable
+          data={analysisData}
+          columns={tableColumns}
+          loading={loading}
+          emptyMessage="No stock movement data found for current inventory"
+        />
+      </CardContent>
+    </Card>
   )
 }
 
