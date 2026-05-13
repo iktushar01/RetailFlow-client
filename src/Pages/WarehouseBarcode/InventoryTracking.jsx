@@ -1,17 +1,27 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { Package, Pencil, AlertTriangle, Calendar, RefreshCw, Info, CheckCircle, XCircle, QrCode, Barcode } from 'lucide-react'
+import { 
+  Package, Pencil, AlertTriangle, Calendar, RefreshCw, 
+  Info, CheckCircle, XCircle, QrCode, Barcode, Search, Sparkles 
+} from 'lucide-react'
 import Swal from 'sweetalert2'
-import { Button } from '../../Components/UI/Button'
-import StatsCard from '../../Shared/StatsCard/StatsCard'
-import { SharedTable } from '../../Shared/SharedTable/SharedTable'
-import SharedModal from '../../Shared/SharedModal/SharedModal'
+
+// shadcn/ui components
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+
+// APIs & Helpers
 import { inventoryAPI } from './services/barcodeService'
 import { productsAPI } from '../ProductPages/services/productService'
 import { 
   getExpiryStatus,
-  getExpiryStatusColor, 
   getExpiryStatusDisplay,
-  getDaysUntilExpiry,
   formatDate,
   generateCode,
   generateBatchNumber,
@@ -36,697 +46,312 @@ const InventoryTracking = () => {
     autoGenerate: true
   })
 
-  // Filter states
-  const [filters, setFilters] = useState({
-    search: '',
-    warehouse: '',
-    status: ''
-  })
+  const [filters, setFilters] = useState({ search: '', warehouse: '', status: 'all' })
 
-  useEffect(() => {
-    fetchAllData()
-  }, [])
+  useEffect(() => { fetchAllData() }, [])
 
   const fetchAllData = async () => {
     setLoading(true)
     try {
-      const [inventoryData, productsData] = await Promise.all([
-        inventoryAPI.getAll(),
-        productsAPI.getAll()
-      ])
-      
-      // Normalize field names (handle both batch/batchNumber and expiry/expiryDate)
-      const normalizedInventory = (inventoryData || []).map(item => ({
+      const [inventoryData, productsData] = await Promise.all([inventoryAPI.getAll(), productsAPI.getAll()])
+      const normalized = (inventoryData || []).map(item => ({
         ...item,
         batch: item.batch || item.batchNumber || '',
         expiry: item.expiry || item.expiryDate || '',
         qrCode: item.qrCode || ''
       }))
-      
-      setInventory(normalizedInventory)
-      setProducts(productsData || [])
+      setInventory(normalized); setProducts(productsData || [])
     } catch (error) {
-      console.error('Error fetching data:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error Loading Data',
-        text: error.response?.data?.message || 'Failed to fetch inventory data',
-        confirmButtonColor: '#3B82F6'
-      })
-      setInventory([])
-      setProducts([])
-    } finally {
-      setLoading(false)
-    }
+      console.error(error);
+    } finally { setLoading(false) }
   }
 
-  // Apply filters
-  const applyFilters = useCallback(() => {
-    const filtered = applyInventoryFilters(inventory, filters, products)
-    setFilteredInventory(filtered)
-  }, [inventory, filters, products])
-
-  useEffect(() => {
-    applyFilters()
-  }, [applyFilters])
-
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
-  }
-
-  const handleClearFilters = () => {
-    setFilters({ search: '', warehouse: '', status: '' })
-  }
-
-  const handleAutoGenerate = () => {
-    if (formData.autoGenerate) {
+  // Auto-generate logic
+  const handleAutoGenerate = useCallback(() => {
+    if (formData.autoGenerate && selectedItem) {
       setFormData(prev => ({
         ...prev,
         barcode: generateCode('BAR'),
         qrCode: generateCode('QR'),
-        batch: generateBatchNumber(selectedItem?.productId || 'PROD')
+        batch: generateBatchNumber(selectedItem.productId || 'PROD')
       }))
     }
-  }
+  }, [formData.autoGenerate, selectedItem])
 
   useEffect(() => {
-    if (modalOpen && formData.autoGenerate && !formData.barcode && !formData.qrCode && !formData.batch) {
+    if (modalOpen && formData.autoGenerate && !formData.barcode) {
       handleAutoGenerate()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modalOpen, formData.autoGenerate])
+  }, [modalOpen, formData.autoGenerate, handleAutoGenerate])
 
   const handleEdit = (item) => {
     setSelectedItem(item)
-    
-    // Get product data
     const product = products.find(p => p._id === item.productId)
-    
     setFormData({
       barcode: item.barcode || product?.barcode || '',
       qrCode: item.qrCode || product?.qrCode || '',
       batch: item.batch || '',
       expiry: item.expiry ? new Date(item.expiry).toISOString().split('T')[0] : '',
-      autoGenerate: !(item.barcode || item.qrCode || item.batch || product?.barcode || product?.qrCode)
+      autoGenerate: !(item.barcode || item.qrCode || item.batch)
     })
     setModalOpen(true)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
-    // Validation
     const validation = validateInventoryTracking(formData)
     if (!validation.isValid) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: validation.errors[0],
-        confirmButtonColor: '#3B82F6'
-      })
+      Swal.fire({ icon: 'warning', title: 'Validation Error', text: validation.errors[0] })
       return
     }
 
     try {
-      // Update inventory item
       await inventoryAPI.update(selectedItem._id, {
         barcode: formData.barcode || null,
         qrCode: formData.qrCode || null,
         batch: formData.batch || null,
         expiry: formData.expiry || null
       })
-
-      // Also update the product with codes if needed
-      const product = products.find(p => p._id === selectedItem.productId)
-      if (product && (formData.qrCode || formData.barcode)) {
-        try {
-          await productsAPI.update(product._id, {
-            ...product,
-            qrCode: formData.qrCode || product.qrCode,
-            barcode: formData.barcode || product.barcode
-          })
-        } catch (productError) {
-          console.warn('Could not update product:', productError)
-        }
-      }
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Inventory tracking information updated successfully',
-        confirmButtonColor: '#3B82F6',
-        timer: 2000
-      })
-
-      setModalOpen(false)
-      fetchAllData()
-    } catch (error) {
-      console.error('Error updating inventory:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.message || 'Failed to update inventory tracking',
-        confirmButtonColor: '#3B82F6'
-      })
-    }
+      setModalOpen(false); fetchAllData()
+      Swal.fire({ icon: 'success', title: 'Success', timer: 1500, showConfirmButton: false })
+    } catch (error) { Swal.fire({ icon: 'error', title: 'Update Failed' }) }
   }
 
-  // Calculate stats
-  const stats = useMemo(() => {
-    return calculateInventoryStats(inventory, products)
-  }, [inventory, products])
+  const stats = useMemo(() => calculateInventoryStats(inventory, products), [inventory, products])
+  const warehouses = useMemo(() => [...new Set(inventory.map(item => item.location).filter(Boolean))], [inventory])
 
-  // Table columns
-  const columns = [
-    { 
-      header: "Product Name", 
-      accessorKey: "productName",
-      cell: ({ getValue }) => (
-        <div className="font-medium text-gray-900">{getValue() || 'N/A'}</div>
-      )
-    },
-    { 
-      header: "SKU", 
-      accessorKey: "sku",
-      cell: ({ row }) => {
-        const product = products.find(p => p._id === row.original.productId)
-        return (
-          <div className="text-gray-700 font-mono text-xs">{product?.sku || 'N/A'}</div>
-        )
-      }
-    },
-    { 
-      header: "Location", 
-      accessorKey: "location",
-      cell: ({ getValue }) => (
-        <div className="text-gray-600 text-sm">{getValue() || 'N/A'}</div>
-      )
-    },
-    { 
-      header: "Stock Qty", 
-      accessorKey: "stockQty",
-      cell: ({ getValue }) => (
-        <div className="font-semibold text-gray-900">{getValue() || 0}</div>
-      )
-    },
-    { 
-      header: "Barcode", 
-      accessorKey: "barcode",
-      cell: ({ getValue, row }) => {
-        const inventoryBarcode = getValue()
-        const product = products.find(p => p._id === row.original.productId)
-        const barcode = inventoryBarcode || product?.barcode
-        
-        return barcode ? (
-          <div className="flex items-center gap-1">
-            <Barcode className="w-3.5 h-3.5 text-blue-600" />
-            <div className="font-mono text-xs text-blue-600">{barcode}</div>
-          </div>
-        ) : (
-          <span className="text-gray-400 text-xs italic">Not set</span>
-        )
-      }
-    },
-    { 
-      header: "QR Code", 
-      accessorKey: "qrCode",
-      cell: ({ row }) => {
-        const inventoryQR = row.original.qrCode
-        const product = products.find(p => p._id === row.original.productId)
-        const qrCode = inventoryQR || product?.qrCode
-        
-        return qrCode ? (
-          <div className="flex items-center gap-1">
-            <QrCode className="w-3.5 h-3.5 text-green-600" />
-            <div className="font-mono text-xs text-green-600 truncate max-w-[120px]" title={qrCode}>
-              {qrCode}
-            </div>
-          </div>
-        ) : (
-          <span className="text-gray-400 text-xs italic">Not set</span>
-        )
-      }
-    },
-    { 
-      header: "Batch", 
-      accessorKey: "batch",
-      cell: ({ getValue }) => {
-        const value = getValue()
-        return value ? (
-          <div className="font-mono text-xs text-purple-600">{value}</div>
-        ) : (
-          <span className="text-gray-400 text-xs italic">Not set</span>
-        )
-      }
-    },
-    { 
-      id: "expiryDate",
-      header: "Expiry Date", 
-      accessorKey: "expiry",
-      cell: ({ getValue }) => {
-        const value = getValue()
-        return value ? (
-          <div className="text-gray-700 text-sm">{formatDate(value)}</div>
-        ) : (
-          <span className="text-gray-400 text-xs italic">Not set</span>
-        )
-      }
-    },
-    { 
-      id: "expiryStatus",
-      header: "Status", 
-      accessorKey: "expiry",
-      cell: ({ getValue }) => {
-        const expiryDate = getValue()
-        const statusKey = getExpiryStatus(expiryDate)
-        const statusDisplay = getExpiryStatusDisplay(statusKey)
-        const colorClasses = getExpiryStatusColor(statusKey)
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${colorClasses}`}>
-            {statusDisplay}
-          </span>
-        )
-      }
-    }
-  ]
-
-  const renderRowActions = (item) => (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="primary"
-        size="sm"
-        onClick={() => handleEdit(item)}
-        title="Edit Tracking Info"
-      >
-        <div className="flex items-center">
-          <Pencil className="w-4 h-4 mr-1" />
-          <span>Edit</span>
-        </div>
-      </Button>
-    </div>
-  )
-
-  // Get unique warehouses
-  const warehouses = useMemo(() => {
-    return [...new Set(inventory.map(item => item.location).filter(Boolean))]
-  }, [inventory])
+  useEffect(() => {
+    const filterParams = { ...filters, status: filters.status === 'all' ? '' : filters.status }
+    setFilteredInventory(applyInventoryFilters(inventory, filterParams, products))
+  }, [inventory, filters, products])
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex justify-between items-center">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <Package className="w-8 h-8 mr-3 text-blue-600" />
-              Inventory Tracking
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Manage barcodes, QR codes, batch numbers, and expiry dates in one place
-            </p>
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-xl border">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-primary/10 rounded-lg">
+             <Package className="w-8 h-8 text-primary" />
           </div>
-          
-          <Button 
-            variant="secondary" 
-            size="md"
-            onClick={fetchAllData}
-            loading={loading}
-          >
-            <div className="flex items-center">
-              <RefreshCw className="w-5 h-5 mr-2" />
-              Refresh
-            </div>
-          </Button>
-        </div>
-      </div>
-
-      {/* Info Box */}
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 flex items-start gap-3">
-        <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-        <div>
-          <p className="text-sm font-semibold text-blue-900">Inventory Tracking Management</p>
-          <p className="text-sm text-blue-700 mt-1">
-            Assign barcodes, QR codes, batch numbers, and expiry dates to inventory items. 
-            Batch and expiry fields are <strong>optional</strong> - use them for perishable items (food, medicine) 
-            and skip for electronics. All data can be auto-generated or manually entered.
-          </p>
-        </div>
-      </div>
-
-      {/* Alert for expired/near-expiry items */}
-      {(stats.expiredCount > 0 || stats.nearExpiryCount > 0) && (
-        <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-yellow-900">Attention Required</p>
-            <p className="text-sm text-yellow-700 mt-1">
-              {stats.expiredCount > 0 && `${stats.expiredCount} item${stats.expiredCount > 1 ? 's' : ''} expired. `}
-              {stats.nearExpiryCount > 0 && `${stats.nearExpiryCount} item${stats.nearExpiryCount > 1 ? 's' : ''} expiring within 30 days.`}
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">Inventory Tracking</h1>
+            <p className="text-sm text-muted-foreground">Automate and manage product identifiers</p>
           </div>
         </div>
-      )}
+        <Button variant="outline" size="sm" onClick={fetchAllData} disabled={loading}>
+          <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          Sync Data
+        </Button>
+      </div>
+
+      {/* Info Alert */}
+      <Alert className="bg-blue-50/50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-900">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertTitle className="text-blue-800 dark:text-blue-300">Management Tip</AlertTitle>
+        <AlertDescription className="text-blue-700 dark:text-blue-400">
+          Auto-generation ensures unique identifiers. Batch and Expiry are optional for non-perishable goods.
+        </AlertDescription>
+      </Alert>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatsCard
-          label="Total Items"
-          value={stats.totalItems}
-          icon={Package}
-          color="blue"
-        />
-        <StatsCard
-          label="With Codes"
-          value={stats.withCodesCount}
-          icon={CheckCircle}
-          color="green"
-        />
-        <StatsCard
-          label="With Batch"
-          value={stats.withBatchCount}
-          icon={CheckCircle}
-          color="purple"
-        />
-        <StatsCard
-          label="Valid"
-          value={stats.validCount}
-          icon={CheckCircle}
-          color="green"
-        />
-        <StatsCard
-          label="Near Expiry"
-          value={stats.nearExpiryCount}
-          icon={Calendar}
-          color="yellow"
-        />
-        <StatsCard
-          label="Expired"
-          value={stats.expiredCount}
-          icon={XCircle}
-          color="red"
-        />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Total Items", value: stats.totalItems, icon: Package, color: "text-blue-500" },
+          { label: "Valid Stock", value: stats.validCount, icon: CheckCircle, color: "text-green-500" },
+          { label: "Near Expiry", value: stats.nearExpiryCount, icon: Calendar, color: "text-orange-500" },
+          { label: "Expired", value: stats.expiredCount, icon: XCircle, color: "text-red-500" },
+        ].map((stat, i) => (
+          <Card key={i} className="shadow-none">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <span className="text-xs font-medium text-muted-foreground uppercase">{stat.label}</span>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            </CardHeader>
+            <CardContent><div className="text-2xl font-bold">{stat.value}</div></CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center gap-2 mb-4">
-          <Package className="w-5 h-5 text-gray-600" />
-          <h2 className="font-semibold text-gray-900">Filters</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Search */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-            <input
-              type="text"
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Search by name, ID, barcode, QR, or batch..."
-            />
+      {/* Filter Bar */}
+      <Card className="p-4 shadow-none">
+        <div className="flex flex-wrap gap-4 items-end">
+          <div className="flex-1 min-w-[240px] space-y-1.5">
+            <Label className="text-xs">Search Products</Label>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input 
+                className="pl-8" 
+                placeholder="SKU, Batch, or Name..." 
+                value={filters.search} 
+                onChange={e => setFilters(f => ({...f, search: e.target.value}))} 
+              />
+            </div>
           </div>
+          <div className="w-48 space-y-1.5">
+            <Label className="text-xs">Warehouse</Label>
+            <Select value={filters.warehouse} onValueChange={v => setFilters(f => ({...f, warehouse: v === 'all' ? '' : v}))}>
+              <SelectTrigger><SelectValue placeholder="All Locations" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                {warehouses.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => setFilters({search:'', warehouse:'', status:'all'})}>
+            Reset
+          </Button>
+        </div>
+      </Card>
 
-          {/* Warehouse */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Warehouse</label>
-            <select
-              value={filters.warehouse}
-              onChange={(e) => handleFilterChange('warehouse', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">All Warehouses</option>
-              {warehouses.map(w => (
-                <option key={w} value={w}>{w}</option>
+      {/* Table Card */}
+      <Card className="overflow-hidden shadow-none border">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 border-b">
+              <tr className="text-left font-medium text-muted-foreground">
+                <th className="p-4">Product Info</th>
+                <th className="p-4">Tracked Codes</th>
+                <th className="p-4">Batch Details</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {filteredInventory.map(item => (
+                <tr key={item._id} className="hover:bg-muted/30 transition-colors">
+                  <td className="p-4">
+                    <div className="font-medium text-foreground">{item.productName}</div>
+                    <div className="text-xs text-muted-foreground uppercase">{item.location}</div>
+                  </td>
+                  <td className="p-4 space-y-1">
+                    {item.barcode && <Badge variant="secondary" className="font-mono text-[10px] block w-fit"><Barcode size={10} className="inline mr-1"/> {item.barcode}</Badge>}
+                    {item.qrCode && <Badge variant="secondary" className="font-mono text-[10px] block w-fit"><QrCode size={10} className="inline mr-1"/> {item.qrCode}</Badge>}
+                  </td>
+                  <td className="p-4">
+                    <div className="font-mono text-xs">{item.batch || '—'}</div>
+                    <div className="text-xs text-muted-foreground">{item.expiry ? formatDate(item.expiry) : 'N/A'}</div>
+                  </td>
+                  <td className="p-4">
+                    <Badge variant={getExpiryStatus(item.expiry) === 'expired' ? 'destructive' : 'outline'}>
+                      {getExpiryStatusDisplay(getExpiryStatus(item.expiry))}
+                    </Badge>
+                  </td>
+                  <td className="p-4 text-right">
+                    <Button variant="outline" size="icon" onClick={() => handleEdit(item)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </td>
+                </tr>
               ))}
-            </select>
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Status</label>
-            <select
-              value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">All Status</option>
-              <option value="valid">Valid</option>
-              <option value="near-expiry">Near Expiry</option>
-              <option value="expired">Expired</option>
-              <option value="unknown">No Expiry Set</option>
-            </select>
-          </div>
+            </tbody>
+          </table>
         </div>
+      </Card>
 
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-gray-600">
-            Showing <span className="font-semibold">{filteredInventory.length}</span> of <span className="font-semibold">{inventory.length}</span> items
-          </p>
-          {(filters.search || filters.warehouse || filters.status) && (
-            <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-              Clear Filters
-            </Button>
-          )}
-        </div>
-      </div>
+      {/* Edit Modal with Auto-Generate UI */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Update Inventory Tracking</DialogTitle>
+            <DialogDescription>Modify tracking codes for {selectedItem?.productName}</DialogDescription>
+          </DialogHeader>
 
-      {/* Inventory Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        {!loading && inventory.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="flex flex-col items-center">
-              <Package className="w-16 h-16 text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Inventory Items</h3>
-              <p className="text-gray-500">
-                No inventory items available. Add products via:
-                <br />
-                <span className="font-medium">GRN (Goods Receive Note)</span> or <span className="font-medium">Stock In</span>
-              </p>
-            </div>
-          </div>
-        ) : (
-          <SharedTable
-            columns={columns}
-            data={filteredInventory}
-            pageSize={10}
-            loading={loading}
-            renderRowActions={renderRowActions}
-            actionsHeader="Actions"
-          />
-        )}
-      </div>
-
-      {/* Edit Modal */}
-      <SharedModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Edit Inventory Tracking"
-        size="large"
-      >
-        {selectedItem && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Product Info */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-gray-900 mb-2">Product Details</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">Name:</span> {selectedItem.productName}
-                </p>
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">Stock:</span> {selectedItem.stockQty} units
-                </p>
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">Location:</span> {selectedItem.location || 'Not assigned'}
-                </p>
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">SKU:</span> {(() => {
-                    const product = products.find(p => p._id === selectedItem.productId)
-                    return product?.sku || selectedItem.productId
-                  })()}
-                </p>
+          <div className="space-y-6 py-4">
+            {/* Auto Gen Switch */}
+            <div className="flex items-center justify-between p-4 bg-muted/40 rounded-xl border border-dashed">
+              <div className="space-y-1">
+                <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-blue-500" /> Auto-generate Mode
+                </Label>
+                <p className="text-xs text-muted-foreground">Let system handle unique ID creation</p>
               </div>
+              <Switch 
+                checked={formData.autoGenerate} 
+                onCheckedChange={checked => setFormData(f => ({...f, autoGenerate: checked}))}
+              />
             </div>
 
-            {/* Auto-generate toggle */}
-            <div className="flex items-center justify-between bg-blue-50 p-3 rounded-lg">
-              <div>
-                <p className="text-sm font-medium text-blue-900">Auto-generate codes</p>
-                <p className="text-xs text-blue-700">Let system create unique codes automatically</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.autoGenerate}
-                  onChange={(e) => {
-                    const isChecked = e.target.checked
-                    if (isChecked) {
-                      setFormData({
-                        barcode: generateCode('BAR'),
-                        qrCode: generateCode('QR'),
-                        batch: generateBatchNumber(selectedItem.productId),
-                        expiry: formData.expiry,
-                        autoGenerate: true
-                      })
-                    } else {
-                      setFormData({
-                        ...formData,
-                        autoGenerate: false
-                      })
-                    }
-                  }}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-
-            {/* Form Fields in Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Barcode */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Barcode <span className="text-gray-400 font-normal text-xs">(Optional)</span>
-                </label>
-                <div className="relative">
-                  <Barcode className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={formData.barcode}
-                    onChange={(e) => setFormData({ ...formData, barcode: e.target.value, autoGenerate: false })}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-                    placeholder="Enter barcode..."
-                    readOnly={formData.autoGenerate}
-                  />
-                </div>
-              </div>
-
-              {/* QR Code */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  QR Code <span className="text-gray-400 font-normal text-xs">(Optional)</span>
-                </label>
-                <div className="relative">
-                  <QrCode className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={formData.qrCode}
-                    onChange={(e) => setFormData({ ...formData, qrCode: e.target.value, autoGenerate: false })}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-                    placeholder="Enter QR code..."
-                    readOnly={formData.autoGenerate}
-                  />
-                </div>
-              </div>
-
-              {/* Batch Number */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Batch Number <span className="text-gray-400 font-normal text-xs">(Optional)</span>
-                </label>
+              <div className="space-y-2">
+                <Label className="text-xs font-bold">Barcode</Label>
                 <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={formData.batch}
-                    onChange={(e) => setFormData({ ...formData, batch: e.target.value, autoGenerate: false })}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 font-mono text-sm"
-                    placeholder="e.g., BATCH-2024-001"
-                    maxLength={100}
+                   <Input 
+                    value={formData.barcode} 
                     readOnly={formData.autoGenerate}
+                    onChange={e => setFormData(f => ({...f, barcode: e.target.value}))}
+                    className="font-mono text-xs"
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setFormData({ ...formData, batch: generateBatchNumber(selectedItem.productId), autoGenerate: false })}
-                    disabled={formData.autoGenerate}
-                  >
-                    Generate
-                  </Button>
+                  {!formData.autoGenerate && (
+                    <Button variant="outline" size="icon" onClick={() => setFormData(f => ({...f, barcode: generateCode('BAR')}))}>
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Leave empty for non-perishable items
-                </p>
               </div>
 
-              {/* Expiry Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Expiry Date <span className="text-gray-400 font-normal text-xs">(Optional)</span>
-                </label>
-                <input
-                  type="date"
-                  value={formData.expiry}
-                  onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              <div className="space-y-2">
+                <Label className="text-xs font-bold">QR Code</Label>
+                <Input 
+                  value={formData.qrCode} 
+                  readOnly={formData.autoGenerate}
+                  onChange={e => setFormData(f => ({...f, qrCode: e.target.value}))}
+                  className="font-mono text-xs"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold">Batch Number</Label>
+                <div className="flex gap-2">
+                   <Input 
+                    value={formData.batch} 
+                    readOnly={formData.autoGenerate}
+                    onChange={e => setFormData(f => ({...f, batch: e.target.value}))}
+                    className="font-mono text-xs"
+                  />
+                  {!formData.autoGenerate && (
+                    <Button variant="outline" size="icon" onClick={() => setFormData(f => ({...f, batch: generateBatchNumber(selectedItem?.productId)}))}>
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold">Expiry Date</Label>
+                <Input 
+                  type="date" 
+                  value={formData.expiry} 
+                  onChange={e => setFormData(f => ({...f, expiry: e.target.value}))}
                   min={new Date().toISOString().split('T')[0]}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Only for perishable items
-                </p>
               </div>
             </div>
 
-            {/* Preview */}
-            {(formData.barcode || formData.qrCode || formData.batch || formData.expiry) && (
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <h4 className="font-semibold text-green-900 mb-2 flex items-center">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Preview Changes
+            {/* Live Preview Section */}
+            {(formData.barcode || formData.batch) && (
+              <div className="bg-green-50/50 dark:bg-green-950/10 p-4 rounded-lg border border-green-100 dark:border-green-900 space-y-2">
+                <h4 className="text-xs font-bold text-green-700 flex items-center gap-1 uppercase">
+                  <CheckCircle className="w-3 h-3" /> Previewing Changes
                 </h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {formData.barcode && (
-                    <p className="text-sm text-green-800">
-                      <span className="font-medium">Barcode:</span> <span className="font-mono">{formData.barcode}</span>
-                    </p>
-                  )}
-                  {formData.qrCode && (
-                    <p className="text-sm text-green-800">
-                      <span className="font-medium">QR Code:</span> <span className="font-mono text-xs">{formData.qrCode}</span>
-                    </p>
-                  )}
-                  {formData.batch && (
-                    <p className="text-sm text-green-800">
-                      <span className="font-medium">Batch:</span> <span className="font-mono">{formData.batch}</span>
-                    </p>
-                  )}
-                  {formData.expiry && (
-                    <p className="text-sm text-green-800">
-                      <span className="font-medium">Expiry:</span> {new Date(formData.expiry).toLocaleDateString()}
-                      <span className={`ml-2 font-semibold ${
-                        getExpiryStatus(formData.expiry) === 'expired' ? 'text-red-600' :
-                        getExpiryStatus(formData.expiry) === 'near-expiry' ? 'text-yellow-600' :
-                        'text-green-600'
-                      }`}>
-                        ({getExpiryStatus(formData.expiry) === 'expired' ? 'Expired' :
-                          getExpiryStatus(formData.expiry) === 'near-expiry' ? 'Expiring Soon' :
-                          'Valid'})
-                      </span>
-                    </p>
-                  )}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] font-mono opacity-80">
+                   {formData.barcode && <div className="text-green-800 dark:text-green-400 truncate">BAR: {formData.barcode}</div>}
+                   {formData.batch && <div className="text-green-800 dark:text-green-400 truncate">BAT: {formData.batch}</div>}
                 </div>
               </div>
             )}
+          </div>
 
-            <div className="flex justify-end gap-3 mt-6">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setModalOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary">
-                Update Tracking Info
-              </Button>
-            </div>
-          </form>
-        )}
-      </SharedModal>
+          <DialogFooter className="bg-muted/20 p-4 -mx-6 -mb-6 border-t">
+            <Button variant="ghost" onClick={() => setModalOpen(false)}>Discard</Button>
+            <Button onClick={handleSubmit}>Update Item</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-export default InventoryTracking
+const RotateCcw = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+)
 
+export default InventoryTracking
