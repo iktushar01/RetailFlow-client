@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 
 // shadcn/ui imports
-import { Button } from "@/Components/UI/button"
+import { Button } from "@/Components/UI/Button"
 import { Card, CardContent } from "@/Components/UI/card"
 import { Badge } from "@/Components/UI/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/Components/UI/tabs"
