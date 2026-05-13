@@ -1,31 +1,42 @@
 import React from 'react'
-import { TrendingUp, RefreshCw } from 'lucide-react'
-import { Button } from '../../../../Components/UI/Button'
+import { TrendingUp, RefreshCw, LayoutDashboard } from 'lucide-react'
+import { Button } from '@/components/ui/button' // Adjusted to standard shadcn path
 
-const SalesReportsHeader = ({ onRefresh }) => {
+const SalesReportsHeader = ({ onRefresh, isRefreshing = false }) => {
   return (
-    <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-            <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-blue-600" />
+    <div className="relative overflow-hidden bg-card p-6 sm:p-8 rounded-xl shadow-sm border border-border">
+      {/* Decorative Background Element */}
+      <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+      
+      <div className="relative flex flex-col sm:flex-row sm:justify-between sm:items-center gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-muted-foreground mb-1">
+            <LayoutDashboard className="w-4 h-4" />
+            <span className="text-xs font-medium uppercase tracking-wider">Analytics Dashboard</span>
+          </div>
+          
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground flex items-center">
+            <div className="p-2 bg-primary/10 rounded-lg mr-3">
+              <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+            </div>
             Sales Reports
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-2">
-            Comprehensive sales reporting and analytics
+          
+          <p className="text-sm sm:text-base text-muted-foreground max-w-md">
+            Monitor real-time revenue streams, product performance, and market velocity.
           </p>
         </div>
+
         <div className="flex items-center gap-3">
           <Button
-            variant="secondary"
-            size="sm"
+            variant="outline"
+            size="lg"
             onClick={onRefresh}
-            className="w-full sm:w-auto flex items-center justify-center"
+            disabled={isRefreshing}
+            className="w-full sm:w-auto font-semibold shadow-sm hover:bg-accent group"
           >
-            <div className="flex items-center">
-              <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              <span className="text-sm sm:text-base">Refresh</span>
-            </div>
+            <RefreshCw className={`w-4 h-4 mr-2 transition-transform duration-500 ${isRefreshing ? 'animate-spin' : 'group-active:rotate-180'}`} />
+            {isRefreshing ? 'Updating...' : 'Refresh Data'}
           </Button>
         </div>
       </div>

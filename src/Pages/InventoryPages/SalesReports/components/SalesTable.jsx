@@ -1,6 +1,9 @@
 import React from 'react'
-import { FileText } from 'lucide-react'
+import { FileText, ReceiptText } from 'lucide-react'
 import { SharedTable } from '../../../../Shared/SharedTable/SharedTable'
+
+// shadcn/ui or custom badge component
+import { Badge } from "@/components/ui/badge"
 
 const SalesTable = ({ 
   salesData, 
@@ -16,19 +19,26 @@ const SalesTable = ({
       accessorKey: 'createdAt',
       header: 'Date',
       cell: ({ row }) => (
-        <div>
-          <div className="font-medium text-gray-900">{formatDate(row.original.createdAt)}</div>
-          <div className="text-sm text-gray-500">{formatDateTime(row.original.createdAt).split(',')[1]}</div>
+        <div className="py-1">
+          <div className="font-semibold text-foreground">{formatDate(row.original.createdAt)}</div>
+          <div className="text-xs text-muted-foreground tabular-nums">
+            {formatDateTime(row.original.createdAt).split(',')[1]}
+          </div>
         </div>
       )
     },
     {
       id: 'invoiceNo',
       accessorKey: 'invoiceNo',
-      header: 'Invoice No',
+      header: 'Invoice',
       cell: ({ row }) => (
-        <div className="font-mono text-sm font-medium text-blue-600">
-          {row.original.invoiceNo}
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-primary/10 rounded-md">
+            <ReceiptText className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <span className="font-mono text-sm font-bold text-primary tracking-tighter">
+            {row.original.invoiceNo}
+          </span>
         </div>
       )
     },
@@ -38,9 +48,9 @@ const SalesTable = ({
       header: 'Customer',
       cell: ({ row }) => (
         <div>
-          <div className="font-medium text-gray-900">{row.original.customerName || 'Walk-in'}</div>
+          <div className="font-medium text-foreground">{row.original.customerName || 'Walk-in Customer'}</div>
           {row.original.customerPhone && (
-            <div className="text-sm text-gray-500">{row.original.customerPhone}</div>
+            <div className="text-xs text-muted-foreground">{row.original.customerPhone}</div>
           )}
         </div>
       )
@@ -48,30 +58,32 @@ const SalesTable = ({
     {
       id: 'totalAmount',
       accessorKey: 'grandTotal',
-      header: 'Total Amount',
+      header: () => <div className="text-right">Total Amount</div>,
       cell: ({ row }) => (
-        <div className="text-right">
-          <div className="text-lg font-semibold text-gray-900">{formatCurrency(row.original.grandTotal)}</div>
-          <div className="text-xs text-gray-500">{row.original.items.length} items</div>
+        <div className="text-right tabular-nums">
+          <div className="text-base font-bold text-foreground">{formatCurrency(row.original.grandTotal)}</div>
+          <div className="text-[10px] uppercase font-bold text-muted-foreground/70">
+            {row.original.items.length} {row.original.items.length === 1 ? 'Item' : 'Items'}
+          </div>
         </div>
       )
     },
     {
       id: 'paymentMethod',
       accessorKey: 'paymentMethod',
-      header: 'Payment Method',
+      header: () => <div className="text-center">Payment</div>,
       cell: ({ row }) => (
-        <div className="text-center">
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <div className="flex justify-center">
+          <Badge variant="secondary" className="px-2.5 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider bg-primary/5 text-primary border-primary/10">
             {row.original.paymentMethod}
-          </span>
+          </Badge>
         </div>
       )
     },
     {
       id: 'profit',
       accessorKey: 'profit',
-      header: 'Profit',
+      header: () => <div className="text-right">Estimated Profit</div>,
       cell: ({ row }) => {
         const sale = row.original
         const profit = sale.items.reduce((sum, item) => {
@@ -80,13 +92,15 @@ const SalesTable = ({
           return sum + ((item.unitPrice - (product.costPrice || 0)) * item.quantity)
         }, 0)
         
+        const isPositive = profit >= 0
+        
         return (
-          <div className="text-right">
-            <div className={`font-medium ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatCurrency(profit)}
+          <div className="text-right tabular-nums">
+            <div className={`font-bold ${isPositive ? 'text-emerald-600' : 'text-destructive'}`}>
+              {isPositive ? '+' : ''}{formatCurrency(profit)}
             </div>
-            <div className="text-xs text-gray-500">
-              {sale.grandTotal > 0 ? `${((profit / sale.grandTotal) * 100).toFixed(1)}%` : '0%'}
+            <div className={`text-[11px] font-medium ${isPositive ? 'text-emerald-600/70' : 'text-destructive/70'}`}>
+              {sale.grandTotal > 0 ? `${((profit / sale.grandTotal) * 100).toFixed(1)}% margin` : '0%'}
             </div>
           </div>
         )
@@ -95,19 +109,23 @@ const SalesTable = ({
   ]
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="mb-6 pb-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <FileText className="w-5 h-5 mr-2 text-blue-600" />
-          Sales Transactions
+    <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+      <div className="p-6 border-b border-border bg-muted/30">
+        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <FileText className="w-5 h-5 text-primary" />
+          Transaction Ledger
         </h3>
+        <p className="text-xs text-muted-foreground mt-1">Detailed history of all sales and associated profit margins</p>
       </div>
-      <SharedTable
-        data={salesData}
-        columns={tableColumns}
-        loading={loading}
-        emptyMessage="No sales data available"
-      />
+      
+      <div className="p-0">
+        <SharedTable
+          data={salesData}
+          columns={tableColumns}
+          loading={loading}
+          emptyMessage="No transactions found for this period"
+        />
+      </div>
     </div>
   )
 }
