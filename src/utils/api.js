@@ -1,17 +1,15 @@
-import axios from 'axios'
-import { API_BASE_URL } from '../config/apiConfig'
+import { apiClient } from '../config/apiConfig'
 
-const API_URL = API_BASE_URL
+const API_URL = apiClient.defaults.baseURL
 
 /**
  * API Service Utility
  * Centralized API calls with error handling
  */
 
-// Generic API call with error handling
 const apiCall = async (method, endpoint, data = null, config = {}) => {
   try {
-    const response = await axios({
+    const response = await apiClient({
       method,
       url: `${API_URL}${endpoint}`,
       data,
@@ -116,4 +114,3 @@ export const api = {
 }
 
 export default api
-
