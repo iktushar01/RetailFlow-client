@@ -1,6 +1,5 @@
 import axios from 'axios'
-
-const API_BASE_URL = 'https://pos-system-management-server-20.vercel.app'
+import { API_BASE_URL } from '../../../config/apiConfig'
 
 const api = axios.create({
   baseURL: API_BASE_URL,

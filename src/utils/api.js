@@ -1,6 +1,7 @@
 import axios from 'axios'
+import { API_BASE_URL } from '../config/apiConfig'
 
-const API_URL = 'https://pos-system-management-server-20.vercel.app'
+const API_URL = API_BASE_URL
 
 /**
  * API Service Utility
