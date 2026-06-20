@@ -10,13 +10,54 @@ import {
   ChevronDown,
   Store,
   PackageIcon,
-  UserCircle
+  UserCircle,
+  X
 } from 'lucide-react'
 import { Z_INDEX } from '../../constants/zIndex'
+
+const MOBILE_BREAKPOINT = 768
 
 const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
   const location = useLocation()
   const [activeDropdown, setActiveDropdown] = useState(null)
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT
+  )
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const update = () => setIsMobile(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+
+  // Close drawer when navigating on mobile
+  useEffect(() => {
+    if (isMobile) onClose?.()
+  }, [location.pathname, isMobile, onClose])
+
+  // Close drawer when resizing to desktop
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${MOBILE_BREAKPOINT}px)`)
+    const handleChange = (e) => {
+      if (e.matches) onClose?.()
+    }
+    mq.addEventListener('change', handleChange)
+    return () => mq.removeEventListener('change', handleChange)
+  }, [onClose])
+
+  // Prevent background scroll while mobile drawer is open
+  useEffect(() => {
+    if (!isOpen || !isMobile) return undefined
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isOpen, isMobile])
+
+  const showCollapsed = isCollapsed && !isMobile
 
   const menuItems = useMemo(() => [
     {
@@ -97,7 +138,7 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
 
   // Effect: Sync active dropdown with current URL on load or navigation
   useEffect(() => {
-    if (isCollapsed) {
+    if (showCollapsed) {
       setActiveDropdown(null)
       return
     }
@@ -105,26 +146,31 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
       item.subItems?.some(sub => location.pathname.startsWith(sub.path))
     )
     if (currentItem) setActiveDropdown(currentItem.id)
-  }, [location.pathname, isCollapsed, menuItems])
+  }, [location.pathname, showCollapsed, menuItems])
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/')
 
   const handleDropdownToggle = (e, itemId) => {
     e.preventDefault()
-    if (isCollapsed) return
+    if (showCollapsed) return
     setActiveDropdown(prev => prev === itemId ? null : itemId)
+  }
+
+  const closeMobile = () => {
+    if (isMobile) onClose?.()
   }
 
   return (
     <>
-      {/* Mobile Overlay - Premium Blur */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] md:hidden transition-opacity duration-300"
-          style={{ zIndex: Z_INDEX.MOBILE_OVERLAY }}
-          onClick={onClose}
-        />
-      )}
+      {/* Mobile overlay */}
+      <div
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm md:hidden transition-opacity duration-300 ease-out ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        style={{ zIndex: Z_INDEX.MOBILE_OVERLAY }}
+        onClick={onClose}
+        aria-hidden={!isOpen}
+      />
 
       <style>{`
         .sb-root {
@@ -133,7 +179,21 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
           color: var(--sidebar-foreground);
           display: flex;
           flex-direction: column;
-          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
+          will-change: transform;
+        }
+
+        @media (min-width: 768px) {
+          .sb-root {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+        }
+
+        @media (max-width: 767px) {
+          .sb-root {
+            width: 16rem !important;
+            transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.35);
+          }
         }
 
         .sb-nav-item {
@@ -241,24 +301,35 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
       `}</style>
 
       <aside
-        className={`sb-root fixed md:relative inset-y-0 left-0 
-          ${isCollapsed ? 'w-16' : 'w-64'} 
+        className={`sb-root fixed md:relative inset-y-0 left-0 top-0 h-full max-h-[100dvh]
+          ${showCollapsed ? 'md:w-16 w-64' : 'w-64'}
           ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
         style={{ zIndex: Z_INDEX.SIDEBAR }}
+        aria-hidden={isMobile && !isOpen}
       >
         {/* Logo Section */}
-        <div className="h-16 flex items-center px-4 mb-2 border-b border-[var(--sidebar-border)]">
+        <div className="h-16 flex items-center justify-between px-4 mb-2 border-b border-[var(--sidebar-border)] shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20">
               <Store size={18} className="text-white" />
             </div>
-            {!isCollapsed && (
+            {!showCollapsed && (
               <span className="font-bold text-lg tracking-tight truncate">
                 Retail<span className="text-indigo-500">Flow</span>
               </span>
             )}
           </div>
+          {isMobile && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+              aria-label="Close navigation menu"
+            >
+              <X size={18} />
+            </button>
+          )}
         </div>
 
         {/* Navigation */}
@@ -268,12 +339,12 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
             const hasSubItems = !!item.subItems
             const isParentActive = hasSubItems && item.subItems.some(sub => isActive(sub.path))
             const isSingleActive = !hasSubItems && isActive(item.path)
-            const isOpen = activeDropdown === item.id
+            const isDropdownOpen = activeDropdown === item.id
 
             return (
               <div key={item.id} className="sb-item-group mb-1">
                 {/* Section Label */}
-                {sectionLabels[item.id] && !isCollapsed && (
+                {sectionLabels[item.id] && !showCollapsed && (
                   <p className="px-6 mt-4 mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-50">
                     {sectionLabels[item.id]}
                   </p>
@@ -283,38 +354,38 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
                 {hasSubItems ? (
                   <button
                     onClick={(e) => handleDropdownToggle(e, item.id)}
-                    className={`sb-nav-item w-[calc(100%-16px)] ${isParentActive ? 'active-parent' : ''} ${isCollapsed ? 'justify-center !mx-2' : ''}`}
+                    className={`sb-nav-item w-[calc(100%-16px)] ${isParentActive ? 'active-parent' : ''} ${showCollapsed ? 'justify-center !mx-2' : ''}`}
                   >
                     <Icon size={20} className={isParentActive ? 'text-indigo-500' : ''} />
-                    {!isCollapsed && (
+                    {!showCollapsed && (
                       <>
                         <span className="ml-3 flex-1 text-left">{item.title}</span>
-                        <ChevronDown size={14} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                        <ChevronDown size={14} className={`transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                       </>
                     )}
-                    {isCollapsed && <div className="sb-tooltip">{item.title}</div>}
+                    {showCollapsed && <div className="sb-tooltip">{item.title}</div>}
                   </button>
                 ) : (
                   <Link
                     to={item.path}
-                    onClick={() => { if (window.innerWidth < 768) onClose() }}
-                    className={`sb-nav-item ${isSingleActive ? 'active-link' : ''} ${isCollapsed ? 'justify-center !mx-2' : ''}`}
+                    onClick={closeMobile}
+                    className={`sb-nav-item ${isSingleActive ? 'active-link' : ''} ${showCollapsed ? 'justify-center !mx-2' : ''}`}
                   >
                     <Icon size={20} />
-                    {!isCollapsed && <span className="ml-3">{item.title}</span>}
-                    {isCollapsed && <div className="sb-tooltip">{item.title}</div>}
+                    {!showCollapsed && <span className="ml-3">{item.title}</span>}
+                    {showCollapsed && <div className="sb-tooltip">{item.title}</div>}
                   </Link>
                 )}
 
                 {/* Dropdown Content */}
-                {hasSubItems && !isCollapsed && (
-                  <div className={`dropdown-container ${isOpen ? 'open' : ''}`}>
+                {hasSubItems && !showCollapsed && (
+                  <div className={`dropdown-container ${isDropdownOpen ? 'open' : ''}`}>
                     <div className="min-h-0">
                       {item.subItems.map((sub, idx) => (
                         <Link
                           key={idx}
                           to={sub.path}
-                          onClick={() => { if (window.innerWidth < 768) onClose() }}
+                          onClick={closeMobile}
                           className={`sb-sub-link ${isActive(sub.path) ? 'active' : ''}`}
                         >
                           {sub.title}
@@ -329,8 +400,8 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[var(--sidebar-border)] bg-[var(--sidebar)]">
-          {!isCollapsed ? (
+        <div className="p-4 border-t border-[var(--sidebar-border)] bg-[var(--sidebar)] shrink-0">
+          {!showCollapsed ? (
             <div className="flex items-center gap-3 px-2">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">System Online</span>

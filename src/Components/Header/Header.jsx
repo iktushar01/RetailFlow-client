@@ -7,7 +7,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import Swal from 'sweetalert2'
 import { ModeToggle } from '@/Shared/ModeToggle'
 
-const Header = ({ onMenuClick, onSidebarCollapse, isSidebarCollapsed }) => {
+const Header = ({ onMenuClick }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
@@ -161,9 +161,11 @@ const Header = ({ onMenuClick, onSidebarCollapse, isSidebarCollapsed }) => {
           
           {/* LEFT: Hamburger & Title */}
           <div className="flex items-center gap-3">
-            <button 
-              className="hdr-hamburger" 
-              onClick={() => { onMenuClick?.(); onSidebarCollapse?.(); }}
+            <button
+              type="button"
+              className="hdr-hamburger"
+              aria-label="Toggle navigation menu"
+              onClick={() => onMenuClick?.()}
             >
               <Menu size={18} />
             </button>

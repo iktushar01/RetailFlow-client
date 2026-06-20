@@ -1,15 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../Components/Sidebar/Sidebar'
 import Header from '../Components/Header/Header'
 import ScrollToTopButton from '../Components/ScrollToTopButton/ScrollToTopButton'
 import { Z_INDEX } from '../constants/zIndex'
 
+const MOBILE_BREAKPOINT = 768
+
 export const DashboardLayout = () => {
-  // mobile: drawer open/close
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  // all devices: icon-only collapse
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+  const handleMenuToggle = useCallback(() => {
+    if (window.innerWidth < MOBILE_BREAKPOINT) {
+      setSidebarOpen((prev) => !prev)
+      return
+    }
+    setSidebarCollapsed((prev) => !prev)
+  }, [])
+
+  const closeSidebar = useCallback(() => setSidebarOpen(false), [])
 
   return (
     <>
@@ -67,16 +77,12 @@ export const DashboardLayout = () => {
         <Sidebar
           isOpen={sidebarOpen}
           isCollapsed={sidebarCollapsed}
-          onClose={() => setSidebarOpen(false)}
+          onClose={closeSidebar}
         />
 
         <div className="layout-content-area">
           <div className="layout-header-sticky" style={{ zIndex: Z_INDEX.HEADER }}>
-            <Header
-              onMenuClick={() => setSidebarOpen(prev => !prev)}
-              onSidebarCollapse={() => setSidebarCollapsed(prev => !prev)}
-              isSidebarCollapsed={sidebarCollapsed}
-            />
+            <Header onMenuClick={handleMenuToggle} />
           </div>
 
           <main className="layout-main">
