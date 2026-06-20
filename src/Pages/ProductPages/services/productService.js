@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { apiClient as api } from '../../../config/apiConfig'
 
 // Products API
@@ -91,24 +90,21 @@ export const categoriesAPI = {
   }
 }
 
-// Image Upload API (ImgBB)
+// Image Upload API (Cloudinary via server)
 export const imageAPI = {
-  upload: async (file, apiKey) => {
+  upload: async (file) => {
     const formData = new FormData()
     formData.append('image', file)
-    
-    const response = await axios.post(
-      `https://api.imgbb.com/1/upload?key=${apiKey}`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+
+    const response = await api.post('/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-    )
-    
-    if (response.data.success) {
-      return response.data.data.url
+    })
+
+    const url = response.data?.url
+    if (url) {
+      return url
     }
     throw new Error('Image upload failed')
   }

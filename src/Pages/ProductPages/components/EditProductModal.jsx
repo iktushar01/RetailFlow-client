@@ -141,7 +141,7 @@ const EditProductModal = ({ isOpen, onClose, product, onSuccess }) => {
       let imageUrl = formData.productImage
 
       if (imageFile) {
-        imageUrl = await imageAPI.upload(imageFile, import.meta.env.VITE_IMGBB_API_KEY)
+        imageUrl = await imageAPI.upload(imageFile)
       }
 
       const selectedSupplier = suppliers.find(s => s.supplierName === formData.supplier || s.name === formData.supplier)

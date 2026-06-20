@@ -117,7 +117,7 @@ const ProductAdd = () => {
 
       if (imageFile) {
         try {
-          imageUrl = await imageAPI.upload(imageFile, import.meta.env.VITE_IMGBB_API_KEY)
+          imageUrl = await imageAPI.upload(imageFile)
         } catch {
           const result = await Swal.fire({
             title: 'Image Upload Failed',
@@ -229,7 +229,7 @@ const ProductAdd = () => {
           <h4 className="text-sm font-bold text-primary uppercase tracking-wider">System Integrity</h4>
           <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
             Ensure SKU and Product Names are unique to prevent collisions in the database.
-            All uploads are routed through encrypted image servers.
+            Product images are uploaded to Cloudinary via the API (`POST /upload/image`).
           </p>
         </div>
       </div>
