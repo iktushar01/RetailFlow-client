@@ -69,8 +69,6 @@ export const suppliersAPI = {
 // Categories API (if you have a backend endpoint for categories)
 export const categoriesAPI = {
   getAll: async () => {
-    // If you have a backend endpoint, use it
-    // For now, returning default categories
     return [
       'Electronics',
       'Clothing',
@@ -84,8 +82,6 @@ export const categoriesAPI = {
   },
   
   create: async (categoryName) => {
-    // If you have a backend endpoint, use it
-    // For now, just return the category name
     return categoryName
   }
 }
@@ -93,22 +89,23 @@ export const categoriesAPI = {
 // Image Upload API (Cloudinary via server)
 export const imageAPI = {
   upload: async (file) => {
+    if (!(file instanceof File)) {
+      throw new Error('No image file selected')
+    }
+
     const formData = new FormData()
     formData.append('image', file)
 
-    const response = await api.post('/upload/image', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    // Do not set Content-Type — browser must add multipart boundary
+    const response = await api.post('/upload/image', formData)
 
     const url = response.data?.url
     if (url) {
       return url
     }
-    throw new Error('Image upload failed')
+
+    throw new Error(response.data?.message || 'Image upload failed')
   }
 }
 
 export default api
-

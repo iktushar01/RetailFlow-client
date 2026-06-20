@@ -7,10 +7,20 @@ export const API_BASE_URL =
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  timeout: 10000
+  timeout: 30000,
+})
+
+// Default JSON for API calls; strip Content-Type for FormData so multipart boundary is set correctly
+apiClient.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    if (config.headers) {
+      delete config.headers['Content-Type']
+      delete config.headers['content-type']
+    }
+  } else if (config.headers && !config.headers['Content-Type'] && !config.headers['content-type']) {
+    config.headers['Content-Type'] = 'application/json'
+  }
+  return config
 })
 
 export default apiClient

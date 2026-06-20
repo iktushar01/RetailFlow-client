@@ -93,12 +93,13 @@ const ProductAdd = () => {
 
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
+    if (errors.productImage) setErrors(prev => ({ ...prev, productImage: '' }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const validation = validateProductForm(formData, allProducts)
+    const validation = validateProductForm(formData, allProducts, { imageFile, imagePreview })
     if (!validation.isValid) {
       setErrors(validation.errors)
       Swal.fire({
@@ -118,10 +119,14 @@ const ProductAdd = () => {
       if (imageFile) {
         try {
           imageUrl = await imageAPI.upload(imageFile)
-        } catch {
+        } catch (uploadError) {
+          const message =
+            uploadError.response?.data?.message ||
+            uploadError.message ||
+            'Could not upload image to server'
           const result = await Swal.fire({
             title: 'Image Upload Failed',
-            text: 'Would you like to add this product without an image?',
+            text: `${message}. Add product without an image?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, continue',

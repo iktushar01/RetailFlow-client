@@ -38,9 +38,11 @@ export const validateImageFile = (file) => {
  * Validate product form data
  * @param {Object} formData - Product form data
  * @param {Array} allProducts - All existing products (for QR code validation)
+ * @param {Object} options - Optional { imageFile, imagePreview }
  * @returns {Object} Validation result with isValid and errors object
  */
-export const validateProductForm = (formData, allProducts = []) => {
+export const validateProductForm = (formData, allProducts = [], options = {}) => {
+  const { imageFile = null, imagePreview = null } = options
   const errors = {}
   
   // Product name is required
@@ -85,8 +87,13 @@ export const validateProductForm = (formData, allProducts = []) => {
     }
   }
   
-  // Product Image is required
-  if (!formData.productImage || !formData.productImage.trim()) {
+  // Product image: accept selected file, preview, or existing URL
+  const hasImage =
+    Boolean(formData.productImage?.trim()) ||
+    imageFile instanceof File ||
+    Boolean(imagePreview)
+
+  if (!hasImage) {
     errors.productImage = 'Product Image is required'
   }
   

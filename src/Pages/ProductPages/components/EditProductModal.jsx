@@ -141,7 +141,20 @@ const EditProductModal = ({ isOpen, onClose, product, onSuccess }) => {
       let imageUrl = formData.productImage
 
       if (imageFile) {
-        imageUrl = await imageAPI.upload(imageFile)
+        try {
+          imageUrl = await imageAPI.upload(imageFile)
+        } catch (uploadError) {
+          Swal.fire({
+            title: 'Image Upload Failed',
+            text:
+              uploadError.response?.data?.message ||
+              uploadError.message ||
+              'Could not upload image',
+            icon: 'error'
+          })
+          setIsSubmitting(false)
+          return
+        }
       }
 
       const selectedSupplier = suppliers.find(s => s.supplierName === formData.supplier || s.name === formData.supplier)
