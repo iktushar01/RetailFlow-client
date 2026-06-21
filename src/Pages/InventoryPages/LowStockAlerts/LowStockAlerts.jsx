@@ -157,25 +157,20 @@ const LowStockAlerts = () => {
   return (
     <div className="space-y-6 mx-auto p-4 animate-in fade-in duration-500">
       {/* Header Card */}
-      <Card className="bg-gradient-to-r from-destructive/10 via-background to-background border-destructive/20">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              <AlertTriangle className="text-destructive h-8 w-8" />
-              Low Stock Alerts
-            </CardTitle>
-            <CardDescription>Monitor and restock items below threshold</CardDescription>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={fetchData}>
-              <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-            </Button>
-            <Button variant="default" size="sm" onClick={() => { setSelectedItems(filteredItems); setShowReorderModal(true); }}>
-              <Plus className="mr-2 h-4 w-4" /> Bulk Reorder
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Low Stock Alerts</h1>
+          <p className="text-muted-foreground text-sm md:text-base">Monitor and restock items below threshold</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={fetchData}>
+            <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+          </Button>
+          <Button variant="default" size="sm" onClick={() => { setSelectedItems(filteredItems); setShowReorderModal(true); }}>
+            <Plus className="mr-2 h-4 w-4" /> Bulk Reorder
+          </Button>
+        </div>
+      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -282,7 +277,7 @@ const LowStockAlerts = () => {
 const StatsCard = ({ label, value, variant = "default" }) => (
     <Card>
         <CardContent className="pt-6">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
+            <p className="text-sm text-muted-foreground">{label}</p>
             <p className={`text-2xl font-bold ${variant === 'destructive' ? 'text-destructive' : ''}`}>{value}</p>
         </CardContent>
     </Card>

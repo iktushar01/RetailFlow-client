@@ -77,7 +77,7 @@ const SettingsPage = () => {
   const Toggle = ({ enabled, onChange, label, description }) => (
     <div className="flex items-center justify-between py-4 group">
       <div className="space-y-0.5">
-        <p className="text-sm font-bold text-foreground uppercase tracking-tight">{label}</p>
+        <p className="text-sm font-medium text-foreground">{label}</p>
         <p className="text-xs text-muted-foreground">{description}</p>
       </div>
       <button
@@ -98,25 +98,16 @@ const SettingsPage = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-10 animate-in fade-in duration-500">
       {/* Header Section */}
-      <div className="relative overflow-hidden bg-card border rounded-3xl p-8 shadow-sm">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-2xl">
-              <Settings className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase italic leading-none">
-                System <span className="text-primary/70">Preferences</span>
-              </h1>
-              <p className="text-muted-foreground text-xs mt-1 font-medium tracking-wide uppercase">
-                Configure your environment and security protocols
-              </p>
-            </div>
-          </div>
-          <Button onClick={handleSaveSettings} className="gap-2 px-8 rounded-xl shadow-lg shadow-primary/20">
-            <Save className="w-4 h-4" /> Save Changes
-          </Button>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Settings</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Configure your application preferences and security options.
+          </p>
         </div>
+        <Button onClick={handleSaveSettings} className="gap-2">
+          <Save className="w-4 h-4" /> Save Changes
+        </Button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">

@@ -149,30 +149,17 @@ const WarehouseBatchtracking = () => {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex justify-between items-center">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <Package className="w-8 h-8 mr-3 text-green-600" />
-              Batch & Expiry Tracking
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Track batch numbers and expiry dates for inventory items
-            </p>
-          </div>
-
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={fetchAllData}
-            loading={loading}
-          >
-            <div className="flex items-center">
-              <RefreshCw className="w-5 h-5 mr-2" />
-              Refresh
-            </div>
-          </Button>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Batch & Expiry Tracking</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Track batch numbers and expiry dates for inventory items
+          </p>
         </div>
+        <Button variant="outline" onClick={fetchAllData} loading={loading}>
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </Button>
       </div>
 
       {/* Info Box */}

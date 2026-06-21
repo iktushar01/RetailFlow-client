@@ -60,7 +60,7 @@ const ProfilePage = () => {
 
   const InputField = ({ label, icon: Icon, name, type = "text", disabled = false, placeholder }) => (
     <div className="space-y-1.5">
-      <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+      <label className="text-sm font-medium text-muted-foreground">
         {label}
       </label>
       <div className="relative group">
@@ -91,35 +91,16 @@ const ProfilePage = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12 animate-in fade-in duration-500">
       {/* Dynamic Hero Section */}
-      <div className="relative overflow-hidden bg-card border rounded-3xl p-8 shadow-sm">
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-
-        <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-          {/* Avatar with Camera Overlay */}
-          <div className="relative group">
-            <div className="w-32 h-32 bg-gradient-to-tr from-primary to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-300">
-              <User className="w-16 h-16 text-primary-foreground -rotate-3 group-hover:rotate-0 transition-transform duration-300" />
-            </div>
-            <button className="absolute -bottom-2 -right-2 p-2 bg-background border rounded-xl shadow-lg hover:scale-110 transition-transform text-muted-foreground hover:text-primary">
-              <Camera className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex-1 text-center md:text-left space-y-2">
-            <div className="flex flex-col md:flex-row md:items-center gap-3">
-              <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase italic leading-none">
-                {user?.name || 'User Profile'}
-              </h1>
-              <div className="flex justify-center md:justify-start">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-widest">
-                  {user?.role || 'Access Restricted'}
-                </span>
-              </div>
-            </div>
-            <p className="text-muted-foreground font-mono text-sm tracking-tight">@{user?.username || 'unknown_entity'}</p>
-          </div>
-
-          <div className="shrink-0">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            {user?.name || 'Profile'}
+          </h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            {user?.email || user?.username}
+          </p>
+        </div>
+        <div className="shrink-0">
             {!isEditing ? (
               <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2 rounded-xl">
                 <Edit2 className="w-4 h-4" /> Edit Profile
@@ -134,7 +115,6 @@ const ProfilePage = () => {
                 </Button>
               </div>
             )}
-          </div>
         </div>
       </div>
 
@@ -144,7 +124,7 @@ const ProfilePage = () => {
           <div className="bg-card border rounded-3xl p-8 shadow-sm">
             <div className="flex items-center gap-2 mb-8">
               <ShieldCheck className="w-5 h-5 text-primary" />
-              <h3 className="font-bold text-sm uppercase tracking-widest">Account Identity</h3>
+              <h3 className="font-semibold text-base">Account Details</h3>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">

@@ -31,25 +31,18 @@ const SupplierPages = () => {
       
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs font-bold uppercase tracking-widest">
-            <Building2 className="w-3.5 h-3.5" />
-            Supply Chain Operations
-          </div>
-          <h1 className="text-3xl font-black tracking-tighter sm:text-4xl">
-            Suppliers <span className="text-primary italic">Registry</span>
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            Suppliers
           </h1>
-          <p className="text-muted-foreground text-sm">
-            Maintain and audit global vendor relationships and payment protocols.
+          <p className="text-muted-foreground text-sm md:text-base">
+            Manage vendor relationships, contact details, and payment terms.
           </p>
         </div>
 
-        <Button 
-          onClick={() => setIsModalOpen(true)}
-          className="rounded-full px-6 shadow-lg shadow-primary/20 font-bold uppercase text-[11px] tracking-widest h-11"
-        >
+        <Button onClick={() => setIsModalOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          Register New Supplier
+          Add Supplier
         </Button>
       </div>
 
@@ -59,7 +52,7 @@ const SupplierPages = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Alert className="bg-primary/5 border-primary/10 rounded-2xl">
           <ShieldCheck className="h-4 w-4 text-primary" />
-          <AlertTitle className="text-xs font-bold uppercase tracking-wider">Compliance</AlertTitle>
+          <AlertTitle className="text-sm font-medium">Compliance</AlertTitle>
           <AlertDescription className="text-xs text-muted-foreground font-medium">
             All registered entities are currently verified.
           </AlertDescription>
@@ -67,7 +60,7 @@ const SupplierPages = () => {
 
         <Alert className="bg-muted/30 border-border rounded-2xl">
           <Activity className="h-4 w-4 text-muted-foreground" />
-          <AlertTitle className="text-xs font-bold uppercase tracking-wider">System Status</AlertTitle>
+          <AlertTitle className="text-sm font-medium">System Status</AlertTitle>
           <AlertDescription className="text-xs text-muted-foreground font-medium">
             Registry synchronized with financial records.
           </AlertDescription>
@@ -75,7 +68,7 @@ const SupplierPages = () => {
 
         <Alert className="bg-muted/30 border-border rounded-2xl">
           <Users className="h-4 w-4 text-muted-foreground" />
-          <AlertTitle className="text-xs font-bold uppercase tracking-wider">Audit Log</AlertTitle>
+          <AlertTitle className="text-sm font-medium">Audit Log</AlertTitle>
           <AlertDescription className="text-xs text-muted-foreground font-medium">
             Tracking changes for {refreshKey > 0 ? refreshKey : 'all'} updates today.
           </AlertDescription>
@@ -95,11 +88,11 @@ const SupplierPages = () => {
       </Alert>
 
       {/* Main List Container */}
-      <Card className="rounded-[2rem] border-muted/60 shadow-xl shadow-black/[0.02] overflow-hidden">
+      <Card className="border shadow-sm overflow-hidden">
         <CardHeader className="pb-0">
-          <CardTitle className="text-lg font-bold tracking-tight">Active Partners</CardTitle>
-          <CardDescription className="text-xs uppercase tracking-widest font-semibold opacity-70">
-            Real-time Vendor Master Data
+          <CardTitle className="text-lg font-semibold">Supplier List</CardTitle>
+          <CardDescription>
+            View and manage registered suppliers.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0 sm:p-6">

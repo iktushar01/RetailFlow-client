@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
-import { PieChart, RefreshCw, Download, FileText } from 'lucide-react'
-
-// shadcn/ui components
+import { RefreshCw, Download, FileText } from 'lucide-react'
 import { Button } from "@/Components/UI/button"
 import {
   DropdownMenu,
@@ -18,69 +16,47 @@ const ProfitLossHeader = ({ onRefresh }) => {
   const handleRefresh = async () => {
     setIsRefreshing(true)
     await onRefresh?.()
-    // Small timeout to make the animation feel substantial
     setTimeout(() => setIsRefreshing(false), 600)
   }
 
   return (
-    <div className="relative overflow-hidden bg-card p-6 sm:p-8 rounded-xl border border-border shadow-sm">
-      {/* Decorative background gradient accent */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none" />
-      
-      <div className="relative flex flex-col sm:flex-row sm:justify-between sm:items-center gap-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-primary/10 rounded-lg">
-              <PieChart className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Profit & Loss Reports
-            </h1>
-          </div>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-md">
-            Analyze your revenue streams, operational costs, and net profitability 
-            across your business period.
-          </p>
-        </div>
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b pb-6">
+      <div className="space-y-1.5">
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl text-foreground">
+          Profit & Loss Reports
+        </h1>
+        <p className="text-muted-foreground text-sm md:text-base">
+          Analyze revenue, costs, and net profitability.
+        </p>
+      </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Refresh Button with animation */}
-          <Button
-            variant="outline"
-            size="default"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="flex-1 sm:flex-none shadow-sm"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Update Data</span>
-            <span className="sm:hidden">Refresh</span>
-          </Button>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
 
-          {/* Added an Export Dropdown for better UX */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="default" className="flex-1 sm:flex-none shadow-md shadow-primary/20">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>Download Format</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <FileText className="w-4 h-4 mr-2" /> PDF Report
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <Download className="w-4 h-4 mr-2" /> Excel Spreadsheet
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="default">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel>Download Format</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer">
+              <FileText className="w-4 h-4 mr-2" /> PDF Report
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
+              <Download className="w-4 h-4 mr-2" /> Excel Spreadsheet
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   )
 }
 
 export default ProfitLossHeader
-

@@ -85,7 +85,7 @@ const TransferModal = ({
                   <Package className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Selected Item</p>
+                  <p className="text-sm text-muted-foreground">Selected Item</p>
                   <p className="font-bold text-sm truncate max-w-[200px]">{selectedItem.productName}</p>
                 </div>
               </div>
@@ -96,7 +96,7 @@ const TransferModal = ({
                   <Layers className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Available At Source</p>
+                  <p className="text-sm text-muted-foreground">Available At Source</p>
                   <p className="font-bold text-sm">{selectedItem.stockQty} Units</p>
                 </div>
               </div>

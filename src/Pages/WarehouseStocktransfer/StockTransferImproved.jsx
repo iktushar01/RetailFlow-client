@@ -102,7 +102,7 @@ const StockTransferImproved = () => {
           </div>
           <div className="flex flex-col">
             <span className="font-bold leading-none">{row.original.productName}</span>
-            <span className="mt-1 font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
+            <span className="mt-1 font-mono text-xs text-muted-foreground">
               ID: {row.original.productId}
             </span>
           </div>
@@ -130,7 +130,7 @@ const StockTransferImproved = () => {
         return (
           <div className="flex flex-col gap-1.5">
             <div className="flex items-baseline gap-1">
-              <span className={`text-xl font-black tracking-tight ${getStockStatusColor(qty)}`}>
+              <span className={`text-xl font-semibold ${getStockStatusColor(qty)}`}>
                 {qty}
               </span>
               <span className="text-[10px] font-bold text-muted-foreground uppercase">Units</span>
@@ -157,12 +157,11 @@ const StockTransferImproved = () => {
     <div className=" mx-auto py-6 space-y-8">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
-            <ArrowRightLeft className="h-8 w-8 text-primary" />
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             Stock Transfer
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="text-muted-foreground text-sm md:text-base">
             Relocate inventory items between physical warehouse zones.
           </p>
         </div>
@@ -188,8 +187,8 @@ const StockTransferImproved = () => {
           <Card key={i} className="shadow-none border-muted">
             <CardContent className="p-4 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
-                <p className="text-2xl font-black mt-0.5">{stat.val}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-2xl font-semibold mt-0.5">{stat.val}</p>
               </div>
               <stat.icon className={`h-8 w-8 ${stat.color} opacity-20`} />
             </CardContent>

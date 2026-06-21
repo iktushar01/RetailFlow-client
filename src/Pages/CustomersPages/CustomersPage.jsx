@@ -112,8 +112,8 @@ const CustomersPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight">Customers</h1>
-          <p className="text-muted-foreground text-sm">Manage walk-in and registered customers for POS checkout.</p>
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Customers</h1>
+          <p className="text-muted-foreground text-sm md:text-base">Manage walk-in and registered customers for POS checkout.</p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="w-4 h-4 mr-2" />

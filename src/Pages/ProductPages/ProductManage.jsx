@@ -124,10 +124,10 @@ const ProductManage = () => {
       header: 'Product Identity',
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <span className="font-bold text-foreground text-sm uppercase tracking-tight leading-none mb-1">
+          <span className="font-medium text-foreground text-sm">
             {row.original.productName}
           </span>
-          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+          <span className="text-xs font-mono text-muted-foreground">
             {row.original.qrCode?.slice(-8) || 'NO-ID'}
           </span>
         </div>
@@ -154,7 +154,7 @@ const ProductManage = () => {
     {
       accessorKey: 'supplier',
       header: 'Source',
-      cell: ({ row }) => <span className="text-xs font-medium italic">{row.original.supplier || 'N/A'}</span>
+      cell: ({ row }) => <span className="text-sm">{row.original.supplier || 'N/A'}</span>
     },
     {
       accessorKey: 'createdAt',
@@ -180,25 +180,17 @@ const ProductManage = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       {/* Dynamic Dashboard Header */}
-      <div className="relative overflow-hidden bg-card border rounded-2xl p-6 shadow-sm">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            Products
+          </h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            {products.length} products cataloged — {filteredProducts.length} showing
+          </p>
+        </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/10">
-              <Package className="w-8 h-8 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase italic leading-none">
-                Vault <span className="text-primary/70">Inventory</span>
-              </h1>
-              <p className="text-muted-foreground text-xs mt-1 font-medium tracking-wide uppercase">
-                {products.length} Units Cataloged — {filteredProducts.length} Showing
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-3">
             {/* View Mode Switcher */}
             <div className="flex bg-muted rounded-xl p-1 border">
               <Button
@@ -223,11 +215,10 @@ const ProductManage = () => {
               <Button variant="outline" size="sm" onClick={fetchProducts} disabled={loading} className="h-9 w-9 p-0">
                 <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
               </Button>
-              <Button onClick={() => navigate('/products/add')} size="sm" className="h-9 gap-2 shadow-lg shadow-primary/20">
-                <Plus className="w-4 h-4" /> Add Asset
+              <Button onClick={() => navigate('/products/add')} size="sm" className="h-9 gap-2">
+                <Plus className="w-4 h-4" /> Add Product
               </Button>
             </div>
-          </div>
         </div>
       </div>
 
@@ -235,8 +226,8 @@ const ProductManage = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-card border p-4 rounded-xl flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total SKU</p>
-            <p className="text-xl font-black tracking-tighter">{products.length}</p>
+            <p className="text-sm text-muted-foreground">Total SKU</p>
+            <p className="text-xl font-semibold">{products.length}</p>
           </div>
           <div className="h-10 w-1 bg-primary/20 rounded-full" />
         </div>

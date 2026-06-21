@@ -170,23 +170,20 @@ const Payments = () => {
   return (
     <div className=" mx-auto py-6 space-y-6">
       {/* Header */}
-      <Card className="border-none shadow-md bg-gradient-to-r from-emerald-500/10 via-blue-500/5 to-purple-500/5">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl sm:text-3xl font-bold flex items-center tracking-tight">
-              <Receipt className="w-8 h-8 mr-3 text-emerald-600" />
-              Supplier Payments
-            </CardTitle>
-            <CardDescription className="text-muted-foreground text-base">
-              Track and manage supplier payments from GRNs
-            </CardDescription>
-          </div>
-          <Button variant="outline" onClick={fetchAllData} disabled={fetchLoading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-        </CardHeader>
-      </Card>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            Supplier Payments
+          </h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Track and manage supplier payments from GRNs
+          </p>
+        </div>
+        <Button variant="outline" onClick={fetchAllData} disabled={fetchLoading}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
+      </div>
 
       {/* Info Alert */}
       <Alert variant="info" className="bg-blue-500/5 border-blue-500/20 text-blue-900 dark:text-blue-200">

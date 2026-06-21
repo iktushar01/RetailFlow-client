@@ -193,36 +193,20 @@ const ProductAdd = () => {
   return (
     <div className="space-y-8 pb-12 animate-in fade-in duration-500">
       {/* Header Section */}
-      <div className="relative overflow-hidden bg-card border rounded-2xl p-8 shadow-sm">
-        {/* Decorative Background Blur */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-primary rounded-xl shadow-lg shadow-primary/20">
-                <PackagePlus className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase italic">
-                Registry <span className="text-primary/80">New</span>
-              </h1>
-            </div>
-            <p className="text-muted-foreground text-sm max-w-md">
-              Initialize a new entry into the global inventory system.
-              QR identifiers are auto-generated upon entry.
-            </p>
-          </div>
-
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/products/manage')}
-              className="gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back to Vault
-            </Button>
-          </div>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Add Product</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Create a new product entry in the inventory catalog.
+          </p>
         </div>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/products/manage')}
+          className="gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Products
+        </Button>
       </div>
 
       {/* Info Notice */}
@@ -231,7 +215,7 @@ const ProductAdd = () => {
           <ShieldCheck className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h4 className="text-sm font-bold text-primary uppercase tracking-wider">System Integrity</h4>
+          <h4 className="text-sm font-medium">Note</h4>
           <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
             Ensure SKU and Product Names are unique to prevent collisions in the database.
             Product images are uploaded to Cloudinary via the API (`POST /upload/image`).

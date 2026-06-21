@@ -68,28 +68,15 @@ const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
     <div className="flex items-center justify-between w-full border-t pt-4 mt-">
       <div className="flex items-center gap-2 text-muted-foreground">
         <AlertCircle className="w-3.5 h-3.5" />
-        <span className="text-[10px] font-bold uppercase tracking-wider">
-          All changes are logged in audit history
-        </span>
+        <span className="text-sm text-muted-foreground">Changes are saved to the supplier record</span>
       </div>
       <div className="flex gap-3">
-        <Button
-          variant="ghost"
-          onClick={onClose}
-          disabled={isSubmitting}
-          className="rounded-xl font-bold uppercase text-[11px] tracking-widest"
-        >
+        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button
-          variant="primary"
-          onClick={handleUpdateClick}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          className="rounded-xl px-8 shadow-lg shadow-primary/20 font-bold uppercase text-[11px] tracking-widest"
-        >
+        <Button onClick={handleUpdateClick} loading={isSubmitting} disabled={isSubmitting}>
           <Save className="w-3.5 h-3.5 mr-2" />
-          {isSubmitting ? 'Syncing...' : 'Commit Changes'}
+          {isSubmitting ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
     </div>
@@ -99,16 +86,7 @@ const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
     <SharedModal
       isOpen={isOpen}
       onClose={onClose}
-      title={
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <FileEdit className="w-5 h-5 text-primary" />
-          </div>
-          <span className="text-xl font-black italic uppercase tracking-tighter">
-            Edit <span className="text-primary/70">Registry</span>
-          </span>
-        </div>
-      }
+      title="Edit Supplier"
       size="lg"
       footer={modalFooter}
       closeOnOverlayClick={!isSubmitting}

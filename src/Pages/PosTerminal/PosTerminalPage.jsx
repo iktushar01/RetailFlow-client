@@ -219,7 +219,7 @@ const PosTerminalPage = () => {
               <div className="bg-primary p-2 rounded-lg text-primary-foreground shadow-blue-200 shadow-lg">
                 <ShoppingCart className="w-5 h-5" />
               </div>
-              <h1 className="text-2xl font-black tracking-tight uppercase">Terminal</h1>
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">POS Terminal</h1>
             </div>
             <div className="flex items-center gap-4 text-muted-foreground text-sm pt-1">
               <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {new Date().toLocaleDateString()}</span>

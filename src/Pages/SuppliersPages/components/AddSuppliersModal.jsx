@@ -57,25 +57,14 @@ const AddSuppliersModal = ({ isOpen, onClose, onSuccess }) => {
     <div className="flex items-center justify-between w-full border-t pt-4 mt-2">
       <div className="flex items-center gap-2 text-muted-foreground">
         <AlertCircle className="w-3.5 h-3.5" />
-        <span className="text-[10px] font-bold uppercase tracking-wider">Required fields must be valid</span>
+        <span className="text-sm text-muted-foreground">Required fields must be filled</span>
       </div>
       <div className="flex gap-3">
-        <Button
-          variant="ghost"
-          onClick={onClose}
-          disabled={isSubmitting}
-          className="rounded-xl hover:bg-muted font-bold uppercase text-[11px] tracking-widest"
-        >
+        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button
-          variant="primary"
-          onClick={handleSaveClick}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          className="rounded-xl px-8 shadow-lg shadow-primary/20 font-bold uppercase text-[11px] tracking-widest"
-        >
-          {isSubmitting ? 'Processing...' : 'Confirm Registration'}
+        <Button onClick={handleSaveClick} loading={isSubmitting} disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Supplier'}
         </Button>
       </div>
     </div>
@@ -85,16 +74,7 @@ const AddSuppliersModal = ({ isOpen, onClose, onSuccess }) => {
     <SharedModal
       isOpen={isOpen}
       onClose={onClose}
-      title={
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <UserPlus className="w-5 h-5 text-primary" />
-          </div>
-          <span className="text-xl font-black italic uppercase tracking-tighter">
-            New <span className="text-primary/70">Supplier</span>
-          </span>
-        </div>
-      }
+      title="Add Supplier"
       size="lg" // Increased to 'lg' for 2-column comfort
       footer={modalFooter}
       closeOnOverlayClick={!isSubmitting}

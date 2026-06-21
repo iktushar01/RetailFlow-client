@@ -134,29 +134,24 @@ const SalesReturn = () => {
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header Section */}
-      <Card className="border-none shadow-md bg-gradient-to-r from-destructive/5 via-orange-500/5 to-yellow-500/5">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl sm:text-3xl font-bold flex items-center tracking-tight">
-              <RotateCcw className="w-8 h-8 mr-3 text-destructive" />
-              Sales Returns
-            </CardTitle>
-            <CardDescription className="text-muted-foreground text-base">
-              Manage product returns and stock adjustments
-            </CardDescription>
-          </div>
-          <div className="flex w-full sm:w-auto gap-3">
-            <Button variant="outline" size="sm" onClick={fetchData} className="flex-1 sm:flex-none">
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Button variant="default" size="sm" onClick={() => setModalOpen(true)} className="flex-1 sm:flex-none">
-              <Plus className="w-4 h-4 mr-2" />
-              New Return
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Sales Returns</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Manage product returns and stock adjustments
+          </p>
+        </div>
+        <div className="flex w-full sm:w-auto gap-3">
+          <Button variant="outline" size="sm" onClick={fetchData} className="flex-1 sm:flex-none">
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button variant="default" size="sm" onClick={() => setModalOpen(true)} className="flex-1 sm:flex-none">
+            <Plus className="w-4 h-4 mr-2" />
+            New Return
+          </Button>
+        </div>
+      </div>
 
       {/* Info Alert */}
       <Alert variant="warning" className="bg-orange-500/5 border-orange-500/20 text-orange-900 dark:text-orange-200">

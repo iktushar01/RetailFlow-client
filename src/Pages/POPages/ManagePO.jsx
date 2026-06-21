@@ -202,15 +202,10 @@ const ManagePO = () => {
   return (
     <div className=" mx-auto py-6 space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <ShoppingCart className="w-6 h-6 text-primary" />
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Purchase Orders</h1>
-          </div>
-          <p className="text-muted-foreground mt-1">Manage Store-Xen procurement.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Purchase Orders</h1>
+          <p className="text-muted-foreground text-sm md:text-base">Create and manage purchase orders.</p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" onClick={fetchAllData} disabled={fetchLoading}>
@@ -264,19 +259,19 @@ const ManagePO = () => {
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-dashed border-border">
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Supplier</p>
+              <p className="text-sm text-muted-foreground">Supplier</p>
               <p className="font-semibold">{selectedPO?.supplierName || 'N/A'}</p>
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Status</p>
+              <p className="text-sm text-muted-foreground">Status</p>
               <p className="font-semibold text-primary">{selectedPO?.status}</p>
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Date</p>
+              <p className="text-sm text-muted-foreground">Date</p>
               <p className="font-semibold">{formatDate(selectedPO?.poDate)}</p>
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Total Amount</p>
+              <p className="text-sm text-muted-foreground">Total Amount</p>
               <p className="font-bold text-lg">{formatCurrency(selectedPO?.total || 0)}</p>
             </div>
           </div>

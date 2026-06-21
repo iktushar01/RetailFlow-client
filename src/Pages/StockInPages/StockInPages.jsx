@@ -165,28 +165,25 @@ const StockInPages = () => {
   return (
     <div className="mx-auto py-6 space-y-6">
       {/* Header */}
-      <Card className="border-none shadow-sm bg-gradient-to-r from-emerald-500/10 via-blue-500/5 to-transparent">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl font-bold flex items-center">
-              <Package className="w-6 h-6 mr-3 text-emerald-600" />
-              Stock In History
-            </CardTitle>
-            <CardDescription>
-              Review all approved Goods Received Notes (GRN) and warehouse entries.
-            </CardDescription>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={fetchAllData} 
-            disabled={fetchLoading}
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
-            Sync Data
-          </Button>
-        </CardHeader>
-      </Card>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+            Stock In History
+          </h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Review all approved Goods Received Notes (GRN) and warehouse entries.
+          </p>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={fetchAllData} 
+          disabled={fetchLoading}
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
+          Sync Data
+        </Button>
+      </div>
 
       {/* Logic Alert */}
       <Alert className="bg-blue-500/5 border-blue-500/20">

@@ -148,7 +148,7 @@ const WarehouseListRefactored = () => {
       header: 'Inventory Volume',
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <span className="font-black text-primary">{row.original.totalStock || 0}</span>
+          <span className="font-semibold text-primary">{row.original.totalStock || 0}</span>
           <span className="text-[9px] uppercase font-bold text-muted-foreground">Total Units</span>
         </div>
       )
@@ -162,16 +162,11 @@ const WarehouseListRefactored = () => {
   return (
     <div className=" mx-auto py-8 space-y-8">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-lg">
-              <Warehouse className="h-6 w-6 text-primary" />
-            </div>
-            <h1 className="text-3xl font-black tracking-tight">Warehouses</h1>
-          </div>
-          <p className="text-muted-foreground text-sm">
-            Operational overview of physical storage nodes and inventory distribution.
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Warehouses</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Manage storage locations and inventory distribution.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -194,8 +189,8 @@ const WarehouseListRefactored = () => {
           <Card key={i} className="shadow-none border-muted">
             <CardContent className="p-6 flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-[11px] font-black uppercase text-muted-foreground tracking-widest">{stat.label}</p>
-                <p className="text-3xl font-black">{stat.val.toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-2xl font-semibold">{stat.val.toLocaleString()}</p>
               </div>
               <div className={`${stat.bg} p-3 rounded-xl`}>
                 <stat.icon className={`h-6 w-6 ${stat.color}`} />

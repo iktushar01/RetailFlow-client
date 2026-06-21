@@ -131,23 +131,18 @@ export const InStockProductPages = () => {
   return (
     <div className=" mx-auto py-6 space-y-6">
       {/* Header Section */}
-      <Card className="border-none shadow-md bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-purple-500/5">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl sm:text-3xl font-bold flex items-center tracking-tight">
-              <Package className="w-8 h-8 mr-3 text-blue-600" />
-              Warehouse Inventory
-            </CardTitle>
-            <CardDescription className="text-muted-foreground text-base">
-              Monitor real-time stock levels, batches, and warehouse locations.
-            </CardDescription>
-          </div>
-          <Button variant="outline" onClick={fetchAllData} disabled={fetchLoading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
-            Refresh Data
-          </Button>
-        </CardHeader>
-      </Card>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Warehouse Inventory</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Monitor stock levels, batches, and warehouse locations.
+          </p>
+        </div>
+        <Button variant="outline" onClick={fetchAllData} disabled={fetchLoading}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
+          Refresh Data
+        </Button>
+      </div>
 
       {/* Info Alert */}
       <Alert variant="info" className="bg-blue-500/5 border-blue-500/20">
@@ -170,7 +165,7 @@ export const InStockProductPages = () => {
           <Card key={idx} className="shadow-sm">
             <CardContent className="p-4 flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
                 <p className="text-2xl font-bold">{stat.val}</p>
               </div>
               <stat.icon className={`w-8 h-8 ${stat.color} opacity-20`} />
@@ -213,8 +208,8 @@ export const InStockProductPages = () => {
               </div>
 
               <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-6 text-center">
-                <p className="text-sm font-medium text-blue-600 uppercase tracking-widest">Available Stock</p>
-                <p className="text-5xl font-extrabold text-blue-700 my-2">{selectedItem.quantity || 0}</p>
+                <p className="text-sm text-muted-foreground">Available Stock</p>
+                <p className="text-4xl font-semibold my-2">{selectedItem.quantity || 0}</p>
                 <p className="text-xs text-muted-foreground uppercase">Units in current location</p>
               </div>
 
@@ -263,7 +258,7 @@ export const InStockProductPages = () => {
 
 const DetailItem = ({ label, value, mono }) => (
   <div>
-    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">{label}</p>
+    <p className="text-sm text-muted-foreground">{label}</p>
     <p className={`text-sm font-medium ${mono ? 'font-mono' : ''}`}>{value || 'N/A'}</p>
   </div>
 )

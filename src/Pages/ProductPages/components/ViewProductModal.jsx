@@ -20,7 +20,7 @@ const ViewProductModal = ({ isOpen, onClose, product }) => {
 
   const modalFooter = (
     <div className="flex items-center justify-between w-full">
-      <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
+      <p className="text-xs text-muted-foreground font-mono">
         Product ID: {product._id?.slice(-8) || 'N/A'}
       </p>
       <Button
@@ -39,7 +39,7 @@ const ViewProductModal = ({ isOpen, onClose, product }) => {
       <div className={cn("space-y-1.5", fullWidth && "md:col-span-2")}>
         <div className="flex items-center gap-2 text-muted-foreground">
           {Icon ? <Icon className="w-3.5 h-3.5" /> : null}
-          <span className="text-[11px] font-bold uppercase tracking-wider">{label}</span>
+          <span className="text-sm font-medium text-muted-foreground">{label}</span>
         </div>
         <div className={cn(
           "px-4 py-3 rounded-xl border bg-muted/30 text-sm",
@@ -55,12 +55,7 @@ const ViewProductModal = ({ isOpen, onClose, product }) => {
     <SharedModal
       isOpen={isOpen}
       onClose={onClose}
-      title={
-        <div className="flex items-center gap-2">
-          <Info className="w-5 h-5 text-primary" />
-          <span>Product Specifications</span>
-        </div>
-      }
+      title="Product Details"
       size="large"
       footer={modalFooter}
     >
@@ -82,7 +77,7 @@ const ViewProductModal = ({ isOpen, onClose, product }) => {
 
           <div className="flex-1 space-y-4 w-full">
             <div>
-              <h2 className="text-3xl font-black tracking-tighter text-foreground mb-1 uppercase italic">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground mb-1">
                 {product.productName}
               </h2>
               <p className="text-muted-foreground flex items-center gap-2">

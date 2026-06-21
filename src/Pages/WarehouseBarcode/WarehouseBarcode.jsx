@@ -191,31 +191,17 @@ const WarehouseBarcode = () => {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-cyan-50 via-blue-50 to-indigo-50 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-              <QrCode className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-cyan-600" />
-              Barcode / QR Code Assignment
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-2">
-              Assign unique barcodes and QR codes to stock items
-            </p>
-          </div>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={fetchInventory}
-            loading={loading}
-            className="w-full sm:w-auto flex items-center justify-center"
-          >
-            <div className="flex items-center">
-              <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              <span className="text-sm sm:text-base">Refresh</span>
-            </div>
-          </Button>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Barcode / QR Assignment</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Assign unique barcodes and QR codes to stock items
+          </p>
         </div>
+        <Button variant="outline" onClick={fetchInventory} loading={loading}>
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </Button>
       </div>
 
       {/* Info Card */}
