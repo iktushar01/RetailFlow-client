@@ -208,7 +208,10 @@ const PosTerminalPage = () => {
   if (loading) return <SalesLoading message="Initializing Terminal..." />
 
   return (
-    <div className="flex flex-col min-h-0 h-[calc(100dvh-7rem)] sm:h-[calc(100dvh-7.5rem)] -mx-4 px-4 md:-mx-6 md:px-6 pb-2">
+    <div className={cn(
+      "flex flex-col min-h-0 h-[calc(100dvh-7rem)] sm:h-[calc(100dvh-7.5rem)] -mx-4 px-4 md:-mx-6 md:px-6 pb-2",
+      mobileTab === 'products' && cartItems.length > 0 && "pb-20 lg:pb-2"
+    )}>
       {/* Compact header */}
       <div className="shrink-0 space-y-3 pb-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
