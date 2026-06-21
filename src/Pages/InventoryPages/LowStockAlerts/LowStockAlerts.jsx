@@ -14,7 +14,7 @@ import {
   DialogDescription 
 } from "@/Components/UI/dialog"
 import { Input } from "@/Components/UI/input"
-import { Skeleton } from "@/Components/UI/skeleton"
+import { ListPageSkeleton } from '../../../Components/UI/PageSkeleton'
 import { 
   inventoryAPI, 
   productsAPI, 
@@ -140,18 +140,7 @@ const LowStockAlerts = () => {
   }
 
   if (loading) {
-    return (
-      <div className="p-8 space-y-4">
-        <Skeleton className="h-12 w-[300px]" />
-        <div className="grid grid-cols-4 gap-4">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-        <Skeleton className="h-[400px] w-full" />
-      </div>
-    )
+    return <ListPageSkeleton stats={4} tableColumns={6} />
   }
 
   return (

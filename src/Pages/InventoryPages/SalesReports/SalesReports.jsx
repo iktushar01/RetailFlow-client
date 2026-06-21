@@ -2,7 +2,7 @@ import React from 'react'
 import { TrendingUp } from 'lucide-react'
 import InfoCard from '../../../Shared/InfoCard/InfoCard'
 import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
-import { ReportLoading } from '../../../Components/UI/LoadingAnimation'
+import { AnalyticsPageSkeleton } from '../../../Components/UI/PageSkeleton'
 import { 
   SalesReportsHeader, 
   SummaryStats, 
@@ -35,7 +35,7 @@ const SalesReports = () => {
   } = useSalesReports()
 
   if (loading) {
-    return <ReportLoading message="Loading sales reports..." />
+    return <AnalyticsPageSkeleton stats={4} charts={2} />
   }
 
   return (

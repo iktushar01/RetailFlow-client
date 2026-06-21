@@ -8,20 +8,12 @@ import {
   TableRow 
 } from "@/Components/UI/table"
 import { Badge } from "@/Components/UI/badge"
-import { Skeleton } from "@/Components/UI/skeleton"
+import { TableSkeleton } from "@/Components/UI/PageSkeleton"
 import { getPaymentMethodColor, formatCurrency, formatDateTime } from '../utils/paymentsHelpers'
 
 const PaymentsList = ({ payments, loading }) => {
   if (loading) {
-    return (
-      <div className="space-y-3 p-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-      </div>
-    )
+    return <TableSkeleton rows={6} columns={5} />
   }
 
   return (

@@ -10,19 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/Components/UI/table"
-import { Skeleton } from "@/Components/UI/skeleton"
+import { TableSkeleton } from "@/Components/UI/PageSkeleton"
 import { getStatusColor, formatDateTime } from '../utils/returnsHelpers'
 
 const ReturnsList = ({ returns, onApprove, onReject, onDelete, onView, loading }) => {
   if (loading) {
-    return (
-      <div className="space-y-4 p-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-20 w-full" />
-      </div>
-    )
+    return <TableSkeleton rows={6} columns={6} showActions />
   }
 
   return (

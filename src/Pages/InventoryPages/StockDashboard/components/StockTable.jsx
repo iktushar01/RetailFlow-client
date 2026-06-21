@@ -10,7 +10,7 @@ import {
 } from "@/Components/UI/table"
 import { Badge } from "@/Components/UI/badge"
 import { Card, CardHeader, CardTitle, CardContent } from "@/Components/UI/card"
-import { Skeleton } from "@/Components/UI/skeleton"
+import { TableSkeleton } from "@/Components/UI/PageSkeleton"
 
 const StockTable = ({ stockData, loading, getStockStatus, getStatusIcon }) => {
   
@@ -31,6 +31,9 @@ const StockTable = ({ stockData, loading, getStockStatus, getStatusIcon }) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
+        {loading ? (
+          <TableSkeleton rows={5} columns={5} embedded />
+        ) : (
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
@@ -42,13 +45,7 @@ const StockTable = ({ stockData, loading, getStockStatus, getStatusIcon }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell colSpan={5}><Skeleton className="h-12 w-full" /></TableCell>
-                </TableRow>
-              ))
-            ) : stockData.length === 0 ? (
+            {stockData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                   No stock data available
@@ -116,6 +113,7 @@ const StockTable = ({ stockData, loading, getStockStatus, getStatusIcon }) => {
             )}
           </TableBody>
         </Table>
+        )}
       </CardContent>
     </Card>
   )

@@ -10,12 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/Components/UI/table"
+import { TableSkeleton } from "@/Components/UI/PageSkeleton"
 import { getStatusColor, getStatusLabel } from '../utils/discountsHelpers'
 
 const DiscountsList = ({ discounts, onEdit, onDelete, onToggleStatus, loading }) => {
   
   if (loading) {
-    return <div className="flex justify-center p-8 text-muted-foreground">Loading discounts...</div>
+    return <TableSkeleton rows={6} columns={6} showActions />
   }
 
   return (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { notify } from '../../utils/notifications'
 import { dashboardAPI } from './services/dashboardService'
-import { DashboardLoading } from '../../Components/UI/LoadingAnimation'
+import { DashboardPageSkeleton } from '../../Components/UI/PageSkeleton'
 import { useDashboardData, useDashboardMetrics } from './hooks'
 import {
   DashboardHeader,
@@ -30,7 +30,7 @@ export const HomePage = () => {
   }
 
   if (loading) {
-    return <DashboardLoading message="Loading dashboard data..." />
+    return <DashboardPageSkeleton />
   }
 
   return (

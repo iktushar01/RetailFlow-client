@@ -2,7 +2,7 @@ import React from 'react'
 import { BarChart3 } from 'lucide-react'
 import InfoCard from '../../../Shared/InfoCard/InfoCard'
 import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
-import { InventoryLoading } from '../../../Components/UI/LoadingAnimation'
+import { AnalyticsPageSkeleton } from '../../../Components/UI/PageSkeleton'
 import { 
   StockDashboardHeader, 
   StatsCards, 
@@ -33,7 +33,7 @@ const StockDashboard = () => {
   } = useStockDashboard()
 
   if (loading) {
-    return <InventoryLoading message="Loading stock data..." />
+    return <AnalyticsPageSkeleton stats={4} charts={1} />
   }
 
   return (

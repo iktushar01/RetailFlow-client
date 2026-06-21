@@ -10,22 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/Components/UI/table"
-import { Card } from "@/Components/UI/card"
-import { Skeleton } from "@/Components/UI/skeleton"
+import { TableSkeleton } from "@/Components/UI/PageSkeleton"
 import { getPaymentStatusColor, formatCurrency, formatDateTime } from '../utils/invoiceHelpers'
 
 const InvoiceList = ({ invoices, onView, onPrint, loading }) => {
   if (loading) {
-    return (
-      <Card className="p-6">
-        <div className="space-y-3">
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </div>
-      </Card>
-    )
+    return <TableSkeleton rows={6} columns={6} showActions />
   }
 
   return (

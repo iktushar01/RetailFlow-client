@@ -2,7 +2,7 @@ import React from 'react'
 import { PieChart } from 'lucide-react'
 import InfoCard from '../../../Shared/InfoCard/InfoCard'
 import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
-import { ReportLoading } from '../../../Components/UI/LoadingAnimation'
+import { AnalyticsPageSkeleton } from '../../../Components/UI/PageSkeleton'
 import { 
   ProfitLossHeader, 
   SummaryStats, 
@@ -35,7 +35,7 @@ const ProfitLossReports = () => {
   } = useProfitLoss()
 
   if (loading) {
-    return <ReportLoading message="Calculating profit & loss..." />
+    return <AnalyticsPageSkeleton stats={4} charts={2} />
   }
 
   const ProfitIcon = getProfitIcon(summary.netProfit)

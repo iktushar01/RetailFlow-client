@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/Components/UI/table"
 import { Card } from "@/Components/UI/card"
-import { Skeleton } from "@/Components/UI/skeleton"
+import { TableSkeleton } from "@/Components/UI/PageSkeleton"
 import {
   Tooltip,
   TooltipContent,
@@ -34,12 +34,8 @@ const InventoryList = ({
 
   if (loading) {
     return (
-      <Card className="p-6">
-        <div className="space-y-3">
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </div>
+      <Card className="p-0 overflow-hidden">
+        <TableSkeleton rows={6} columns={5} showActions embedded />
       </Card>
     )
   }

@@ -11,7 +11,7 @@ import {
 import { Button } from "@/Components/UI/button"
 import { Badge } from "@/Components/UI/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
-import { Skeleton } from "@/Components/UI/skeleton"
+import { TableSkeleton } from "@/Components/UI/PageSkeleton"
 
 const SuggestionsTable = ({ 
   suggestions = [], 
@@ -54,6 +54,9 @@ const SuggestionsTable = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
+        {loading ? (
+          <TableSkeleton rows={5} columns={6} showActions embedded />
+        ) : (
         <Table>
           <TableHeader className="bg-muted/30">
             <TableRow>
@@ -67,15 +70,7 @@ const SuggestionsTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  {Array.from({ length: 7 }).map((_, j) => (
-                    <TableCell key={j}><Skeleton className="h-6 w-full" /></TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : suggestions.length === 0 ? (
+            {suggestions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                   No reorder suggestions available
@@ -135,6 +130,7 @@ const SuggestionsTable = ({
             )}
           </TableBody>
         </Table>
+        )}
       </CardContent>
     </Card>
   )

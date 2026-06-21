@@ -27,7 +27,7 @@ import {
 } from "@/Components/UI/select"
 import { Badge } from "@/Components/UI/badge"
 import { Card } from "@/Components/UI/card"
-import { SalesLoading } from '../../Components/UI/LoadingAnimation'
+import { PosPageSkeleton } from '../../Components/UI/PageSkeleton'
 import { cn } from '@/lib/utils'
 
 const pickWalkInCustomer = (list) => {
@@ -206,7 +206,7 @@ const PosTerminalPage = () => {
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
-  if (loading) return <SalesLoading message="Initializing Terminal..." />
+  if (loading) return <PosPageSkeleton />
 
   return (
     <div className={cn(

@@ -25,6 +25,7 @@ import {
   Inbox
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { TableSkeleton } from "../../Components/UI/PageSkeleton"
 
 export const SharedTable = ({
   columns = [],
@@ -58,6 +59,18 @@ export const SharedTable = ({
       },
     },
   })
+
+  if (loading) {
+    return (
+      <TableSkeleton
+        rows={pageSize}
+        columns={columns.length}
+        showActions={Boolean(renderRowActions)}
+        embedded={embedded}
+        className={className}
+      />
+    )
+  }
 
   return (
     <div className={cn("space-y-0", className)}>
@@ -100,16 +113,7 @@ export const SharedTable = ({
             ))}
           </TableHeader>
           <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length + (renderRowActions ? 1 : 0)} className="h-40 text-center">
-                  <div className="flex flex-col items-center justify-center space-y-3">
-                    <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                    <p className="text-sm text-muted-foreground">Loading...</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="hover:bg-muted/30">
                   {row.getVisibleCells().map((cell) => (
@@ -138,7 +142,7 @@ export const SharedTable = ({
         </Table>
       </div>
 
-      {!loading && table.getPageCount() > 1 && (
+      {table.getPageCount() > 1 && (
         <div className={cn(
           "flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
           embedded ? "border-t" : "rounded-b-lg border border-t-0"

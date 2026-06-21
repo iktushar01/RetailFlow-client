@@ -3,7 +3,7 @@ import { Eye, MapPin, Package, Calendar, Hash, Inbox } from 'lucide-react'
 import { Button } from "@/Components/UI/button"
 import { Badge } from "@/Components/UI/badge"
 import { Card } from "@/Components/UI/card"
-import { Skeleton } from "@/Components/UI/skeleton"
+import { TableSkeleton } from "@/Components/UI/PageSkeleton"
 import {
   Table,
   TableBody,
@@ -54,14 +54,7 @@ const ProductInventoryList = ({
   }, [inventory])
 
   if (loading) {
-    return (
-      <div className="space-y-3">
-        <Skeleton className="h-10 w-full" />
-        {[...Array(5)].map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full" />
-        ))}
-      </div>
-    )
+    return <TableSkeleton rows={6} columns={6} showActions />
   }
 
   if (flattenedData.length === 0) {

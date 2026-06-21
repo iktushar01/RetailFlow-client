@@ -2,7 +2,7 @@ import React from 'react'
 import { RotateCcw } from 'lucide-react'
 import InfoCard from '../../../Shared/InfoCard/InfoCard'
 import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
-import { InventoryLoading } from '../../../Components/UI/LoadingAnimation'
+import { AnalyticsPageSkeleton } from '../../../Components/UI/PageSkeleton'
 import { 
   AutoReorderHeader, 
   StatsCards, 
@@ -38,7 +38,7 @@ const AutoReorderSuggestions = () => {
   } = useReorderSuggestions()
 
   if (loading) {
-    return <InventoryLoading message="Generating reorder suggestions..." />
+    return <AnalyticsPageSkeleton stats={3} showInfo={false} charts={0} />
   }
 
   return (

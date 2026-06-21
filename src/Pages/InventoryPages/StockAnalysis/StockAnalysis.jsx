@@ -2,7 +2,7 @@ import React from 'react'
 import { Activity } from 'lucide-react'
 import InfoCard from '../../../Shared/InfoCard/InfoCard'
 import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
-import { ChartLoading } from '../../../Components/UI/LoadingAnimation'
+import { AnalyticsPageSkeleton } from '../../../Components/UI/PageSkeleton'
 import { 
   StockAnalysisHeader, 
   StatsCards, 
@@ -33,7 +33,7 @@ const StockAnalysis = () => {
   } = useStockAnalysis()
 
   if (loading) {
-    return <ChartLoading message="Analyzing stock movement..." />
+    return <AnalyticsPageSkeleton stats={4} tabs charts={1} />
   }
 
   return (

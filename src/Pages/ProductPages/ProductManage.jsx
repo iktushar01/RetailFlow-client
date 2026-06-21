@@ -25,6 +25,7 @@ import ProductFilter from './components/ProductFilter'
 import ProductCard from './components/ProductCard'
 import { productsAPI } from './services/productService'
 import { applyProductFilters, getUniqueCategories, getUniqueSuppliers } from './utils/productHelpers'
+import { CardGridSkeleton } from '../../Components/UI/PageSkeleton'
 import { cn } from "@/lib/utils"
 
 const ProductManage = () => {
@@ -254,9 +255,7 @@ const ProductManage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {loading ? (
-              Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-64 rounded-2xl bg-muted animate-pulse border" />
-              ))
+              <CardGridSkeleton count={8} />
             ) : filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
                 <ProductCard

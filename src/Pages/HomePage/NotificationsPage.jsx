@@ -13,7 +13,7 @@ import { ScrollArea } from "@/Components/UI/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/Components/UI/tooltip"
 
 import { dashboardAPI } from './services/dashboardService'
-import { DashboardLoading } from '../../Components/UI/LoadingAnimation'
+import { NotificationsPageSkeleton } from '../../Components/UI/PageSkeleton'
 
 const NotificationsPage = () => {
   const [loading, setLoading] = useState(true)
@@ -112,7 +112,7 @@ const NotificationsPage = () => {
 
   const unreadCount = notifications.filter(n => !n.read).length
 
-  if (loading) return <DashboardLoading message="Syncing notifications..." />
+  if (loading) return <NotificationsPageSkeleton />
 
   return (
     <div className="w-full  mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 animate-in fade-in duration-500">

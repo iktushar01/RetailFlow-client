@@ -2,7 +2,7 @@ import React from 'react'
 import { Calculator } from 'lucide-react'
 import InfoCard from '../../../Shared/InfoCard/InfoCard'
 import { ReusableFilter } from '../../../Shared/ReusableFilter/ReusableFilter'
-import { ChartLoading } from '../../../Components/UI/LoadingAnimation'
+import { AnalyticsPageSkeleton } from '../../../Components/UI/PageSkeleton'
 import { 
   InventoryValuationHeader, 
   SummaryStats, 
@@ -31,7 +31,7 @@ const InventoryValuation = () => {
   } = useInventoryValuation()
 
   if (loading) {
-    return <ChartLoading message="Calculating inventory valuation..." />
+    return <AnalyticsPageSkeleton stats={4} charts={1} />
   }
 
   return (

@@ -10,7 +10,7 @@ import {
 } from "@/Components/UI/table"
 import { Badge } from "@/Components/UI/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
-import { Skeleton } from "@/Components/UI/skeleton"
+import { TableSkeleton } from "@/Components/UI/PageSkeleton"
 import { cn } from "@/lib/utils"
 
 const ValuationTable = ({ 
@@ -28,6 +28,9 @@ const ValuationTable = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
+        {loading ? (
+          <TableSkeleton rows={5} columns={6} embedded />
+        ) : (
         <Table>
           <TableHeader className="bg-muted/30">
             <TableRow>
@@ -40,15 +43,7 @@ const ValuationTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <TableCell key={j}><Skeleton className="h-6 w-full" /></TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : valuationData.length === 0 ? (
+            {valuationData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                   No valuation data available
@@ -114,6 +109,7 @@ const ValuationTable = ({
             )}
           </TableBody>
         </Table>
+        )}
       </CardContent>
     </Card>
   )
