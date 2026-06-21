@@ -1,11 +1,7 @@
 import { apiClient } from '../config/apiConfig'
+import { unwrapApiData } from './unwrapApiData'
 
 const API_URL = apiClient.defaults.baseURL
-
-/**
- * API Service Utility
- * Centralized API calls with error handling
- */
 
 const apiCall = async (method, endpoint, data = null, config = {}) => {
   try {
@@ -15,7 +11,7 @@ const apiCall = async (method, endpoint, data = null, config = {}) => {
       data,
       ...config
     })
-    return { success: true, data: response.data }
+    return { success: true, data: unwrapApiData(response) }
   } catch (error) {
     console.error(`API Error [${method} ${endpoint}]:`, error)
     return {

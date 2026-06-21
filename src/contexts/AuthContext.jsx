@@ -34,32 +34,41 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const persistUser = (mapped) => {
+    if (mapped) {
+      setUser(mapped)
+      localStorage.setItem('retailflow_user', JSON.stringify(mapped))
+    } else {
+      setUser(null)
+      localStorage.removeItem('retailflow_user')
+    }
+  }
+
   const refreshSession = useCallback(async () => {
-    const stored = localStorage.getItem('retailflow_user')
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored))
-      } catch {
-        localStorage.removeItem('retailflow_user')
+    if (DEV_BYPASS_AUTH) {
+      const stored = localStorage.getItem('retailflow_user')
+      if (stored) {
+        try {
+          setUser(JSON.parse(stored))
+        } catch {
+          localStorage.removeItem('retailflow_user')
+        }
       }
+      return
     }
 
-    if (DEV_BYPASS_AUTH) return
+    // Try silent token refresh first (access token may be expired after reload)
+    try {
+      await authApi.refreshToken()
+    } catch {
+      // No refresh cookie yet — fall through to getMe
+    }
 
     try {
       const response = await authApi.getMe()
-      const mapped = mapUser(response)
-      if (mapped) {
-        setUser(mapped)
-        localStorage.setItem('retailflow_user', JSON.stringify(mapped))
-      } else {
-        setUser(null)
-        localStorage.removeItem('retailflow_user')
-      }
+      persistUser(mapUser(response))
     } catch {
-      // Interceptor already attempted refresh; session is fully expired
-      setUser(null)
-      localStorage.removeItem('retailflow_user')
+      persistUser(null)
     }
   }, [])
 
@@ -79,8 +88,7 @@ export const AuthProvider = ({ children }) => {
         email,
         role: 'ADMIN',
       }
-      setUser(userData)
-      localStorage.setItem('retailflow_user', JSON.stringify(userData))
+      persistUser(userData)
       return { success: true, user: userData }
     }
 
@@ -90,8 +98,7 @@ export const AuthProvider = ({ children }) => {
       if (!mapped) {
         return { success: false, error: 'Invalid login response' }
       }
-      setUser(mapped)
-      localStorage.setItem('retailflow_user', JSON.stringify(mapped))
+      persistUser(mapped)
       return { success: true, user: mapped }
     } catch (error) {
       const message =
@@ -104,16 +111,14 @@ export const AuthProvider = ({ children }) => {
     try {
       await authApi.logout()
     } catch {
-      // ignore logout errors in dev
+      // logout endpoint clears cookies even without valid access token
     }
-    setUser(null)
-    localStorage.removeItem('retailflow_user')
+    persistUser(null)
   }
 
   const updateUser = (updates) => {
     const updatedUser = { ...user, ...updates }
-    setUser(updatedUser)
-    localStorage.setItem('retailflow_user', JSON.stringify(updatedUser))
+    persistUser(updatedUser)
   }
 
   const isAuthenticated = () => !!user

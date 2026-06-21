@@ -1,7 +1,15 @@
 import axios from 'axios'
 
+/**
+ * In dev, use same-origin (Vite proxy → localhost:5000) so httpOnly auth cookies
+ * are set on localhost:5173 and survive page reloads.
+ */
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
+  import.meta.env.VITE_API_BASE_URL !== undefined && import.meta.env.VITE_API_BASE_URL !== ''
+    ? import.meta.env.VITE_API_BASE_URL
+    : import.meta.env.DEV
+      ? ''
+      : 'http://localhost:5000'
 
 /** Shared axios client for RetailFlow API — sends cookies when auth is enabled. */
 export const apiClient = axios.create({
@@ -14,6 +22,7 @@ const AUTH_SKIP_REFRESH = [
   '/api/v1/auth/login',
   '/api/v1/auth/refresh-token',
   '/api/v1/auth/register',
+  '/api/v1/auth/logout',
 ]
 
 let isRefreshing = false
@@ -30,7 +39,6 @@ const flushRefreshQueue = (error) => {
 const shouldSkipRefresh = (url = '') =>
   AUTH_SKIP_REFRESH.some((path) => url.includes(path))
 
-// Default JSON for API calls; strip Content-Type for FormData so multipart boundary is set correctly
 apiClient.interceptors.request.use((config) => {
   if (config.data instanceof FormData) {
     if (config.headers) {
@@ -83,4 +91,3 @@ apiClient.interceptors.response.use(
 )
 
 export default apiClient
-

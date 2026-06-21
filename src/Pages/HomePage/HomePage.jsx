@@ -18,7 +18,7 @@ export const HomePage = () => {
   const [timeFilter, setTimeFilter] = useState('today')
   
   const { data, loading, refreshing, handleRefresh } = useDashboardData(timeFilter)
-  const metrics = useDashboardMetrics(data)
+  const metrics = useDashboardMetrics(data, timeFilter)
 
   // Configure SweetAlert2 to match Shadcn's aesthetic
   const swalConfig = {
@@ -33,7 +33,7 @@ export const HomePage = () => {
 
   const handleExport = async () => {
     try {
-      await dashboardAPI.exportData('overview')
+      await dashboardAPI.exportData()
       Swal.fire({
         ...swalConfig,
         icon: 'success',
@@ -73,17 +73,13 @@ export const HomePage = () => {
 
         {/* High-Level KPIs */}
         <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <MetricsGrid metrics={metrics} data={data} />
+          <MetricsGrid metrics={metrics} />
         </section>
 
         {/* Primary Data Visuals */}
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
           <div className="xl:col-span-2">
-            <SalesTrendChart
-              data={data}
-              timeFilter={timeFilter}
-              setTimeFilter={setTimeFilter}
-            />
+            <SalesTrendChart data={data} />
           </div>
           <StockDistribution data={data} />
         </div>

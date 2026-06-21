@@ -3,43 +3,32 @@ import { useNavigate } from 'react-router-dom'
 import { TrendingUp, Package, AlertTriangle, CreditCard, Banknote } from 'lucide-react'
 import MetricsCard from './MetricsCard'
 
-const MetricsGrid = ({ metrics, data }) => {
+const MetricsGrid = ({ metrics }) => {
   const navigate = useNavigate()
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-BD', {
       style: 'currency',
       currency: 'BDT',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(amount)
   }
 
-  // Calculate today's transaction count
-  const getTodaySalesCount = () => {
-    if (!data?.sales || !Array.isArray(data.sales)) return 0
-    
-    const today = new Date().toDateString();
-    
-    return data.sales.filter(sale => {
-      const saleDate = new Date(sale.createdAt || sale.date).toDateString();
-      return saleDate === today;
-    }).length
-  }
-
-  const todaySalesCount = getTodaySalesCount()
+  const transactionLabel =
+    metrics.salesCount > 0
+      ? `${metrics.salesCount} transaction${metrics.salesCount !== 1 ? 's' : ''}`
+      : 'No sales in this period'
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-      {/* Sales Today */}
       <MetricsCard
-        label="Sales Today"
-        value={formatCurrency(metrics.salesToday)}
-        subtitle={todaySalesCount > 0 ? `${todaySalesCount} transaction${todaySalesCount !== 1 ? 's' : ''}` : 'No sales today'}
+        label={metrics.salesLabel}
+        value={formatCurrency(metrics.salesAmount)}
+        subtitle={transactionLabel}
         icon={TrendingUp}
-        color="green" 
+        color="green"
       />
 
-      {/* Total Stock Items */}
       <MetricsCard
         label="Total Stock Items"
         value={metrics.totalStockItems.toLocaleString()}
@@ -48,7 +37,6 @@ const MetricsGrid = ({ metrics, data }) => {
         color="blue"
       />
 
-      {/* Total Stock Value */}
       <MetricsCard
         label="Total Stock Value"
         value={formatCurrency(metrics.totalStockValue)}
@@ -57,7 +45,6 @@ const MetricsGrid = ({ metrics, data }) => {
         color="primary"
       />
 
-      {/* Low Stock Alerts */}
       <MetricsCard
         label="Low Stock Alerts"
         value={metrics.lowStockAlerts}
@@ -67,7 +54,6 @@ const MetricsGrid = ({ metrics, data }) => {
         onClick={() => navigate('/inventory/low-stock')}
       />
 
-      {/* Pending Payments */}
       <MetricsCard
         label="Pending Payments"
         value={formatCurrency(metrics.pendingPayments)}

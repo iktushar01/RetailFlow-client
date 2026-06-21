@@ -13,44 +13,29 @@ export const useDashboardData = (timeFilter) => {
     topProducts: [],
     recentActivities: [],
     alerts: [],
-    salesData: { labels: [], data: [] }
+    salesData: { labels: [], data: [] },
+    summary: { totalSales: 0, totalAmount: 0 },
   })
 
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true)
-      const [overview, salesData, topProducts, activities, alerts] = await Promise.all([
+      const [overview, salesData, summary, topProducts, activities, alerts] = await Promise.all([
         dashboardAPI.getOverview(),
         dashboardAPI.getSalesData(timeFilter),
-        dashboardAPI.getTopProducts(4),
+        dashboardAPI.getSummaryForPeriod(timeFilter),
+        dashboardAPI.getTopProducts(4, timeFilter),
         dashboardAPI.getRecentActivities(),
-        dashboardAPI.getAlerts()
+        dashboardAPI.getAlerts(),
       ])
-
-      console.log('Dashboard data fetched:', {
-        overview,
-        salesData,
-        topProducts,
-        activities,
-        alerts
-      })
-      
-      console.log('Sales data structure:', {
-        hasLabels: !!salesData.labels,
-        labelsLength: salesData.labels?.length,
-        hasData: !!salesData.data,
-        dataLength: salesData.data?.length,
-        hasDatasets: !!salesData.datasets,
-        datasetsLength: salesData.datasets?.length,
-        fullSalesData: salesData
-      })
 
       setData({
         ...overview,
         topProducts,
         recentActivities: activities,
         alerts,
-        salesData
+        salesData,
+        summary,
       })
     } catch (err) {
       console.error('Error fetching dashboard data:', err)
@@ -78,6 +63,6 @@ export const useDashboardData = (timeFilter) => {
     loading,
     refreshing,
     handleRefresh,
-    refetch: fetchDashboardData
+    refetch: fetchDashboardData,
   }
 }
