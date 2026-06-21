@@ -144,7 +144,7 @@ const LowStockAlerts = () => {
   }
 
   return (
-    <div className="space-y-6 mx-auto p-4 animate-in fade-in duration-500">
+    <div className="space-y-6 mx-auto animate-in fade-in duration-500">
       {/* Header Card */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
         <div className="space-y-1.5">

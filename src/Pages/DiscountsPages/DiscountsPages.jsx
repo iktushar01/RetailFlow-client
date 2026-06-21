@@ -111,7 +111,7 @@ const DiscountsPages = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto p-6">
+    <div className="space-y-6 mx-auto">
       {/* Floating Notification using Shadcn Alert */}
       {notification && (
         <div className="fixed top-4 right-4 z-50 w-80 animate-in fade-in slide-in-from-top-4">
