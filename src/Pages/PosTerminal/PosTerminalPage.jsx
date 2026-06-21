@@ -1,23 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { RefreshCw, ChevronDown, Calendar, Percent, Plus } from 'lucide-react'
+import { RefreshCw, Calendar, Percent, ShoppingCart, Package, Receipt } from 'lucide-react'
 import Swal from 'sweetalert2'
 
-// Internal Components
 import ProductList from './components/ProductList'
 import Cart from './components/Cart'
 import PaymentSection from './components/PaymentSection'
 import HeldSalesPanel from './components/HeldSalesPanel'
 import { productsAPI, inventoryAPI, customersAPI, salesAPI, salesPaymentsAPI } from './services/posService'
-import { 
-  calculateCartTotals, 
-  validateSaleData, 
-  prepareSaleData, 
+import {
+  calculateCartTotals,
+  validateSaleData,
+  prepareSaleData,
   filterProducts,
   printInvoice,
   getProductStock,
 } from './utils/posHelpers'
 
-// Shadcn UI Components
 import { Button } from "@/Components/UI/button"
 import {
   Select,
@@ -28,8 +26,8 @@ import {
 } from "@/Components/UI/select"
 import { Badge } from "@/Components/UI/badge"
 import { Card } from "@/Components/UI/card"
-import { Separator } from "@/Components/UI/separator"
 import { SalesLoading } from '../../Components/UI/LoadingAnimation'
+import { cn } from '@/lib/utils'
 
 const pickWalkInCustomer = (list) => {
   if (!list?.length) {
@@ -50,8 +48,7 @@ const PosTerminalPage = () => {
   const [cartItems, setCartItems] = useState([])
   const [selectedCustomer, setSelectedCustomer] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [headerVisible, setHeaderVisible] = useState(true)
-  
+
   const [filters, setFilters] = useState({ search: '', category: '', warehouse: '' })
   const [totals, setTotals] = useState({ subtotal: 0, totalDiscount: 0, tax: 0, grandTotal: 0 })
   const [appliedDiscounts, setAppliedDiscounts] = useState([])
@@ -59,7 +56,6 @@ const PosTerminalPage = () => {
   const [mobileTab, setMobileTab] = useState('products')
   const [heldRefreshKey, setHeldRefreshKey] = useState(0)
 
-  // Memoized Fetch for stability
   const fetchData = useCallback(async (isSilent = false) => {
     if (!isSilent) setLoading(true)
     try {
@@ -68,7 +64,7 @@ const PosTerminalPage = () => {
         inventoryAPI.getAll(),
         customersAPI.getAll()
       ])
-      
+
       setProducts(productsData)
       setInventory(inventoryData)
 
@@ -92,13 +88,11 @@ const PosTerminalPage = () => {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  // Automatic Background Sync
   useEffect(() => {
     const interval = setInterval(() => fetchData("auto"), 45000)
     return () => clearInterval(interval)
   }, [fetchData])
 
-  // Logic: Filtering & Totals
   useEffect(() => {
     setFilteredProducts(filterProducts(products, filters.search, filters.category, filters.warehouse, inventory))
   }, [products, filters, inventory])
@@ -107,11 +101,10 @@ const PosTerminalPage = () => {
     setTotals(calculateCartTotals(cartItems, appliedDiscounts, taxRate))
   }, [cartItems, appliedDiscounts, taxRate])
 
-  // Cart Actions
   const handleAddToCart = (product, price) => {
     const inventoryItems = inventory.filter(item => item.productId === product._id)
     const currentStock = inventoryItems.reduce((sum, item) => sum + (parseFloat(item.stockQty) || 0), 0)
-    
+
     if (currentStock <= 0) {
       Swal.fire('Out of Stock', 'This product is currently unavailable', 'warning')
       return
@@ -150,7 +143,7 @@ const PosTerminalPage = () => {
     try {
       const saleData = prepareSaleData(cartItems, selectedCustomer, paymentMethod, totals, `INV-${Date.now()}`)
       await salesAPI.create(saleData)
-      
+
       await salesPaymentsAPI.create({
         invoiceNo: saleData.invoiceNo,
         amount: saleData.grandTotal,
@@ -170,6 +163,7 @@ const PosTerminalPage = () => {
       setSelectedCustomer(pickWalkInCustomer(customers))
       setAppliedDiscounts([])
       setHeldRefreshKey((k) => k + 1)
+      setMobileTab('products')
       fetchData(true)
     } catch (err) {
       Swal.fire('Sale Failed', err.message, 'error')
@@ -205,85 +199,89 @@ const PosTerminalPage = () => {
     Swal.fire({ title: 'Sale resumed', text: sale.invoiceNo, icon: 'info', timer: 1500, showConfirmButton: false })
   }
 
+  const openCheckout = () => {
+    window.dispatchEvent(new CustomEvent('openPaymentModal'))
+  }
+
+  const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+
   if (loading) return <SalesLoading message="Initializing Terminal..." />
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] gap-4 overflow-hidden">
-      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 transition-all duration-300 ${
-        headerVisible ? 'opacity-100' : 'h-0 overflow-hidden opacity-0'
-      }`}>
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">POS Terminal</h1>
-          <div className="flex items-center gap-4 text-muted-foreground text-sm">
-            <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {new Date().toLocaleDateString()}</span>
-            <Separator orientation="vertical" className="h-4" />
-            <Badge variant="secondary" className="font-mono">{inventory.length} SKUs Live</Badge>
+    <div className="flex flex-col min-h-0 h-[calc(100dvh-7rem)] sm:h-[calc(100dvh-7.5rem)] -mx-4 px-4 md:-mx-6 md:px-6 pb-2">
+      {/* Compact header */}
+      <div className="shrink-0 space-y-3 pb-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">POS Terminal</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground text-xs sm:text-sm">
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                {new Date().toLocaleDateString()}
+              </span>
+              <Badge variant="secondary" className="font-mono text-xs">
+                {inventory.length} SKUs
+              </Badge>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-md border bg-muted/40 px-2 py-1">
+              <Percent className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <Select value={taxRate.toString()} onValueChange={val => setTaxRate(parseFloat(val))}>
+                <SelectTrigger className="h-8 w-[7.5rem] border-none bg-transparent shadow-none focus:ring-0 text-xs sm:text-sm">
+                  <SelectValue placeholder="Tax" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">No Tax (0%)</SelectItem>
+                  <SelectItem value="0.05">GST (5%)</SelectItem>
+                  <SelectItem value="0.1">Standard (10%)</SelectItem>
+                  <SelectItem value="0.15">High (15%)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button variant="outline" size="sm" onClick={() => fetchData(true)} className="h-8">
+              <RefreshCw className="h-3.5 w-3.5 sm:mr-1.5" />
+              <span className="hidden sm:inline">Sync</span>
+            </Button>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-md border">
-            <div className="pl-2 text-muted-foreground"><Percent className="w-4 h-4" /></div>
-            <Select value={taxRate.toString()} onValueChange={val => setTaxRate(parseFloat(val))}>
-              <SelectTrigger className="w-[110px] border-none shadow-none h-8 focus:ring-0">
-                <SelectValue placeholder="Tax" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">No Tax (0%)</SelectItem>
-                <SelectItem value="0.05">GST (5%)</SelectItem>
-                <SelectItem value="0.1">Standard (10%)</SelectItem>
-                <SelectItem value="0.15">High (15%)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button variant="outline" size="sm" onClick={() => fetchData(true)} className="h-9">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Sync
-          </Button>
-          
-          <Button variant="ghost" size="icon" onClick={() => setHeaderVisible(false)} className="h-9 w-9">
-            <ChevronDown className="w-4 h-4 rotate-180" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Hidden Header Trigger */}
-      {!headerVisible && (
-        <div className="flex justify-center -mb-2 shrink-0">
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            className="rounded-full h-8 px-6 shadow-md border animate-in slide-in-from-top-2 flex gap-2"
-            onClick={() => setHeaderVisible(true)}
+        {/* Mobile / tablet tab switcher */}
+        <div className="lg:hidden grid grid-cols-2 gap-2 rounded-lg border bg-muted/30 p-1">
+          <Button
+            variant={mobileTab === 'products' ? 'default' : 'ghost'}
+            size="sm"
+            className="h-10 gap-2"
+            onClick={() => setMobileTab('products')}
           >
-            <ChevronDown className="w-4 h-4" /> Expand Dashboard
+            <Package className="h-4 w-4 shrink-0" />
+            Products
+          </Button>
+          <Button
+            variant={mobileTab === 'cart' ? 'default' : 'ghost'}
+            size="sm"
+            className="h-10 gap-2 relative"
+            onClick={() => setMobileTab('cart')}
+          >
+            <ShoppingCart className="h-4 w-4 shrink-0" />
+            Cart
+            {cartItemCount > 0 && (
+              <Badge className="ml-1 h-5 min-w-5 px-1 text-[10px]">{cartItemCount}</Badge>
+            )}
           </Button>
         </div>
-      )}
-
-      {/* Mobile tab switcher */}
-      <div className="lg:hidden flex gap-2 shrink-0">
-        <Button
-          variant={mobileTab === 'products' ? 'default' : 'outline'}
-          className="flex-1"
-          onClick={() => setMobileTab('products')}
-        >
-          Products
-        </Button>
-        <Button
-          variant={mobileTab === 'cart' ? 'default' : 'outline'}
-          className="flex-1"
-          onClick={() => setMobileTab('cart')}
-        >
-          Cart ({cartItems.length})
-        </Button>
       </div>
 
-      {/* Terminal Main Grid */}
-      <div className="grid grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden">
-        {/* Left Column: Product Selection */}
-        <Card className={`col-span-12 lg:col-span-8 flex flex-col overflow-hidden border shadow-none ${mobileTab !== 'products' ? 'hidden lg:flex' : 'flex'}`}>
+      {/* Main panels */}
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-12 lg:gap-4">
+        <Card
+          className={cn(
+            "lg:col-span-8 flex min-h-0 flex-col overflow-hidden border shadow-none",
+            mobileTab !== 'products' && "hidden lg:flex"
+          )}
+        >
           <ProductList
             products={filteredProducts}
             inventory={inventory}
@@ -294,8 +292,12 @@ const PosTerminalPage = () => {
           />
         </Card>
 
-        {/* Right Column: Cart Management */}
-        <Card className={`col-span-12 lg:col-span-4 flex flex-col overflow-hidden border shadow-none ${mobileTab !== 'cart' ? 'hidden lg:flex' : 'flex'}`}>
+        <Card
+          className={cn(
+            "lg:col-span-4 flex min-h-0 flex-col overflow-hidden border shadow-none",
+            mobileTab !== 'cart' && "hidden lg:flex"
+          )}
+        >
           <HeldSalesPanel onResume={handleResumeHeldSale} onRefresh={heldRefreshKey} />
           <Cart
             cartItems={cartItems}
@@ -314,37 +316,59 @@ const PosTerminalPage = () => {
             appliedDiscounts={appliedDiscounts}
             onApplyDiscount={d => setAppliedDiscounts(prev => [...prev, d])}
             onRemoveDiscount={id => setAppliedDiscounts(prev => prev.filter(d => d._id !== id))}
+            onCheckout={openCheckout}
           />
         </Card>
       </div>
 
-      {/* Footer: Customer & Payment Logic */}
-      <div className="shrink-0 bg-white dark:bg-slate-950 border-t p-2 sticky bottom-0 z-10 lg:static">
-        <PaymentSection
-          customers={customers}
-          selectedCustomer={selectedCustomer}
-          onSelectCustomer={setSelectedCustomer}
-          onCreateCustomer={async (data) => {
-             await customersAPI.create(data)
-             fetchData(true)
-          }}
-          cartItems={cartItems}
-          totals={totals}
-          onCompleteSale={handleCompleteSale}
-          onHoldSale={async () => {
-             const saleData = prepareSaleData(cartItems, selectedCustomer, 'Cash', totals, `HOLD-${Date.now()}`)
-             saleData.status = 'Hold'
-             saleData.paymentStatus = 'Due'
-             saleData.amountPaid = 0
-             await salesAPI.hold(saleData)
-             setCartItems([])
-             setHeldRefreshKey((k) => k + 1)
-          }}
-        />
-      </div>
+      {/* Mobile floating cart bar — visible on products tab when cart has items */}
+      {mobileTab === 'products' && cartItems.length > 0 && (
+        <div className="lg:hidden fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+          <div className="mx-auto flex max-w-lg items-center gap-3">
+            <button
+              type="button"
+              className="min-w-0 flex-1 text-left"
+              onClick={() => setMobileTab('cart')}
+            >
+              <p className="text-xs text-muted-foreground">{cartItemCount} item{cartItemCount !== 1 ? 's' : ''} in cart</p>
+              <p className="truncate text-base font-bold text-primary">
+                BDT {totals.grandTotal.toFixed(2)}
+              </p>
+            </button>
+            <Button variant="outline" size="sm" className="shrink-0 h-10" onClick={() => setMobileTab('cart')}>
+              View cart
+            </Button>
+            <Button size="sm" className="shrink-0 h-10 gap-1.5" onClick={openCheckout}>
+              <Receipt className="h-4 w-4" />
+              Pay
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <PaymentSection
+        customers={customers}
+        selectedCustomer={selectedCustomer}
+        onSelectCustomer={setSelectedCustomer}
+        onCreateCustomer={async (data) => {
+          await customersAPI.create(data)
+          fetchData(true)
+        }}
+        cartItems={cartItems}
+        totals={totals}
+        onCompleteSale={handleCompleteSale}
+        onHoldSale={async () => {
+          const saleData = prepareSaleData(cartItems, selectedCustomer, 'Cash', totals, `HOLD-${Date.now()}`)
+          saleData.status = 'Hold'
+          saleData.paymentStatus = 'Due'
+          saleData.amountPaid = 0
+          await salesAPI.hold(saleData)
+          setCartItems([])
+          setHeldRefreshKey((k) => k + 1)
+        }}
+      />
     </div>
   )
 }
 
 export default PosTerminalPage
-

@@ -136,7 +136,7 @@ const DiscountSelector = ({ cartItems, appliedDiscounts, onApplyDiscount, onRemo
             </Button>
           </PopoverTrigger>
           
-          <PopoverContent className="w-[300px] p-0" align="start">
+          <PopoverContent className="w-[min(300px,calc(100vw-2rem))] p-0" align="start">
             <div className="p-3 border-b bg-muted/30">
               <h4 className="text-sm font-bold flex items-center gap-2">
                 <Tag className="w-4 h-4" /> Available Offers

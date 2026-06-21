@@ -122,8 +122,8 @@ const PaymentSection = ({
               <Label className="flex items-center gap-2">
                 <User className="w-4 h-4" /> Customer Information
               </Label>
-              <div className="flex gap-2">
-                <div className="flex-1">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="min-w-0 flex-1">
                   <Select 
                     value={selectedCustomer?._id || ""} 
                     onValueChange={(val) => {
@@ -131,8 +131,8 @@ const PaymentSection = ({
                       onSelectCustomer(customer)
                     }}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select existing customer" />
+                    <SelectTrigger className="w-full h-10">
+                      <SelectValue placeholder="Select customer" />
                     </SelectTrigger>
                     <SelectContent>
                       {customers.map(customer => (
@@ -143,24 +143,26 @@ const PaymentSection = ({
                     </SelectContent>
                   </Select>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  onClick={() => setShowCustomerModal(true)}
-                  className="shrink-0"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-                {selectedCustomer && (
+                <div className="flex gap-2 shrink-0">
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="icon" 
-                    onClick={() => setShowCustomerHistory(true)}
-                    className="shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                    className="h-10 w-10"
+                    onClick={() => setShowCustomerModal(true)}
                   >
-                    <History className="w-4 h-4" />
+                    <Plus className="w-4 h-4" />
                   </Button>
-                )}
+                  {selectedCustomer && (
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-10 w-10"
+                      onClick={() => setShowCustomerHistory(true)}
+                    >
+                      <History className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -169,15 +171,15 @@ const PaymentSection = ({
               <Label className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> Payment Method
               </Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {paymentMethods.map(method => (
                   <Button
                     key={method}
                     variant={paymentMethod === method ? "default" : "outline"}
                     onClick={() => setPaymentMethod(method)}
-                    className={`h-auto py-3 px-2 text-xs font-semibold ${
-                      paymentMethod === method ? "shadow-md scale-[1.02]" : "opacity-70"
-                    } transition-all`}
+                    className={`h-auto min-h-11 py-2.5 px-2 text-xs font-medium sm:text-sm touch-manipulation ${
+                      paymentMethod === method ? "" : ""
+                    }`}
                   >
                     {method}
                   </Button>
