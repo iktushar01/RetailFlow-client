@@ -1,6 +1,7 @@
 import React from 'react'
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { Button } from '../../../Components/UI/button'
+import { Card } from '@/Components/UI/card'
 import { Calendar, Clock, Pencil } from 'lucide-react'
 import { 
   getExpiryStatus,
@@ -129,8 +130,9 @@ const BatchList = ({
   )
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <Card className="overflow-hidden border shadow-none">
       <SharedTable
+        embedded
         columns={columns}
         data={inventory}
         pageSize={10}
@@ -138,7 +140,7 @@ const BatchList = ({
         renderRowActions={renderRowActions}
         actionsHeader="Actions"
       />
-    </div>
+    </Card>
   )
 }
 

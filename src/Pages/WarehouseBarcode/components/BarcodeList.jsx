@@ -1,6 +1,7 @@
 import React from 'react'
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { Button } from '../../../Components/UI/button'
+import { Card } from '@/Components/UI/card'
 import { QrCode, Barcode, Pencil } from 'lucide-react'
 import { 
   getBarcodeStatusColor, 
@@ -131,30 +132,29 @@ const BarcodeList = ({
   )
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <>
       {!loading && inventory.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="flex flex-col items-center">
-            <QrCode className="w-16 h-16 text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Inventory Items</h3>
-            <p className="text-gray-500 mb-4">
-              No inventory items available. Add products to inventory via:
-              <br />
-              <span className="font-medium">GRN (Goods Receive Note)</span> or <span className="font-medium">Stock In</span>
-            </p>
-          </div>
+        <div className="rounded-lg border border-dashed py-12 text-center">
+          <QrCode className="mx-auto mb-4 h-16 w-16 text-muted-foreground/30" />
+          <h3 className="text-lg font-semibold mb-2">No Inventory Items</h3>
+          <p className="text-muted-foreground text-sm">
+            Add products via GRN or Stock In first.
+          </p>
         </div>
       ) : (
-        <SharedTable
-          columns={columns}
-          data={inventory}
-          pageSize={10}
-          loading={loading}
-          renderRowActions={renderRowActions}
-          actionsHeader="Actions"
-        />
+        <Card className="overflow-hidden border shadow-none">
+          <SharedTable
+            embedded
+            columns={columns}
+            data={inventory}
+            pageSize={10}
+            loading={loading}
+            renderRowActions={renderRowActions}
+            actionsHeader="Actions"
+          />
+        </Card>
       )}
-    </div>
+    </>
   )
 }
 

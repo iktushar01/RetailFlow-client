@@ -160,7 +160,7 @@ const WarehouseListRefactored = () => {
   const totalStock = warehouses.reduce((sum, w) => sum + (w.totalStock || 0), 0)
 
   return (
-    <div className=" mx-auto py-8 space-y-8">
+    <div className="space-y-6">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
         <div className="space-y-1.5">
@@ -230,8 +230,9 @@ const WarehouseListRefactored = () => {
             />
           </Card>
         ) : (
-          <Card className="shadow-sm overflow-hidden border-muted">
+          <Card className="overflow-hidden border shadow-none">
             <SharedTable
+              embedded
               columns={columns}
               data={filteredWarehouses}
               pageSize={10}

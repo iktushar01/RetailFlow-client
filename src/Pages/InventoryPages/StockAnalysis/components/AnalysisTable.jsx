@@ -2,12 +2,7 @@ import React, { useMemo } from 'react'
 import { Activity, Box, Calendar, TrendingUp, Info } from 'lucide-react'
 
 // shadcn/ui components
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/Components/UI/card"
+import { Card } from "@/Components/UI/card"
 import { Badge } from "@/Components/UI/badge"
 import {
   Tooltip,
@@ -135,21 +130,13 @@ const AnalysisTable = ({ analysisData, loading }) => {
   ], []);
 
   return (
-    <Card className="shadow-sm border-border bg-card animate-in fade-in zoom-in-95 duration-500">
-      <CardHeader className="border-b pb-4">
-        <CardTitle className="text-lg flex items-center gap-2 font-bold tracking-tight">
-          <Activity className="w-5 h-5 text-primary" />
-          Stock Movement Analysis
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-6 px-0 sm:px-6">
-        <SharedTable
-          data={analysisData}
-          columns={tableColumns}
-          loading={loading}
-          emptyMessage="No stock movement data found for current inventory"
-        />
-      </CardContent>
+    <Card className="overflow-hidden border shadow-none">
+      <SharedTable
+        embedded
+        data={analysisData}
+        columns={tableColumns}
+        loading={loading}
+      />
     </Card>
   )
 }

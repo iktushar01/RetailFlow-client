@@ -158,16 +158,15 @@ const GRNList = ({
   }
 
   return (
-    <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-lg border bg-card shadow-none overflow-hidden">
       <SharedTable
+        embedded
         columns={columns}
         data={grns}
         pageSize={10}
         loading={loading}
         renderRowActions={renderRowActions}
         actionsHeader="Actions"
-        // These classes are passed if your SharedTable supports container styling
-        className="border-none shadow-none" 
       />
     </div>
   )

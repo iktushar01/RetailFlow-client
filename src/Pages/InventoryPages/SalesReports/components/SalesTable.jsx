@@ -109,23 +109,13 @@ const SalesTable = ({
   ]
 
   return (
-    <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
-      <div className="p-6 border-b border-border bg-muted/30">
-        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-          <FileText className="w-5 h-5 text-primary" />
-          Transaction Ledger
-        </h3>
-        <p className="text-xs text-muted-foreground mt-1">Detailed history of all sales and associated profit margins</p>
-      </div>
-      
-      <div className="p-0">
-        <SharedTable
-          data={salesData}
-          columns={tableColumns}
-          loading={loading}
-          emptyMessage="No transactions found for this period"
-        />
-      </div>
+    <div className="overflow-hidden rounded-lg border bg-card shadow-none">
+      <SharedTable
+        embedded
+        data={salesData}
+        columns={tableColumns}
+        loading={loading}
+      />
     </div>
   )
 }

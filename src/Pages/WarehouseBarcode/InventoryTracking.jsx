@@ -126,7 +126,7 @@ const InventoryTracking = () => {
   }, [inventory, filters, products])
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-xl border">
         <div className="flex items-center gap-4">

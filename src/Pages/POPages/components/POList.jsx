@@ -2,7 +2,7 @@ import React from 'react'
 import { Eye, Edit, Trash2, Send, MoreHorizontal } from 'lucide-react'
 import { Button } from "@/Components/UI/button"
 import { Badge } from "@/Components/UI/badge"
-import { Card, CardContent } from "@/Components/UI/card"
+import { Card } from "@/Components/UI/card"
 import { SharedTable } from '../../../Shared/SharedTable/SharedTable'
 import { getStatusColor, formatCurrency, formatDate } from '../utils/poHelpers'
 import { cn } from "@/lib/utils"
@@ -110,14 +110,14 @@ const POList = ({
   ]
 
   return (
-    <Card className="border-border bg-card shadow-sm">
-      <CardContent className="p-0">
-        <SharedTable
-          columns={columns}
-          data={purchaseOrders}
-          loading={loading}
-          pageSize={10}
-          actionsHeader="Actions"
+    <Card className="overflow-hidden border shadow-none">
+      <SharedTable
+        embedded
+        columns={columns}
+        data={purchaseOrders}
+        loading={loading}
+        pageSize={10}
+        actionsHeader="Actions"
           renderRowActions={(po) => (
             <div className="flex items-center gap-1.5">
               {/* View Action */}
@@ -172,7 +172,6 @@ const POList = ({
             </div>
           )}
         />
-      </CardContent>
     </Card>
   )
 }

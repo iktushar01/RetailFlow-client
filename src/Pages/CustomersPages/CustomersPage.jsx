@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { Button } from '@/Components/UI/button'
 import { Input } from '@/Components/UI/input'
 import { Label } from '@/Components/UI/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/Components/UI/card'
+import { Card, CardContent } from '@/Components/UI/card'
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/Components/UI/dialog'
 import { SharedTable } from '@/Shared/SharedTable/SharedTable'
+import { ReusableFilter } from '@/Shared/ReusableFilter/ReusableFilter'
 import EmptyState from '@/Shared/EmptyState/EmptyState'
 import { retailApi } from '@/services/api'
 
@@ -121,18 +122,15 @@ const CustomersPage = () => {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Search</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Input
-            placeholder="Search by name, email, or phone..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </CardContent>
-      </Card>
+      <ReusableFilter
+        filters={{ search }}
+        onFilterChange={(key, value) => key === 'search' && setSearch(value)}
+        onClearFilters={() => setSearch('')}
+        filterConfig={[
+          { key: 'search', label: 'Search', type: 'search', placeholder: 'Search by name, email, or phone...' },
+        ]}
+        showClear={!!search}
+      />
 
       {!loading && filtered.length === 0 ? (
         <EmptyState
@@ -142,10 +140,12 @@ const CustomersPage = () => {
           action={{ label: 'Add Customer', onClick: openCreate, icon: Plus }}
         />
       ) : (
-        <SharedTable
-          columns={columns}
-          data={filtered}
-          loading={loading}
+        <Card className="overflow-hidden border shadow-none">
+          <SharedTable
+            embedded
+            columns={columns}
+            data={filtered}
+            loading={loading}
           renderRowActions={(row) => (
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => openEdit(row)}>
@@ -157,6 +157,7 @@ const CustomersPage = () => {
             </div>
           )}
         />
+        </Card>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

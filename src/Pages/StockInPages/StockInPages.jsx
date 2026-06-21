@@ -163,7 +163,7 @@ const StockInPages = () => {
   ], [suppliers])
 
   return (
-    <div className="mx-auto py-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
         <div className="space-y-1.5">
@@ -224,21 +224,20 @@ const StockInPages = () => {
         totalCount={stockInItems.length}
       />
 
-      <Card className="border-border shadow-sm">
-        <div className="p-1">
-          <SharedTable
-            columns={columns}
-            data={filteredStockInItems}
-            pageSize={10}
-            loading={fetchLoading}
-            renderRowActions={(grn) => (
-              <Button variant="ghost" size="icon" onClick={() => handleView(grn)}>
-                <Eye className="w-4 h-4" />
-              </Button>
-            )}
-            actionsHeader="View"
-          />
-        </div>
+      <Card className="overflow-hidden border shadow-none">
+        <SharedTable
+          embedded
+          columns={columns}
+          data={filteredStockInItems}
+          pageSize={10}
+          loading={fetchLoading}
+          renderRowActions={(grn) => (
+            <Button variant="ghost" size="icon" onClick={() => handleView(grn)}>
+              <Eye className="w-4 h-4" />
+            </Button>
+          )}
+          actionsHeader="View"
+        />
       </Card>
 
       {/* Details Modal */}

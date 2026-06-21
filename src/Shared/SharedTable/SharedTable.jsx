@@ -16,10 +16,10 @@ import {
   TableRow,
 } from "../../Components/UI/table"
 import { Button } from "../../Components/UI/button"
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  ChevronsLeft, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
   ChevronsRight,
   ArrowUpDown,
   Inbox
@@ -33,6 +33,8 @@ export const SharedTable = ({
   loading = false,
   renderRowActions,
   actionsHeader = 'Actions',
+  embedded = false,
+  className,
 }) => {
   const [sorting, setSorting] = React.useState([])
   const [globalFilter, setGlobalFilter] = React.useState('')
@@ -58,17 +60,20 @@ export const SharedTable = ({
   })
 
   return (
-    <div className="space-y-4">
-      {/* Table Container */}
-      <div className="rounded-md border border-border bg-card shadow-sm overflow-hidden overflow-x-auto">
+    <div className={cn("space-y-0", className)}>
+      <div className={cn(
+        "overflow-x-auto",
+        !embedded && "rounded-lg border bg-card shadow-none"
+      )}>
         <Table>
           <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="h-12 px-4 text-xs font-bold uppercase tracking-wider">
+                  <TableHead key={header.id} className="h-11 px-4 text-sm font-medium text-muted-foreground">
                     {header.isPlaceholder ? null : (
                       <button
+                        type="button"
                         className={cn(
                           "flex items-center gap-2 hover:text-foreground transition-colors",
                           header.column.getCanSort() ? "cursor-pointer select-none" : "cursor-default"
@@ -78,7 +83,7 @@ export const SharedTable = ({
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() && (
                           <ArrowUpDown className={cn(
-                            "ml-2 h-4 w-4",
+                            "ml-1 h-3.5 w-3.5",
                             header.column.getIsSorted() ? "text-primary" : "text-muted-foreground/50"
                           )} />
                         )}
@@ -87,7 +92,7 @@ export const SharedTable = ({
                   </TableHead>
                 ))}
                 {renderRowActions && (
-                  <TableHead className="text-xs font-bold uppercase tracking-wider">
+                  <TableHead className="px-4 text-sm font-medium text-muted-foreground">
                     {actionsHeader}
                   </TableHead>
                 )}
@@ -97,38 +102,34 @@ export const SharedTable = ({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={columns.length + (renderRowActions ? 1 : 0)} className="h-48 text-center">
-                  <div className="flex flex-col items-center justify-center space-y-4">
-                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                    <p className="text-sm font-medium text-muted-foreground">Loading data...</p>
+                <TableCell colSpan={columns.length + (renderRowActions ? 1 : 0)} className="h-40 text-center">
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    <p className="text-sm text-muted-foreground">Loading...</p>
                   </div>
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="group hover:bg-muted/30 transition-colors">
+                <TableRow key={row.id} className="hover:bg-muted/30">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-4 py-3 sm:py-4">
+                    <TableCell key={cell.id} className="px-4 py-3">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                   {renderRowActions && (
-                    <TableCell className="px-4 py-3 sm:py-4">
-                      <div className="flex items-center justify-start">
-                        {renderRowActions(row.original)}
-                      </div>
+                    <TableCell className="px-4 py-3">
+                      {renderRowActions(row.original)}
                     </TableCell>
                   )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length + (renderRowActions ? 1 : 0)} className="h-48 text-center">
+                <TableCell colSpan={columns.length + (renderRowActions ? 1 : 0)} className="h-40 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
-                    <div className="rounded-full bg-muted p-4">
-                      <Inbox className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm font-medium text-muted-foreground">No data available</p>
+                    <Inbox className="h-8 w-8 text-muted-foreground/50" />
+                    <p className="text-sm text-muted-foreground">No data available</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -137,22 +138,22 @@ export const SharedTable = ({
         </Table>
       </div>
 
-      {/* Pagination Controls */}
       {!loading && table.getPageCount() > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between px-2 py-4 gap-4 bg-card border border-border rounded-lg shadow-sm">
-          <div className="flex-1 text-sm text-muted-foreground">
-            Showing <span className="font-semibold text-foreground">{table.getState().pagination.pageIndex * pageSize + 1}</span> to{' '}
-            <span className="font-semibold text-foreground">
-              {Math.min((table.getState().pagination.pageIndex + 1) * pageSize, table.getFilteredRowModel().rows.length)}
-            </span> of{' '}
-            <span className="font-semibold text-foreground">{table.getFilteredRowModel().rows.length}</span> records
+        <div className={cn(
+          "flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
+          embedded ? "border-t" : "rounded-b-lg border border-t-0"
+        )}>
+          <div className="text-sm text-muted-foreground">
+            Showing {table.getState().pagination.pageIndex * pageSize + 1} to{' '}
+            {Math.min((table.getState().pagination.pageIndex + 1) * pageSize, table.getFilteredRowModel().rows.length)} of{' '}
+            {table.getFilteredRowModel().rows.length}
           </div>
-          
-          <div className="flex items-center space-x-2">
+
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
-              className="hidden lg:flex h-8 w-8"
+              className="hidden h-8 w-8 lg:flex"
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
             >
@@ -161,27 +162,27 @@ export const SharedTable = ({
             <Button
               variant="outline"
               size="sm"
-              className="h-8 gap-1"
+              className="h-8"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
               <ChevronLeft className="h-4 w-4" />
-              <span>Previous</span>
+              Previous
             </Button>
             <Button
-              variant="default"
+              variant="outline"
               size="sm"
-              className="h-8 gap-1"
+              className="h-8"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              <span>Next</span>
+              Next
               <ChevronRight className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="hidden lg:flex h-8 w-8"
+              className="hidden h-8 w-8 lg:flex"
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage()}
             >

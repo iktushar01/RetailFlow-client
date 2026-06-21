@@ -157,7 +157,7 @@ const GRNManage = () => {
   }
 
   return (
-    <div className="space-y-6 mx-auto p-4 sm:p-6">
+    <div className="space-y-6">
       {/* Toast Notification Area */}
       {notification && (
         <div className="fixed top-4 right-4 z-[100] w-full max-w-sm animate-in slide-in-from-right-5">
@@ -170,27 +170,22 @@ const GRNManage = () => {
       )}
 
       {/* Header */}
-      <Card className="border-none shadow-sm bg-gradient-to-br from-card to-muted/30">
-        <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl sm:text-3xl font-bold flex items-center">
-              <ClipboardList className="w-8 h-8 mr-3 text-primary" />
-              Goods Receive Notes
-            </CardTitle>
-            <CardDescription>Receive and manage goods from purchase orders</CardDescription>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={fetchAllData} disabled={fetchLoading}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Button onClick={() => { setIsEditing(false); setIsModalOpen(true); setFormData({ ...formData, receivedDate: new Date().toISOString().split('T')[0] }); }}>
-              <Plus className="w-4 h-4 mr-2" />
-              New GRN
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Goods Receive Notes</h1>
+          <p className="text-muted-foreground text-sm md:text-base">Receive and manage goods from purchase orders</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={fetchAllData} disabled={fetchLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button onClick={() => { setIsEditing(false); setIsModalOpen(true); setFormData({ ...formData, receivedDate: new Date().toISOString().split('T')[0] }); }}>
+            <Plus className="w-4 h-4 mr-2" />
+            New GRN
+          </Button>
+        </div>
+      </div>
 
       {/* Info Alert */}
       <Alert className="bg-blue-500/5 border-blue-500/20 text-blue-700 dark:text-blue-400">

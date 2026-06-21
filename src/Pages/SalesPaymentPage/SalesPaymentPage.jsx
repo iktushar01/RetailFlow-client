@@ -59,7 +59,7 @@ const SalesPaymentPage = () => {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="space-y-6">
       {/* Header Section */}
       <Card className="border-none shadow-md bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">

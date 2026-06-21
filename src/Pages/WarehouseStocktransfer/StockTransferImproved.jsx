@@ -154,7 +154,7 @@ const StockTransferImproved = () => {
   ], [])
 
   return (
-    <div className=" mx-auto py-6 space-y-8">
+    <div className="space-y-6">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
         <div className="space-y-1.5">
@@ -209,40 +209,37 @@ const StockTransferImproved = () => {
       </Alert>
 
       {/* Filters & Table */}
-      <Card className="border-none shadow-none">
-        <div className="space-y-4">
-          <ReusableFilter
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onClearFilters={clearFilters}
-            filterConfig={[
-              { key: 'search', label: 'Search Product', type: 'search', placeholder: 'Name or ID...' },
-              { key: 'warehouse', label: 'Filter by Zone', type: 'select', options: [{ value: '', label: 'All Zones' }, ...warehouseOptions.map(wh => ({ value: wh, label: wh }))] }
-            ]}
-            resultsCount={filteredInventory.length}
-          />
+      <ReusableFilter
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={clearFilters}
+        filterConfig={[
+          { key: 'search', label: 'Search Product', type: 'search', placeholder: 'Name or ID...' },
+          { key: 'warehouse', label: 'Warehouse', type: 'select', options: [{ value: '', label: 'All Zones' }, ...warehouseOptions.map(wh => ({ value: wh, label: wh }))] }
+        ]}
+        resultsCount={filteredInventory.length}
+        totalCount={inventory.length}
+      />
 
-          <Card className="overflow-hidden shadow-sm">
-            <SharedTable
-              columns={columns}
-              data={filteredInventory}
-              pageSize={10}
-              loading={loading}
-              renderRowActions={(item) => (
-                <Button
-                  size="sm"
-                  className="font-bold shadow-sm"
-                  onClick={() => handleOpenTransferModal(item)}
-                  disabled={!item.stockQty || item.stockQty <= 0 || !item.location}
-                >
-                  <ArrowRightLeft className="mr-2 h-3.5 w-3.5" />
-                  Initiate
-                </Button>
-              )}
-              actionsHeader="Transfer"
-            />
-          </Card>
-        </div>
+      <Card className="overflow-hidden border shadow-none">
+        <SharedTable
+          embedded
+          columns={columns}
+          data={filteredInventory}
+          pageSize={10}
+          loading={loading}
+          renderRowActions={(item) => (
+            <Button
+              size="sm"
+              onClick={() => handleOpenTransferModal(item)}
+              disabled={!item.stockQty || item.stockQty <= 0 || !item.location}
+            >
+              <ArrowRightLeft className="mr-2 h-3.5 w-3.5" />
+              Transfer
+            </Button>
+          )}
+          actionsHeader="Action"
+        />
       </Card>
 
       {/* Modals */}

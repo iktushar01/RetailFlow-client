@@ -27,7 +27,7 @@ const SupplierPages = () => {
   };
 
   return (
-    <div className=" mx-auto py-8 space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-6">
       
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

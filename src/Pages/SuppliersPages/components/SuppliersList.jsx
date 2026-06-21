@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { SharedTable } from "../../../Shared/SharedTable/SharedTable";
-import { Button } from "../../../Components/UI/button";
+import { Button } from "../../../Components/UI/button"
+import { Card } from "@/Components/UI/card";
 import { Edit, Trash2, Mail, Phone, Calendar, ShieldCheck, Building2 } from "lucide-react";
 import SuppliersFilter from "./SuppliersFilter";
 import EditSuppliersModal from "./EditSuppliersModal";
@@ -210,27 +211,25 @@ const SuppliersList = () => {
     <div className="space-y-8 animate-in fade-in duration-700">
       <SuppliersFilter
         filters={filters}
-        onFilterChange={setFilters}
+        onFilterChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+        onClearFilters={() => setFilters({ status: '', paymentTerms: '', search: '' })}
         suppliers={suppliersData}
         filteredSuppliers={filteredSuppliers}
         resultsCount={filteredSuppliers.length}
         totalCount={suppliersData.length}
       />
 
-      <div className="bg-card border rounded-[2rem] shadow-sm overflow-hidden transition-all duration-500 hover:shadow-md">
-        <div className="p-1"> {/* Tiny padding for internal border feel */}
-          <SharedTable
-            columns={columns}
-            data={filteredSuppliers}
-            pageSize={10}
-            loading={loading}
-            renderRowActions={renderRowActions}
-            actionsHeader=""
-            // Pass a custom row class if your SharedTable supports it to handle the "group" hover
-            rowClassName="group border-b last:border-0 hover:bg-muted/30 transition-colors"
-          />
-        </div>
-      </div>
+      <Card className="overflow-hidden border shadow-none">
+        <SharedTable
+          embedded
+          columns={columns}
+          data={filteredSuppliers}
+          pageSize={10}
+          loading={loading}
+          renderRowActions={renderRowActions}
+          actionsHeader=""
+        />
+      </Card>
 
       <EditSuppliersModal
         isOpen={isEditModalOpen}

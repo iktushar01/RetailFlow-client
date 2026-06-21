@@ -29,9 +29,7 @@ const InvoiceList = ({ invoices, onView, onPrint, loading }) => {
   }
 
   return (
-    <Card className="border-none shadow-none">
-      <div className="rounded-md border border-border">
-        <Table>
+    <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead className="w-[120px] font-bold text-foreground">Invoice No</TableHead>
@@ -104,8 +102,6 @@ const InvoiceList = ({ invoices, onView, onPrint, loading }) => {
             )}
           </TableBody>
         </Table>
-      </div>
-    </Card>
   )
 }
 

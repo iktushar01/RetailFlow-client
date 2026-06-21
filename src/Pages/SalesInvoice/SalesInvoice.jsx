@@ -71,7 +71,7 @@ const SalesInvoice = () => {
   }
 
   return (
-    <div className=" mx-auto py-6 space-y-6">
+    <div className="space-y-6">
       {/* Header Section using Shadcn Card */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
         <div className="space-y-1.5">
@@ -105,15 +105,13 @@ const SalesInvoice = () => {
       />
 
       {/* Main List Section */}
-      <Card className="border-border">
-        <CardContent className="p-0">
-          <InvoiceList
+      <Card className="overflow-hidden border shadow-none">
+        <InvoiceList
             invoices={filteredInvoices}
             onView={handleView}
             onPrint={handlePrint}
             loading={loading}
           />
-        </CardContent>
       </Card>
 
       {/* Detail Modal */}

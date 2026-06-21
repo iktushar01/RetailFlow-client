@@ -235,31 +235,29 @@ const ProductManage = () => {
       </div>
 
       {/* Filters Area */}
-      <div className="bg-card border rounded-2xl p-4 shadow-sm">
-        <ProductFilter
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onClearFilters={handleClearFilters}
-          categories={getUniqueCategories(products)}
-          suppliers={getUniqueSuppliers(products)}
-          resultsCount={filteredProducts.length}
-          products={products}
-          filteredProducts={filteredProducts}
-        />
-      </div>
+      <ProductFilter
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+        categories={getUniqueCategories(products)}
+        suppliers={getUniqueSuppliers(products)}
+        resultsCount={filteredProducts.length}
+        products={products}
+        filteredProducts={filteredProducts}
+      />
 
-      {/* Main Content Area */}
       <div className="min-h-[400px]">
         {viewMode === 'table' ? (
-          <div className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden">
+          <Card className="overflow-hidden border shadow-none">
             <SharedTable
+              embedded
               columns={columns}
               data={filteredProducts}
               loading={loading}
               renderRowActions={renderRowActions}
               pageSize={10}
             />
-          </div>
+          </Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {loading ? (

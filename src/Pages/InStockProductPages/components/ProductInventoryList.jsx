@@ -79,7 +79,7 @@ const ProductInventoryList = ({
   }
 
   return (
-    <Card className="border-border shadow-sm overflow-hidden">
+    <Card className="overflow-hidden border shadow-none">
       <Table>
         <TableHeader className="bg-muted/50">
           <TableRow>
