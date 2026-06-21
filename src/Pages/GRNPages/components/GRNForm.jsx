@@ -26,10 +26,7 @@ import GRNItemsTable from './GRNItemsTable'
 import { validateGRNForm, generateGRNNumber, MAX_NOTES_LENGTH } from '../utils/grnHelpers'
 import { grnAPI } from '../services/grnService'
 import Swal from 'sweetalert2'
-import axios from 'axios'
-import { API_BASE_URL } from '../../../config/apiConfig'
-
-const API_URL = API_BASE_URL
+import { apiClient } from '../../../config/apiConfig'
 
 const GRNForm = ({
   isOpen,
@@ -49,14 +46,12 @@ const GRNForm = ({
       if (isOpen) {
         setWarehousesLoading(true)
         try {
-          const response = await axios.get(`${API_URL}/warehouses`)
-          setWarehouses(response.data)
+          const response = await apiClient.get('/warehouses')
+          setWarehouses(response.data || [])
         } catch (error) {
           console.error('Error fetching warehouses:', error)
-          setWarehouses([
-            { _id: '1', name: 'Main Warehouse', location: 'Building A' },
-            { _id: '2', name: 'Secondary Warehouse', location: 'Building B' }
-          ])
+          setWarehouses([])
+          Swal.fire('Warehouse Error', 'Failed to load warehouses. Please try again.', 'error')
         } finally {
           setWarehousesLoading(false)
         }

@@ -60,7 +60,7 @@ export const SharedTable = ({
   return (
     <div className="space-y-4">
       {/* Table Container */}
-      <div className="rounded-md border border-border bg-card shadow-sm overflow-hidden">
+      <div className="rounded-md border border-border bg-card shadow-sm overflow-hidden overflow-x-auto">
         <Table>
           <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((headerGroup) => (

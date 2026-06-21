@@ -2,8 +2,8 @@ import { apiClient as api } from '../../../config/apiConfig'
 
 // Sales API
 export const salesAPI = {
-  getAll: async () => {
-    const response = await api.get('/sales')
+  getAll: async (params = {}) => {
+    const response = await api.get('/sales', { params })
     return response.data
   },
   
@@ -24,6 +24,11 @@ export const salesAPI = {
   
   hold: async (saleData) => {
     const response = await api.post('/sales/hold', saleData)
+    return response.data
+  },
+
+  update: async (id, saleData) => {
+    const response = await api.put(`/sales/${id}`, saleData)
     return response.data
   },
   
@@ -52,14 +57,17 @@ export const productsAPI = {
   
   update: async (id, productData) => {
     try {
-      console.log('Updating product:', id, productData)
       const response = await api.put(`/products/${id}`, productData)
-      console.log('Product update response:', response.data)
       return response.data
     } catch (error) {
       console.error('Error in productsAPI.update:', error)
       throw error
     }
+  },
+
+  updatePrice: async (id, sellingPrice) => {
+    const response = await api.patch(`/products/${id}/price`, { sellingPrice })
+    return response.data
   },
   
   create: async (productData) => {

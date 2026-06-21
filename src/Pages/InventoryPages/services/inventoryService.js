@@ -1,9 +1,14 @@
 import api from '../../../utils/api'
+import { toast } from 'sonner'
 
 // Inventory API
 export const inventoryAPI = {
   getAll: async () => {
     const response = await api.get('/inventory')
+    if (!response.success) {
+      toast.error(response.error || 'Failed to load inventory')
+      throw new Error(response.error || 'Failed to load inventory')
+    }
     return response.data || []
   },
   

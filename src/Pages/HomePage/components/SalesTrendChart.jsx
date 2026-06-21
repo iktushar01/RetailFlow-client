@@ -55,26 +55,25 @@ const SalesTrendChart = ({ data, timeFilter, setTimeFilter }) => {
       </CardHeader>
       
       <CardContent>
-        <div className="h-[300px] w-full rounded-xl border border-border bg-muted/20 p-4">
+        {/* Removed border, background, and rounded utilities */}
+        <div className="h-[300px] w-full">
           {chartData.length > 0 ? (
             <AreaChart
               data={chartData}
               areas={[
                 { 
                   dataKey: 'sales', 
-                  // Using your CSS Variable for Chart 1 (Primary-ish)
                   stroke: 'var(--chart-1)', 
                   name: 'Sales Count' 
                 },
                 { 
                   dataKey: 'revenue', 
-                  // Using your CSS Variable for Chart 2 (Secondary-ish)
                   stroke: 'var(--chart-2)', 
                   name: 'Revenue (BDT)' 
                 }
               ]}
               xAxisKey="name"
-              height={260}
+              height={300} // Bumped height to fill the parent container natively
               showGrid={true}
               showLegend={true}
             />
@@ -96,4 +95,3 @@ const SalesTrendChart = ({ data, timeFilter, setTimeFilter }) => {
 }
 
 export default SalesTrendChart
-

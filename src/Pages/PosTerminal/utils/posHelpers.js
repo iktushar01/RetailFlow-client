@@ -43,8 +43,8 @@ export const calculateCartTotals = (cartItems, discounts = [], taxRate = 0) => {
   const totalDiscount = itemDiscounts + cartDiscounts
   const afterDiscount = subtotal - totalDiscount
 
-  // Calculate tax
-  const tax = (afterDiscount * taxRate) / 100
+  // Calculate tax (taxRate is decimal: 0.1 = 10%)
+  const tax = afterDiscount * taxRate
 
   // Grand total
   const grandTotal = afterDiscount + tax

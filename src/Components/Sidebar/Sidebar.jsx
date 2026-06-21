@@ -99,6 +99,8 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
       path: '/warehouse',
       subItems: [
         { title: 'Inhouse Products', path: '/warehouse/inhouse-products' },
+        { title: 'Stock In', path: '/warehouse/stock-in' },
+        { title: 'Stock Transfer', path: '/warehouse/stock-transfer' },
         { title: 'Inventory Tracking', path: '/warehouse/inventory-tracking' },
         { title: 'Warehouse List', path: '/warehouse/list' }
       ]
@@ -110,7 +112,10 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
       path: '/sales',
       subItems: [
         { title: 'POS Terminal', path: '/sales/pos-terminal' },
+        { title: 'Customers', path: '/sales/customers' },
         { title: 'Discounts', path: '/sales/discounts' },
+        { title: 'Sales Invoice', path: '/sales/invoice' },
+        { title: 'Sales Payments', path: '/sales/payments' },
         { title: 'Returns', path: '/sales/returns' }
       ]
     },
@@ -120,9 +125,14 @@ const Sidebar = ({ isOpen, isCollapsed, onClose }) => {
       icon: BarChart3,
       path: '/inventory',
       subItems: [
+        { title: 'Overview', path: '/inventory' },
         { title: 'Stock Dashboard', path: '/inventory/stock-dashboard' },
+        { title: 'Low Stock Alerts', path: '/inventory/low-stock' },
+        { title: 'Auto Reorder', path: '/inventory/reorder' },
+        { title: 'Inventory Valuation', path: '/inventory/valuation' },
         { title: 'Sales Reports', path: '/inventory/sales-reports' },
-        { title: 'Profit & Loss', path: '/inventory/profit-loss' }
+        { title: 'Profit & Loss', path: '/inventory/profit-loss' },
+        { title: 'Stock Analysis', path: '/inventory/stock-analysis' }
       ]
     },
     { id: 'profile', title: 'Profile', icon: UserCircle, path: '/profile' },

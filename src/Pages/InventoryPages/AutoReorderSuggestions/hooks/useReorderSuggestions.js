@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { inventoryAPI, productsAPI, suppliersAPI, salesAPI, purchaseOrdersAPI } from '../../services/inventoryService'
-import { toast } from "sonner" // or "@/components/ui/use-toast" depending on your shadcn setup
+import { retailApi } from '@/services/api'
+import { toast } from 'sonner'
 
 export const useReorderSuggestions = () => {
   const [suggestions, setSuggestions] = useState([])
@@ -24,66 +24,7 @@ export const useReorderSuggestions = () => {
   })
 
   // --- Helper Functions (Pure Logic) ---
-  const calculateMonthlySales = (productId, salesData) => {
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    
-    const totalSold = salesData
-      .filter(sale => new Date(sale.createdAt) >= thirtyDaysAgo)
-      .reduce((sum, sale) => {
-        const item = sale.items.find(item => item.productId === productId)
-        return sum + (item?.quantity || 0)
-      }, 0)
-    
-    return totalSold
-  }
-
-  const getLastSaleDate = (productId, salesData) => {
-    const productSales = salesData
-      .filter(sale => sale.items.some(item => item.productId === productId))
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    
-    return productSales[0]?.createdAt || null
-  }
-
-  const generateReorderSuggestions = (inventoryData, productsData, salesData) => {
-    return productsData.map(product => {
-      const inventoryItem = inventoryData.find(inv => inv.productId === product._id)
-      if (!inventoryItem) return null
-      
-      const monthlySales = calculateMonthlySales(product._id, salesData)
-      const currentStock = inventoryItem.stockQty
-      const minStockLevel = product.minStockLevel || 10
-      const safetyStock = Math.ceil(monthlySales * 0.2)
-      
-      const suggestedQty = Math.max(monthlySales * 2, minStockLevel * 3, safetyStock * 2)
-      
-      let priority = 'Low'
-      if (currentStock <= minStockLevel * 0.5) priority = 'High'
-      else if (currentStock <= minStockLevel) priority = 'Medium'
-      
-      const urgencyScore = (monthlySales * 30) / (currentStock + 1)
-      
-      if (suggestedQty > 0 && (currentStock < minStockLevel * 2 || urgencyScore > 1)) {
-        return {
-          productId: product._id,
-          productName: product.productName,
-          sku: product.sku,
-          category: product.category,
-          supplierId: product.supplierId,
-          currentStock,
-          monthlySales,
-          suggestedQty: Math.ceil(suggestedQty),
-          priority,
-          urgencyScore,
-          lastSaleDate: getLastSaleDate(product._id, salesData),
-          costPrice: product.costPrice || 0,
-          totalValue: Math.ceil(suggestedQty) * (product.costPrice || 0)
-        }
-      }
-      return null
-    }).filter(Boolean).sort((a, b) => b.urgencyScore - a.urgencyScore)
-  }
+  const generateReorderSuggestions = (serverSuggestions) => serverSuggestions
 
   const calculateStats = (suggestionsData) => {
     setStats({
@@ -98,22 +39,21 @@ export const useReorderSuggestions = () => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true)
-      const [inventoryData, productsData, suppliersData, salesData] = await Promise.all([
-        inventoryAPI.getAll(),
-        productsAPI.getAll(),
-        suppliersAPI.getAll(),
-        salesAPI.getAll()
+      const [suggestionsData, suppliersData] = await Promise.all([
+        retailApi.ai.getReorderSuggestions(),
+        retailApi.suppliers.getAll(),
       ])
-      
-      setProducts(productsData)
-      setSuppliers(suppliersData)
-      setSales(salesData)
-      
-      const suggestionsData = generateReorderSuggestions(inventoryData, productsData, salesData)
-      setSuggestions(suggestionsData)
-      calculateStats(suggestionsData)
+
+      const normalized = (suggestionsData || []).map((item) => ({
+        ...item,
+        productId: item.productId || item._id,
+      }))
+
+      setSuppliers(suppliersData || [])
+      setSuggestions(normalized)
+      calculateStats(normalized)
     } catch (error) {
-      toast.error("Failed to fetch inventory data")
+      toast.error(error.response?.data?.message || 'Failed to fetch reorder suggestions')
       console.error(error)
     } finally {
       setLoading(false)
@@ -143,7 +83,7 @@ export const useReorderSuggestions = () => {
         notes: `Auto-generated PO from reorder suggestion - ${item.productName}`
       }
 
-      await purchaseOrdersAPI.create(poData)
+      await retailApi.purchaseOrders.create(poData)
       toast.success(`Purchase order created for ${item.productName}`)
       fetchData() 
     } catch (error) {
@@ -165,7 +105,7 @@ export const useReorderSuggestions = () => {
         const supplier = suppliers.find(s => s._id === supplierId)
         if (!supplier) return null
 
-        return purchaseOrdersAPI.create({
+        return retailApi.purchaseOrders.create({
           supplierId: supplier._id,
           supplierName: supplier.name,
           items: items.map(item => ({

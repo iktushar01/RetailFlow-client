@@ -6,13 +6,15 @@ import Swal from 'sweetalert2'
 import ProductList from './components/ProductList'
 import Cart from './components/Cart'
 import PaymentSection from './components/PaymentSection'
+import HeldSalesPanel from './components/HeldSalesPanel'
 import { productsAPI, inventoryAPI, customersAPI, salesAPI, salesPaymentsAPI } from './services/posService'
 import { 
   calculateCartTotals, 
   validateSaleData, 
   prepareSaleData, 
   filterProducts,
-  printInvoice 
+  printInvoice,
+  getProductStock,
 } from './utils/posHelpers'
 
 // Shadcn UI Components
@@ -29,6 +31,17 @@ import { Card } from "@/Components/UI/card"
 import { Separator } from "@/Components/UI/separator"
 import { SalesLoading } from '../../Components/UI/LoadingAnimation'
 
+const pickWalkInCustomer = (list) => {
+  if (!list?.length) {
+    return { _id: 'walk-in', name: 'Walk-in Customer', phone: '' }
+  }
+  return (
+    list.find((c) => c.name?.toLowerCase().includes('walk-in')) ||
+    list.find((c) => c.name?.toLowerCase() === 'walk in customer') ||
+    list[0]
+  )
+}
+
 const PosTerminalPage = () => {
   const [products, setProducts] = useState([])
   const [inventory, setInventory] = useState([])
@@ -43,6 +56,8 @@ const PosTerminalPage = () => {
   const [totals, setTotals] = useState({ subtotal: 0, totalDiscount: 0, tax: 0, grandTotal: 0 })
   const [appliedDiscounts, setAppliedDiscounts] = useState([])
   const [taxRate, setTaxRate] = useState(0.1)
+  const [mobileTab, setMobileTab] = useState('products')
+  const [heldRefreshKey, setHeldRefreshKey] = useState(0)
 
   // Memoized Fetch for stability
   const fetchData = useCallback(async (isSilent = false) => {
@@ -56,13 +71,13 @@ const PosTerminalPage = () => {
       
       setProducts(productsData)
       setInventory(inventoryData)
-      
-      if (customersData.length === 0) {
-        const fallback = [{ _id: 'default', name: 'Walk-in Customer', phone: '' }]
-        setCustomers(fallback)
-      } else {
-        setCustomers(customersData)
-      }
+
+      const customerList =
+        customersData.length > 0
+          ? customersData
+          : [{ _id: 'walk-in', name: 'Walk-in Customer', phone: '' }]
+      setCustomers(customerList)
+      setSelectedCustomer((prev) => prev || pickWalkInCustomer(customerList))
 
       if (isSilent && isSilent !== "auto") {
         Swal.fire({ title: 'Synced', icon: 'success', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false })
@@ -151,11 +166,43 @@ const PosTerminalPage = () => {
         confirmButtonText: 'Print Receipt'
       }).then(res => res.isConfirmed && printInvoice(saleData))
 
-      setCartItems([]); setSelectedCustomer(null); setAppliedDiscounts([])
+      setCartItems([])
+      setSelectedCustomer(pickWalkInCustomer(customers))
+      setAppliedDiscounts([])
+      setHeldRefreshKey((k) => k + 1)
       fetchData(true)
     } catch (err) {
       Swal.fire('Sale Failed', err.message, 'error')
     }
+  }
+
+  const handleUpdateProductPrice = async (productId, newPrice) => {
+    await productsAPI.updatePrice(productId, newPrice)
+    setProducts((prev) =>
+      prev.map((p) => (p._id === productId ? { ...p, sellingPrice: newPrice, price: newPrice } : p))
+    )
+    await fetchData(true)
+  }
+
+  const handleResumeHeldSale = (sale) => {
+    const customer =
+      customers.find((c) => c._id === sale.customerId) ||
+      { _id: sale.customerId, name: sale.customerName, phone: sale.customerPhone || '' }
+
+    setCartItems(
+      (sale.items || []).map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        unitPrice: item.unitPrice,
+        originalPrice: item.unitPrice,
+        quantity: item.quantity,
+        availableStock: getProductStock(item.productId, inventory),
+        category: products.find((p) => p._id === item.productId)?.category,
+      }))
+    )
+    setSelectedCustomer(customer)
+    setMobileTab('cart')
+    Swal.fire({ title: 'Sale resumed', text: sale.invoiceNo, icon: 'info', timer: 1500, showConfirmButton: false })
   }
 
   if (loading) return <SalesLoading message="Initializing Terminal..." />
@@ -223,22 +270,41 @@ const PosTerminalPage = () => {
         </div>
       )}
 
+      {/* Mobile tab switcher */}
+      <div className="lg:hidden flex gap-2 shrink-0">
+        <Button
+          variant={mobileTab === 'products' ? 'default' : 'outline'}
+          className="flex-1"
+          onClick={() => setMobileTab('products')}
+        >
+          Products
+        </Button>
+        <Button
+          variant={mobileTab === 'cart' ? 'default' : 'outline'}
+          className="flex-1"
+          onClick={() => setMobileTab('cart')}
+        >
+          Cart ({cartItems.length})
+        </Button>
+      </div>
+
       {/* Terminal Main Grid */}
       <div className="grid grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden">
         {/* Left Column: Product Selection */}
-        <Card className="col-span-12 lg:col-span-8 flex flex-col overflow-hidden border-slate-200/60 shadow-none">
+        <Card className={`col-span-12 lg:col-span-8 flex flex-col overflow-hidden border-slate-200/60 shadow-none ${mobileTab !== 'products' ? 'hidden lg:flex' : 'flex'}`}>
           <ProductList
             products={filteredProducts}
             inventory={inventory}
             onAddToCart={handleAddToCart}
-            onUpdateProductPrice={(id, price) => fetchData(true)} // Example
+            onUpdateProductPrice={handleUpdateProductPrice}
             filters={filters}
             onFilterChange={(k, v) => setFilters(p => ({ ...p, [k]: v }))}
           />
         </Card>
 
         {/* Right Column: Cart Management */}
-        <Card className="col-span-12 lg:col-span-4 flex flex-col overflow-hidden border-slate-200/60 shadow-none">
+        <Card className={`col-span-12 lg:col-span-4 flex flex-col overflow-hidden border-slate-200/60 shadow-none ${mobileTab !== 'cart' ? 'hidden lg:flex' : 'flex'}`}>
+          <HeldSalesPanel onResume={handleResumeHeldSale} onRefresh={heldRefreshKey} />
           <Cart
             cartItems={cartItems}
             onUpdateQuantity={(idx, q) => {
@@ -261,7 +327,7 @@ const PosTerminalPage = () => {
       </div>
 
       {/* Footer: Customer & Payment Logic */}
-      <div className="shrink-0 bg-white dark:bg-slate-950 border-t p-2">
+      <div className="shrink-0 bg-white dark:bg-slate-950 border-t p-2 sticky bottom-0 z-10 lg:static">
         <PaymentSection
           customers={customers}
           selectedCustomer={selectedCustomer}
@@ -275,8 +341,12 @@ const PosTerminalPage = () => {
           onCompleteSale={handleCompleteSale}
           onHoldSale={async () => {
              const saleData = prepareSaleData(cartItems, selectedCustomer, 'Cash', totals, `HOLD-${Date.now()}`)
+             saleData.status = 'Hold'
+             saleData.paymentStatus = 'Due'
+             saleData.amountPaid = 0
              await salesAPI.hold(saleData)
              setCartItems([])
+             setHeldRefreshKey((k) => k + 1)
           }}
         />
       </div>

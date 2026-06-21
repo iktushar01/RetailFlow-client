@@ -54,8 +54,7 @@ const StockDistribution = ({ data }) => {
         stockQty = item.locations.reduce((sum, loc) => sum + (parseFloat(loc.quantity) || 0), 0)
       }
       
-      // Add to map even if stock is 0 for debugging, 
-      // but usually we only want visible stock (> 0)
+      // Add to map even if stock is 0 for debugging
       if (stockQty > 0) {
         categoryMap[category] = (categoryMap[category] || 0) + stockQty
       }
@@ -73,26 +72,27 @@ const StockDistribution = ({ data }) => {
 
   return (
     <Card className="bg-card/70 backdrop-blur border-border shadow-sm flex flex-col">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
           <PieChartIcon className="h-5 w-5 text-primary" />
           Stock Distribution
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="flex-1 pb-0">
-        <div className="h-64 w-full rounded-xl border border-border bg-muted/10 p-4">
+      {/* Normalized vertical padding for seamless alignment */}
+      <CardContent className="flex-1 py-2">
+        <div className="h-64 w-full">
           {chartData.length > 0 ? (
             <PieChart
               data={chartData}
-              colors={chartColors}
-              height={220}
+              colors={chartColors} // Passes down the distinct array values for multi-color support
+              height={256} 
               showLegend={true}
               dataKey="value"
               nameKey="name"
               innerRadius={60}
               outerRadius={80}
-              paddingAngle={5}
+              paddingAngle={4}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground animate-pulse">
@@ -103,12 +103,13 @@ const StockDistribution = ({ data }) => {
         </div>
       </CardContent>
 
-      <CardFooter className="pt-4 pb-6">
+      {/* Reduced top padding to tighten the layout up against the inner border line */}
+      <CardFooter className="pt-2 pb-6">
         <div className="flex w-full flex-col items-center border-t border-border pt-4">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
             Total Units in Warehouse
           </p>
-          <p className="text-3xl font-black tracking-tighter text-foreground">
+          <p className="text-3xl font-black tracking-tighter text-foreground mt-1">
             {totalProducts > 0 ? totalProducts.toLocaleString() : "0"}
           </p>
         </div>
@@ -118,4 +119,3 @@ const StockDistribution = ({ data }) => {
 }
 
 export default StockDistribution
-

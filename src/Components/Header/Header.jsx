@@ -4,6 +4,7 @@ import { Menu, Search, Bell, User, Settings, LogOut, ChevronDown } from 'lucide-
 import { Z_INDEX } from '../../constants/zIndex'
 import { dashboardAPI } from '../../Pages/HomePage/services/dashboardService'
 import { useAuth } from '../../contexts/AuthContext'
+import { retailApi } from '../../services/api'
 import Swal from 'sweetalert2'
 import { ModeToggle } from '@/Shared/ModeToggle'
 
@@ -13,7 +14,9 @@ const Header = ({ onMenuClick }) => {
   const { user, logout } = useAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [notificationCount, setNotificationCount] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const [notificationLoading, setNotificationLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchLoading, setSearchLoading] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
   const userMenuRef = useRef(null)
 
@@ -36,13 +39,13 @@ const Header = ({ onMenuClick }) => {
 
   const fetchNotificationCount = async () => {
     try {
-      setLoading(true)
+      setNotificationLoading(true)
       const alerts = await dashboardAPI.getAlerts()
       setNotificationCount(alerts.length)
     } catch {
       setNotificationCount(0)
     } finally {
-      setLoading(false)
+      setNotificationLoading(false)
     }
   }
 
@@ -86,6 +89,21 @@ const Header = ({ onMenuClick }) => {
 
   const getBreadcrumb = () =>
     location.pathname.split('/').filter(Boolean).map(p => p.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()))
+
+  const handleSearchSubmit = async (event) => {
+    event.preventDefault()
+    if (!searchQuery.trim()) return
+    try {
+      setSearchLoading(true)
+      const res = await retailApi.ai.query(searchQuery.trim())
+      const answer = res?.answer || 'No answer available.'
+      Swal.fire({ title: 'RetailFlow Assistant', text: answer, icon: 'info' })
+    } catch {
+      Swal.fire('Search unavailable', 'Could not run the query assistant.', 'warning')
+    } finally {
+      setSearchLoading(false)
+    }
+  }
 
   const formatTime = (date) => date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
   const formatDate = (date) => date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
@@ -185,10 +203,17 @@ const Header = ({ onMenuClick }) => {
             
             {/* Desktop Only: Search & Clock */}
             <div className="hidden lg:flex items-center gap-3 mr-2">
-              <div className="hdr-search-wrap">
+              <form className="hdr-search-wrap" onSubmit={handleSearchSubmit}>
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input type="text" placeholder="Search..." className="hdr-search-input" />
-              </div>
+                <input
+                  type="text"
+                  placeholder="Ask: low stock, sales..."
+                  className="hdr-search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  disabled={searchLoading}
+                />
+              </form>
               
               <div className="hdr-clock">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -200,7 +225,7 @@ const Header = ({ onMenuClick }) => {
             <ModeToggle />
 
             {/* Mobile/Tablet Hide: Notifications (keeps UI clean on small phns) */}
-            <button className="hdr-notif-btn hidden xs:flex" onClick={() => navigate('/dashboard/notifications')}>
+            <button className="hdr-notif-btn hidden sm:flex" onClick={() => navigate('/dashboard/notifications')}>
               <Bell size={16} />
               {notificationCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white border-2 border-background">

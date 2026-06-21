@@ -14,7 +14,7 @@ const LoginPage = () => {
   const navigate = useNavigate()
   const { login, isAuthenticated } = useAuth()
   
-  const [formData, setFormData] = useState({ username: '', password: '' })
+  const [formData, setFormData] = useState({ email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -37,7 +37,7 @@ const LoginPage = () => {
     setLoading(true)
 
     try {
-      const result = await login(formData.username, formData.password)
+      const result = await login(formData.email, formData.password)
       if (result.success) {
         setTimeout(() => navigate('/dashboard/overview'), 300)
       } else {
@@ -51,7 +51,7 @@ const LoginPage = () => {
   }
 
   const fillDemoCredentials = () => {
-    setFormData({ username: 'xenuser', password: 'xenuser123' })
+    setFormData({ email: 'admin@retailflow.local', password: 'admin123' })
     setError('')
   }
 
@@ -92,9 +92,10 @@ const LoginPage = () => {
               <AlertTitle className="text-xs uppercase tracking-widest font-bold opacity-70">Quick Access</AlertTitle>
               <AlertDescription className="mt-2">
                 <div className="flex flex-col gap-1 text-xs font-mono">
-                  <div className="flex justify-between"><span>User:</span> <span className="font-bold text-primary">xenuser</span></div>
-                  <div className="flex justify-between"><span>Pass:</span> <span className="font-bold text-primary">xenuser123</span></div>
+                  <div className="flex justify-between"><span>Email:</span> <span className="font-bold text-primary">admin@retailflow.local</span></div>
+                  <div className="flex justify-between"><span>Pass:</span> <span className="font-bold text-primary">admin123</span></div>
                 </div>
+                <p className="text-[10px] text-muted-foreground mt-2">Set VITE_BYPASS_AUTH=true for offline dev login, or register via API.</p>
                 <Button 
                   variant="link" 
                   size="sm" 
@@ -108,15 +109,16 @@ const LoginPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="username"
-                    name="username"
-                    placeholder="admin_user"
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="admin@store.com"
                     className="pl-10"
-                    value={formData.username}
+                    value={formData.email}
                     onChange={handleChange}
                     disabled={loading}
                     required

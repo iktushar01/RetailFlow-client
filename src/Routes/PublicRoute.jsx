@@ -28,6 +28,7 @@ import InventoryValuation from "../Pages/InventoryPages/InventoryValuation/Inven
 import SalesReports from "../Pages/InventoryPages/SalesReports/SalesReports";
 import ProfitLossReports from "../Pages/InventoryPages/ProfitLossReports/ProfitLossReports";
 import StockAnalysis from "../Pages/InventoryPages/StockAnalysis/StockAnalysis";
+import CustomersPage from "../Pages/CustomersPages/CustomersPage";
 import LoginPage from "../Pages/LoginPage/LoginPage";
 import ProfilePage from "../Pages/ProfilePage/ProfilePage";
 import SettingsPage from "../Pages/SettingsPage/SettingsPage";
@@ -147,6 +148,10 @@ const router = createBrowserRouter([
       {
         path: "/sales/returns",
         element: <SalesReturn />
+      },
+      {
+        path: "/sales/customers",
+        element: <CustomersPage />
       },
       //inventory
       {
