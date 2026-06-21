@@ -46,12 +46,7 @@ const PaymentFilter = ({
   ]
 
   const handleClearFilters = () => {
-    onFilterChange({
-      search: '',
-      paymentMethod: '',
-      dateFrom: '',
-      dateTo: ''
-    })
+    onClearFilters?.()
   }
 
   const handleExport = () => {
@@ -60,10 +55,7 @@ const PaymentFilter = ({
   }
 
   const handleFilterChangeInternal = (key, value) => {
-    onFilterChange({
-      ...filters,
-      [key]: value
-    })
+    onFilterChange(key, value)
   }
 
   return (

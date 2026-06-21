@@ -16,6 +16,7 @@ import {
 import Swal from 'sweetalert2'
 import { Button } from '../../Components/UI/button'
 import { Badge } from "../../Components/UI/badge"
+import { Card } from '../../Components/UI/card'
 import { SharedTable } from '../../Shared/SharedTable/SharedTable'
 import ViewProductModal from './components/ViewProductModal'
 import EditProductModal from './components/EditProductModal'
@@ -178,9 +179,8 @@ const ProductManage = () => {
   )
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      {/* Dynamic Dashboard Header */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b pb-6">
+    <div className="space-y-6 animate-in fade-in duration-700">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-1.5">
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             Products

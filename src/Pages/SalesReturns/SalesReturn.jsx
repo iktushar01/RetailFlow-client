@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { RotateCcw, Plus, RefreshCw, Info, XCircle, Calendar, User, FileText, ClipboardList } from 'lucide-react'
+import { Plus, RefreshCw, XCircle, Calendar, User, FileText, ClipboardList } from 'lucide-react'
 import { Button } from "@/Components/UI/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/UI/card"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
+import { Card } from "@/Components/UI/card"
 import { Badge } from "@/Components/UI/badge"
 import { Separator } from "@/Components/UI/separator"
 import { ScrollArea } from "@/Components/UI/scroll-area"
@@ -134,11 +133,11 @@ const SalesReturn = () => {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1.5">
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Sales Returns</h1>
           <p className="text-muted-foreground text-sm md:text-base">
-            Manage product returns and stock adjustments
+            {returns.length} returns — {filteredReturns.length} showing
           </p>
         </div>
         <div className="flex w-full sm:w-auto gap-3">
@@ -153,15 +152,6 @@ const SalesReturn = () => {
         </div>
       </div>
 
-      {/* Info Alert */}
-      <Alert variant="warning" className="bg-orange-500/5 border-orange-500/20 text-orange-900 dark:text-orange-200">
-        <Info className="h-5 w-5" />
-        <AlertTitle className="font-semibold">Inventory Notice</AlertTitle>
-        <AlertDescription>
-          Returns must be approved before stock adjustments are made to maintain accurate inventory levels.
-        </AlertDescription>
-      </Alert>
-
       {/* Filter Section */}
       <ReturnFilter
         filters={filters}
@@ -171,18 +161,15 @@ const SalesReturn = () => {
         totalCount={returns.length}
       />
 
-      {/* Main List */}
-      <Card className="border-border shadow-sm">
-        <CardContent className="p-0">
-          <ReturnsList
-            returns={filteredReturns}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            onDelete={handleDelete}
-            onView={handleView}
-            loading={loading}
-          />
-        </CardContent>
+      <Card className="overflow-hidden border shadow-none">
+        <ReturnsList
+          returns={filteredReturns}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onDelete={handleDelete}
+          onView={handleView}
+          loading={loading}
+        />
       </Card>
 
       {/* Create Return Modal Wrapper */}

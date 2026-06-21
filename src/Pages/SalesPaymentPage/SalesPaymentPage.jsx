@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { CreditCard, RefreshCw, Info } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { toast } from "sonner"
 import { Button } from "@/Components/UI/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/Components/UI/card"
-import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
+import { Card } from "@/Components/UI/card"
+import { cn } from "@/lib/utils"
 
 import PaymentsList from './components/PaymentsList'
 import PaymentFilter from './components/PaymentFilter'
@@ -60,42 +60,20 @@ const SalesPaymentPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <Card className="border-none shadow-md bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl sm:text-3xl font-bold flex items-center tracking-tight">
-              <CreditCard className="w-8 h-8 mr-3 text-primary" />
-              Sales Payments
-            </CardTitle>
-            <CardDescription className="text-muted-foreground text-base">
-              Track and manage customer payment records
-            </CardDescription>
-          </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Sales Payments</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            {payments.length} records — {filteredPayments.length} showing
+          </p>
+        </div>
 
-          <Button 
-            variant="outline" 
-            size="default" 
-            onClick={fetchPayments}
-            className="w-full sm:w-auto bg-background hover:bg-accent transition-all"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh Data
-          </Button>
-        </CardHeader>
-      </Card>
+        <Button variant="outline" size="sm" onClick={fetchPayments} disabled={loading}>
+          <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
+          Refresh
+        </Button>
+      </div>
 
-      {/* Info Notification Area */}
-      <Alert className="bg-muted/50 border-border">
-        <Info className="h-5 w-5 text-primary" />
-        <AlertTitle className="font-semibold">Sales Payment Management</AlertTitle>
-        <AlertDescription className="text-muted-foreground">
-          Monitor payment methods, amounts, and status to maintain accurate financial records 
-          and customer relationships.
-        </AlertDescription>
-      </Alert>
-
-      {/* Filter Section */}
       <PaymentFilter
         filters={filters}
         onFilterChange={handleFilterChange}
@@ -104,18 +82,11 @@ const SalesPaymentPage = () => {
         totalCount={payments.length}
       />
 
-      {/* Content Section */}
-      <Card className="border-border">
-        <CardContent className="p-0">
-          <PaymentsList 
-            payments={filteredPayments} 
-            loading={loading} 
-          />
-        </CardContent>
+      <Card className="overflow-hidden border shadow-none">
+        <PaymentsList payments={filteredPayments} loading={loading} />
       </Card>
     </div>
   )
 }
 
 export default SalesPaymentPage
-

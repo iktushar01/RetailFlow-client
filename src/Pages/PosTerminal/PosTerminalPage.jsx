@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ShoppingCart, RefreshCw, ChevronDown, Calendar, Percent, Plus } from 'lucide-react'
+import { RefreshCw, ChevronDown, Calendar, Percent, Plus } from 'lucide-react'
 import Swal from 'sweetalert2'
 
 // Internal Components
@@ -208,53 +208,45 @@ const PosTerminalPage = () => {
   if (loading) return <SalesLoading message="Initializing Terminal..." />
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] gap-4 overflow-hidden bg-background">
-      {/* Shadcn Card Header */}
-      <Card className={`transition-all duration-500 overflow-hidden shrink-0 border-none shadow-sm bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 ${
-        headerVisible ? 'max-h-64 p-6' : 'max-h-0 p-0 opacity-0'
+    <div className="flex flex-col h-[calc(100vh-8rem)] gap-4 overflow-hidden">
+      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 transition-all duration-300 ${
+        headerVisible ? 'opacity-100' : 'h-0 overflow-hidden opacity-0'
       }`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary p-2 rounded-lg text-primary-foreground shadow-blue-200 shadow-lg">
-                <ShoppingCart className="w-5 h-5" />
-              </div>
-              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">POS Terminal</h1>
-            </div>
-            <div className="flex items-center gap-4 text-muted-foreground text-sm pt-1">
-              <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {new Date().toLocaleDateString()}</span>
-              <Separator orientation="vertical" className="h-4" />
-              <Badge variant="secondary" className="font-mono">{inventory.length} SKUs Live</Badge>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 bg-background p-1 rounded-md border shadow-sm">
-              <div className="pl-2 text-muted-foreground"><Percent className="w-4 h-4" /></div>
-              <Select value={taxRate.toString()} onValueChange={val => setTaxRate(parseFloat(val))}>
-                <SelectTrigger className="w-[110px] border-none shadow-none h-8 focus:ring-0">
-                  <SelectValue placeholder="Tax" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">No Tax (0%)</SelectItem>
-                  <SelectItem value="0.05">GST (5%)</SelectItem>
-                  <SelectItem value="0.1">Standard (10%)</SelectItem>
-                  <SelectItem value="0.15">High (15%)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button variant="outline" size="sm" onClick={() => fetchData(true)} className="h-10">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Sync
-            </Button>
-            
-            <Button variant="ghost" size="icon" onClick={() => setHeaderVisible(false)} className="rounded-full">
-              <ChevronDown className="w-4 h-4 rotate-180" />
-            </Button>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">POS Terminal</h1>
+          <div className="flex items-center gap-4 text-muted-foreground text-sm">
+            <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {new Date().toLocaleDateString()}</span>
+            <Separator orientation="vertical" className="h-4" />
+            <Badge variant="secondary" className="font-mono">{inventory.length} SKUs Live</Badge>
           </div>
         </div>
-      </Card>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-md border">
+            <div className="pl-2 text-muted-foreground"><Percent className="w-4 h-4" /></div>
+            <Select value={taxRate.toString()} onValueChange={val => setTaxRate(parseFloat(val))}>
+              <SelectTrigger className="w-[110px] border-none shadow-none h-8 focus:ring-0">
+                <SelectValue placeholder="Tax" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">No Tax (0%)</SelectItem>
+                <SelectItem value="0.05">GST (5%)</SelectItem>
+                <SelectItem value="0.1">Standard (10%)</SelectItem>
+                <SelectItem value="0.15">High (15%)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button variant="outline" size="sm" onClick={() => fetchData(true)} className="h-9">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Sync
+          </Button>
+          
+          <Button variant="ghost" size="icon" onClick={() => setHeaderVisible(false)} className="h-9 w-9">
+            <ChevronDown className="w-4 h-4 rotate-180" />
+          </Button>
+        </div>
+      </div>
 
       {/* Hidden Header Trigger */}
       {!headerVisible && (
@@ -291,7 +283,7 @@ const PosTerminalPage = () => {
       {/* Terminal Main Grid */}
       <div className="grid grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden">
         {/* Left Column: Product Selection */}
-        <Card className={`col-span-12 lg:col-span-8 flex flex-col overflow-hidden border-slate-200/60 shadow-none ${mobileTab !== 'products' ? 'hidden lg:flex' : 'flex'}`}>
+        <Card className={`col-span-12 lg:col-span-8 flex flex-col overflow-hidden border shadow-none ${mobileTab !== 'products' ? 'hidden lg:flex' : 'flex'}`}>
           <ProductList
             products={filteredProducts}
             inventory={inventory}
@@ -303,7 +295,7 @@ const PosTerminalPage = () => {
         </Card>
 
         {/* Right Column: Cart Management */}
-        <Card className={`col-span-12 lg:col-span-4 flex flex-col overflow-hidden border-slate-200/60 shadow-none ${mobileTab !== 'cart' ? 'hidden lg:flex' : 'flex'}`}>
+        <Card className={`col-span-12 lg:col-span-4 flex flex-col overflow-hidden border shadow-none ${mobileTab !== 'cart' ? 'hidden lg:flex' : 'flex'}`}>
           <HeldSalesPanel onResume={handleResumeHeldSale} onRefresh={heldRefreshKey} />
           <Cart
             cartItems={cartItems}

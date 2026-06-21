@@ -52,7 +52,7 @@ const ProductList = ({ products, inventory, onAddToCart, onUpdateProductPrice, f
   }
 
   return (
-    <div className="bg-background rounded-xl border shadow-sm h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Search and Filters */}
       <div className="p-4 border-b bg-muted/20 space-y-3">
         <div className="relative">

@@ -43,12 +43,7 @@ const ReturnFilter = ({
   ]
 
   const handleClearFilters = () => {
-    onFilterChange({
-      search: '',
-      status: '',
-      dateFrom: '',
-      dateTo: ''
-    })
+    onClearFilters?.()
   }
 
   const handleExport = () => {
@@ -57,10 +52,7 @@ const ReturnFilter = ({
   }
 
   const handleFilterChangeInternal = (key, value) => {
-    onFilterChange({
-      ...filters,
-      [key]: value
-    })
+    onFilterChange(key, value)
   }
 
   return (
