@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useTheme } from 'next-themes'
 import {
-  Settings,
-  Lock,
   Bell,
   Globe,
   Moon,
+  Sun,
   Monitor,
   Save,
   AlertCircle,
@@ -12,13 +12,14 @@ import {
   Palette,
   Languages,
   Clock,
-  Eye
 } from 'lucide-react'
 import { notify } from '../../utils/notifications'
 import { Button } from '../../Components/UI/button'
 import { cn } from "@/lib/utils"
 
 const SettingsPage = () => {
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState('general')
   const [settings, setSettings] = useState({
     language: 'en',
@@ -29,12 +30,33 @@ const SettingsPage = () => {
     pushNotifications: false,
     lowStockAlerts: true,
     salesNotifications: true,
-    theme: 'light',
     compactMode: false,
     showTooltips: true,
     sessionTimeout: '30',
     twoFactorAuth: false
   })
+
+  useEffect(() => {
+    setMounted(true)
+    const saved = localStorage.getItem('appSettings')
+    if (saved) {
+      try {
+        setSettings(prev => ({ ...prev, ...JSON.parse(saved) }))
+      } catch {
+        // ignore invalid saved settings
+      }
+    }
+  }, [])
+
+  const activeTheme = !mounted
+    ? 'light'
+    : theme === 'system'
+      ? 'auto'
+      : theme
+
+  const handleThemeChange = (value) => {
+    setTheme(value === 'auto' ? 'system' : value)
+  }
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -55,7 +77,7 @@ const SettingsPage = () => {
 
   const handleSaveSettings = () => {
     localStorage.setItem('appSettings', JSON.stringify(settings))
-    notify.success('Configuration Updated', 'Global preferences have been synchronized.')
+    notify.success('Settings saved', 'Your preferences have been updated.')
   }
 
   const handlePasswordSubmit = (e) => {
@@ -192,24 +214,37 @@ const SettingsPage = () => {
 
             {activeTab === 'display' && (
               <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
-                <div className="grid grid-cols-3 gap-4">
-                  {['light', 'dark', 'auto'].map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => handleSettingChange('theme', t)}
-                      className={cn(
-                        "p-4 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all",
-                        settings.theme === t ? "border-primary bg-primary/5" : "border-transparent bg-muted/30 hover:bg-muted/50"
-                      )}
-                    >
-                      {t === 'dark' ? <Moon className="w-5 h-5" /> : t === 'light' ? <Monitor className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      <span className="text-[10px] font-bold uppercase tracking-widest">{t}</span>
-                    </button>
-                  ))}
+                <div>
+                  <p className="text-sm font-medium mb-1">Theme</p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Choose how the application looks on your device.
+                  </p>
+                  <div className="grid grid-cols-3 gap-4">
+                    {[
+                      { value: 'light', label: 'Light', icon: Sun },
+                      { value: 'dark', label: 'Dark', icon: Moon },
+                      { value: 'auto', label: 'System', icon: Monitor },
+                    ].map(({ value, label, icon: Icon }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => handleThemeChange(value)}
+                        className={cn(
+                          "p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all",
+                          activeTheme === value
+                            ? "border-primary bg-primary/5"
+                            : "border-transparent bg-muted/30 hover:bg-muted/50"
+                        )}
+                      >
+                        <Icon className="w-5 h-5" />
+                        <span className="text-sm font-medium">{label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <Toggle
-                  label="Compact View"
-                  description="Optimize layout for high-density information displays"
+                  label="Compact view"
+                  description="Show more content in less space"
                   enabled={settings.compactMode}
                   onChange={() => handleSettingChange('compactMode', !settings.compactMode)}
                 />

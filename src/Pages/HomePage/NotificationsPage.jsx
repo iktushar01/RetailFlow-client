@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { 
   Bell, AlertTriangle, Clock, CreditCard, Package, TrendingUp, 
-  X, CheckCircle, Info, RefreshCw, Inbox, Trash2, Check 
+  CheckCircle, Info, RefreshCw, Trash2, Check 
 } from 'lucide-react'
 
-// shadcn/ui imports
 import { Button } from "@/Components/UI/button"
 import { Card, CardContent } from "@/Components/UI/card"
 import { Badge } from "@/Components/UI/badge"
@@ -49,7 +48,7 @@ const NotificationsPage = () => {
       allNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
       setNotifications(allNotifications)
     } catch (error) {
-      console.error('Notification Sync Error:', error)
+      console.error('Failed to load notifications:', error)
     } finally {
       setLoading(false)
     }
@@ -115,127 +114,110 @@ const NotificationsPage = () => {
   if (loading) return <NotificationsPageSkeleton />
 
   return (
-    <div className="w-full  mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 animate-in fade-in duration-500">
-      
-      {/* HEADER SECTION - Stacked on mobile, side-by-side on md+ */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6">
-        <div className="space-y-1 w-full">
-          <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-[0.2em] text-[10px]">
-            <Inbox className="w-3 h-3" />
-            Communication Hub
-          </div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tighter italic leading-none">
-            NOTIFICATIONS<span className="text-muted-foreground/40 ml-2">CENTER</span>
-          </h1>
-          <p className="text-muted-foreground text-xs md:text-sm font-medium">
-            You have <span className="text-foreground font-bold">{unreadCount} unread</span> messages.
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-6">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Notifications</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            {unreadCount > 0
+              ? `You have ${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}.`
+              : 'All caught up. No unread notifications.'}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleRefresh} 
-            disabled={refreshing} 
-            className="flex-1 md:flex-none rounded-xl font-bold uppercase text-[10px] tracking-widest h-9"
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={refreshing}
           >
-            <RefreshCw className={`w-3.5 h-3.5 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Sync
+            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
           </Button>
           {unreadCount > 0 && (
-            <Button 
-              size="sm" 
-              onClick={markAllAsRead} 
-              className="flex-1 md:flex-none rounded-xl font-bold uppercase text-[10px] tracking-widest h-9 shadow-lg shadow-primary/20"
-            >
-              <Check className="w-3.5 h-3.5 mr-2" />
-              Mark Read
+            <Button size="sm" onClick={markAllAsRead}>
+              <Check className="w-4 h-4 mr-2" />
+              Mark all as read
             </Button>
           )}
         </div>
       </div>
 
-      {/* FILTER TABS - Scrollable on very small screens */}
       <Tabs defaultValue="all" className="w-full" onValueChange={setFilter}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <div className="overflow-x-auto pb-1 sm:pb-0">
-            <TabsList className="bg-muted/50 p-1 rounded-xl border inline-flex">
-              <TabsTrigger value="all" className="rounded-lg px-4 md:px-6 font-bold text-[10px] md:text-xs uppercase tracking-wider">All</TabsTrigger>
-              <TabsTrigger value="unread" className="rounded-lg px-4 md:px-6 font-bold text-[10px] md:text-xs uppercase tracking-wider">Unread</TabsTrigger>
-              <TabsTrigger value="alerts" className="rounded-lg px-4 md:px-6 font-bold text-[10px] md:text-xs uppercase tracking-wider">Alerts</TabsTrigger>
-              <TabsTrigger value="info" className="rounded-lg px-4 md:px-6 font-bold text-[10px] md:text-xs uppercase tracking-wider">Activity</TabsTrigger>
-            </TabsList>
-          </div>
-          
-          <Badge variant="outline" className="hidden sm:inline-flex rounded-full px-3 py-1 font-mono text-[10px] opacity-60">
-            LOG_COUNT: {notifications.length}
-          </Badge>
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="unread">Unread</TabsTrigger>
+            <TabsTrigger value="alerts">Alerts</TabsTrigger>
+            <TabsTrigger value="info">Activity</TabsTrigger>
+          </TabsList>
+
+          <span className="text-sm text-muted-foreground">
+            {notifications.length} total
+          </span>
         </div>
 
-        <Card className="rounded-2xl md:rounded-[2rem] border-muted/60 shadow-xl shadow-black/[0.02] overflow-hidden">
+        <Card className="overflow-hidden border shadow-none">
           <CardContent className="p-0">
             <ScrollArea className="h-[65vh] md:h-[60vh] w-full">
               {filteredNotifications.length > 0 ? (
-                <div className="divide-y divide-border/40">
+                <div className="divide-y divide-border">
                   {filteredNotifications.map((notif) => {
                     const Icon = notif.icon
                     return (
-                      <div 
+                      <div
                         key={notif.id}
-                        className={`group relative flex flex-col sm:flex-row items-start gap-3 md:gap-4 p-4 md:p-5 transition-all hover:bg-muted/30 ${!notif.read ? 'bg-primary/[0.01]' : 'opacity-70'}`}
+                        className={`group relative flex flex-col sm:flex-row items-start gap-3 p-4 md:p-5 transition-colors hover:bg-muted/30 ${!notif.read ? 'bg-muted/20' : ''}`}
                       >
-                        {/* Unread Indicator */}
-                        {!notif.read && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary sm:block" />}
+                        {!notif.read && (
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+                        )}
 
                         <div className="flex w-full gap-3 md:gap-4">
-                          {/* Icon */}
-                          <div className={`p-2.5 md:p-3 rounded-xl md:rounded-2xl shrink-0 h-fit ${notif.color}`}>
+                          <div className={`p-2.5 rounded-lg shrink-0 h-fit ${notif.color}`}>
                             <Icon className="w-4 h-4 md:w-5 md:h-5" />
                           </div>
 
-                          {/* Content */}
                           <div className="flex-1 min-w-0 space-y-1">
                             <div className="flex items-center justify-between gap-2">
-                              <h3 className={`text-xs md:text-sm font-bold tracking-tight uppercase truncate ${notif.read ? 'text-muted-foreground' : 'text-foreground'}`}>
+                              <h3 className={`text-sm font-medium truncate ${notif.read ? 'text-muted-foreground' : 'text-foreground'}`}>
                                 {notif.title}
                               </h3>
-                              <span className="shrink-0 text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase font-mono">
+                              <span className="shrink-0 text-xs text-muted-foreground">
                                 {new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
-                            
-                            <p className="text-xs md:text-sm text-muted-foreground leading-relaxed line-clamp-2 sm:line-clamp-none">
+
+                            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 sm:line-clamp-none">
                               {notif.message}
                             </p>
 
-                            <div className="flex items-center justify-between sm:justify-start gap-3 pt-2">
-                               <Badge variant="secondary" className="text-[8px] md:text-[9px] font-black uppercase tracking-tighter px-2 py-0 h-5 rounded-md">
-                                  {notif.type}
-                               </Badge>
-                               <span className="text-[9px] md:text-[10px] text-muted-foreground/50 font-medium italic">
-                                 {new Date(notif.timestamp).toLocaleDateString()}
-                               </span>
+                            <div className="flex items-center gap-3 pt-1">
+                              <Badge variant="secondary" className="text-xs capitalize">
+                                {notif.type}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(notif.timestamp).toLocaleDateString()}
+                              </span>
                             </div>
                           </div>
 
-                          {/* Desktop Actions - Visible on hover */}
                           <div className="hidden lg:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                            <ActionButtons 
-                               notif={notif} 
-                               markAsRead={markAsRead} 
-                               deleteNotification={deleteNotification} 
+                            <ActionButtons
+                              notif={notif}
+                              markAsRead={markAsRead}
+                              deleteNotification={deleteNotification}
                             />
                           </div>
                         </div>
 
-                        {/* Mobile Actions - Persistent on small screens */}
-                        <div className="flex lg:hidden w-full justify-end items-center gap-2 mt-2 pt-2 border-t border-border/20">
-                          <ActionButtons 
-                             notif={notif} 
-                             markAsRead={markAsRead} 
-                             deleteNotification={deleteNotification} 
-                             isMobile
+                        <div className="flex lg:hidden w-full justify-end items-center gap-2 pt-2 border-t">
+                          <ActionButtons
+                            notif={notif}
+                            markAsRead={markAsRead}
+                            deleteNotification={deleteNotification}
+                            isMobile
                           />
                         </div>
                       </div>
@@ -253,20 +235,19 @@ const NotificationsPage = () => {
   )
 }
 
-// Helper component for action buttons to avoid repetition
 const ActionButtons = ({ notif, markAsRead, deleteNotification, isMobile = false }) => (
   <TooltipProvider delayDuration={0}>
     {!notif.read && (
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button 
-            variant={isMobile ? "secondary" : "ghost"} 
-            size="icon" 
-            onClick={() => markAsRead(notif.id)} 
-            className="h-8 w-8 rounded-lg text-primary"
+          <Button
+            variant={isMobile ? "secondary" : "ghost"}
+            size="icon"
+            onClick={() => markAsRead(notif.id)}
+            className="h-8 w-8"
           >
             <CheckCircle className="w-4 h-4" />
-            {isMobile && <span className="sr-only">Mark Read</span>}
+            {isMobile && <span className="sr-only">Mark as read</span>}
           </Button>
         </TooltipTrigger>
         {!isMobile && <TooltipContent>Mark as read</TooltipContent>}
@@ -274,34 +255,33 @@ const ActionButtons = ({ notif, markAsRead, deleteNotification, isMobile = false
     )}
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button 
-          variant={isMobile ? "secondary" : "ghost"} 
-          size="icon" 
-          onClick={() => deleteNotification(notif.id)} 
-          className="h-8 w-8 rounded-lg text-destructive"
+        <Button
+          variant={isMobile ? "secondary" : "ghost"}
+          size="icon"
+          onClick={() => deleteNotification(notif.id)}
+          className="h-8 w-8 text-destructive"
         >
           <Trash2 className="w-4 h-4" />
           {isMobile && <span className="sr-only">Delete</span>}
         </Button>
       </TooltipTrigger>
-      {!isMobile && <TooltipContent>Delete log</TooltipContent>}
+      {!isMobile && <TooltipContent>Delete</TooltipContent>}
     </Tooltip>
   </TooltipProvider>
 )
 
 const EmptyState = ({ filter }) => (
-  <div className="flex flex-col items-center justify-center py-16 md:py-24 text-center px-6">
-    <div className="p-4 md:p-6 bg-muted/50 rounded-full mb-4">
-      <Bell className="w-8 h-8 md:w-12 md:h-12 text-muted-foreground/30" />
+  <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+    <div className="p-4 bg-muted/50 rounded-full mb-4">
+      <Bell className="w-10 h-10 text-muted-foreground/40" />
     </div>
-    <h3 className="text-base md:text-lg font-bold italic tracking-tight uppercase">Registry Clear</h3>
-    <p className="text-xs md:text-sm text-muted-foreground max-w-xs mx-auto">
-      {filter === 'all' 
-        ? "No system logs found in the current buffer." 
-        : `No ${filter} logs found.`}
+    <h3 className="text-base font-medium">No notifications</h3>
+    <p className="text-sm text-muted-foreground max-w-xs mt-1">
+      {filter === 'all'
+        ? 'There are no notifications to show right now.'
+        : `No ${filter} notifications found.`}
     </p>
   </div>
 )
 
 export default NotificationsPage
-
