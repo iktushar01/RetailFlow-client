@@ -104,8 +104,8 @@ const StockDistribution = ({ data }) => {
       </CardContent>
 
       {/* Reduced top padding to tighten the layout up against the inner border line */}
-      <CardFooter className="pt-2 pb-6">
-        <div className="flex w-full flex-col items-center border-t border-border pt-4">
+      <CardFooter className="pt-2 pb-4">
+        <div className="flex w-full flex-col items-center border-t border-border pt-2 pb-2">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
             Total Units in Warehouse
           </p>

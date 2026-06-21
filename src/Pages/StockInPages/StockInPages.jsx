@@ -163,7 +163,7 @@ const StockInPages = () => {
   ], [suppliers])
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="mx-auto py-6 space-y-6">
       {/* Header */}
       <Card className="border-none shadow-sm bg-gradient-to-r from-emerald-500/10 via-blue-500/5 to-transparent">
         <CardHeader className="flex flex-row items-center justify-between space-y-0">

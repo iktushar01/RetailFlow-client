@@ -198,10 +198,10 @@ const StockTransferImproved = () => {
       </div>
 
       {/* Transfer Guide */}
-      <Alert className="bg-blue-50/50 border-blue-200">
-        <AlertCircle className="h-4 w-4 text-blue-600" />
-        <AlertTitle className="text-blue-900 font-bold">Transfer Protocol</AlertTitle>
-        <AlertDescription className="text-blue-800 text-xs mt-1 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
+      <Alert className="bg-muted/50 border-none">
+        <AlertCircle className="h-4 w-4 text-muted-foreground" />
+        <AlertTitle className="text-muted-foreground font-bold">Transfer Protocol</AlertTitle>
+        <AlertDescription className="text-muted-foreground text-xs mt-1 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
           <span className="flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Select a source product from the inventory table.</span>
           <span className="flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Partial quantity transfers are automatically logged.</span>
           <span className="flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Real-time stock adjustment occurs upon confirmation.</span>
@@ -223,7 +223,7 @@ const StockTransferImproved = () => {
             resultsCount={filteredInventory.length}
           />
 
-          <Card className="overflow-hidden border-muted shadow-sm">
+          <Card className="overflow-hidden shadow-sm">
             <SharedTable
               columns={columns}
               data={filteredInventory}
