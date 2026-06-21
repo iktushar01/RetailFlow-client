@@ -4,12 +4,14 @@ import axios from 'axios'
  * In dev, use same-origin (Vite proxy → localhost:5000) so httpOnly auth cookies
  * are set on localhost:5173 and survive page reloads.
  */
-export const API_BASE_URL =
+const rawApiBaseUrl =
   import.meta.env.VITE_API_BASE_URL !== undefined && import.meta.env.VITE_API_BASE_URL !== ''
     ? import.meta.env.VITE_API_BASE_URL
     : import.meta.env.DEV
       ? ''
-      : 'http://localhost:5000'
+      : 'https://retailflow-server-2-0.onrender.com'
+
+export const API_BASE_URL = rawApiBaseUrl.replace(/\/+$/, '')
 
 /** Shared axios client for RetailFlow API — sends cookies when auth is enabled. */
 export const apiClient = axios.create({
