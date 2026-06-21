@@ -6,6 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from "../../../Components/UI/dialog"
 import { Button } from '../../../Components/UI/button'
 import { Input } from "../../../Components/UI/input"
@@ -176,15 +177,16 @@ const EditProductModal = ({ isOpen, onClose, product, onSuccess }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Edit Product</DialogTitle>
+      <DialogContent size="lg" className="gap-0 p-0">
+        <DialogHeader className="shrink-0 px-4 py-4 sm:px-6 border-b">
+          <DialogTitle className="text-2xl pr-8">Edit Product</DialogTitle>
           <DialogDescription>
             Modify the product details below. Fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-8 py-4">
+        <DialogBody className="px-4 sm:px-6">
+        <form id="edit-product-form" onSubmit={handleSubmit} className="space-y-8 py-4">
           {/* Image Upload Section */}
           <div className="space-y-4">
             <Label className="text-base">Product Image</Label>
@@ -340,19 +342,21 @@ const EditProductModal = ({ isOpen, onClose, product, onSuccess }) => {
             </div>
           )}
 
-          <DialogFooter className="sticky bottom-0 bg-background pt-4 border-t">
-            <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
-              {isSubmitting ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...</>
-              ) : (
-                'Save Changes'
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
+          </form>
+        </DialogBody>
+
+        <DialogFooter className="shrink-0 px-4 py-4 sm:px-6 border-t bg-muted/20">
+          <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button type="submit" form="edit-product-form" disabled={isSubmitting} className="min-w-[140px]">
+            {isSubmitting ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...</>
+            ) : (
+              'Save Changes'
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

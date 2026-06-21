@@ -9,6 +9,14 @@ import {
 } from "../../Components/UI/dialog"
 import { cn } from "@/lib/utils"
 
+const sharedModalSizeMap = {
+  small: 'sm',
+  medium: 'lg',
+  large: 'xl',
+  xl: '2xl',
+  full: 'full',
+}
+
 const SharedModal = ({
   isOpen,
   onClose,
@@ -21,35 +29,24 @@ const SharedModal = ({
   footer,
   className = '',
 }) => {
-
-  // Revised size mapping for Dashboard layouts
-  const sizeConfig = {
-    small: 'sm:max-w-[480px]',
-    medium: 'sm:max-w-[720px]',
-    large: 'sm:max-w-[1024px]', // Fits large tables/grids
-    xl: 'sm:max-w-[1400px]',    // Extra wide for complex dashboards
-    full: 'sm:max-w-[96vw] h-[96vh]',
-  }
-
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(open) => !open && onClose()}
     >
       <DialogContent
+        size={sharedModalSizeMap[size] || 'lg'}
         onInteractOutside={(e) => {
           if (!closeOnOverlayClick) e.preventDefault();
         }}
-        // Removed default padding to allow sections to control their own spacing
         className={cn(
-          "bg-background border-border shadow-2xl p-0 overflow-hidden flex flex-col gap-0",
-          sizeConfig[size],
+          "bg-background border-border shadow-2xl p-0 gap-0",
           className
         )}
       >
         {showHeader && (
-          <DialogHeader className="px-6 py-4 border-b border-border bg-card/50">
-            <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
+          <DialogHeader className="shrink-0 px-4 py-4 sm:px-6 border-b border-border bg-card/50">
+            <DialogTitle className="text-lg font-semibold leading-none tracking-tight pr-8">
               {title}
             </DialogTitle>
             {description && (
@@ -60,15 +57,12 @@ const SharedModal = ({
           </DialogHeader>
         )}
 
-        <div className={cn(
-          "p-6 overflow-y-auto custom-scrollbar",
-          size === 'full' ? "flex-1" : "max-h-[85vh]"
-        )}>
+        <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
           {children}
         </div>
 
         {footer && (
-          <DialogFooter className="px-6 py-4 border-t border-border bg-muted/20">
+          <DialogFooter className="shrink-0 px-4 py-4 sm:px-6 border-t border-border bg-muted/20">
             {footer}
           </DialogFooter>
         )}

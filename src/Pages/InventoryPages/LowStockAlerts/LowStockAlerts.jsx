@@ -250,12 +250,12 @@ const LowStockAlerts = () => {
 
       {/* Bulk Reorder Dialog */}
       <Dialog open={showReorderModal} onOpenChange={setShowReorderModal}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent size="lg">
           <DialogHeader>
             <DialogTitle>Bulk Reorder Confirmation</DialogTitle>
             <DialogDescription>Review items before creating draft Purchase Orders.</DialogDescription>
           </DialogHeader>
-          <div className="max-h-[300px] overflow-y-auto space-y-2 py-4">
+          <div className="min-h-0 max-h-[min(50dvh,400px)] overflow-y-auto space-y-2 py-4">
             {selectedItems.map((item, idx) => {
               const product = products.find(p => p._id === item.productId)
               return (

@@ -49,7 +49,7 @@ const WarehouseForm = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden">
+      <DialogContent size="md" className="p-0">
         <DialogHeader className="p-6 pb-0">
           <div className="flex items-center gap-2 mb-1">
             <div className="p-2 bg-primary/10 rounded-lg">

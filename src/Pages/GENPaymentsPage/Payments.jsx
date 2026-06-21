@@ -238,7 +238,7 @@ const Payments = () => {
 
       {/* View Details Dialog */}
       <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent size="lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Eye className="w-5 h-5 text-emerald-600" /> Payment Details
@@ -246,13 +246,13 @@ const Payments = () => {
           </DialogHeader>
           {selectedPayment && (
             <div className="space-y-6 py-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <DetailRow label="Supplier" value={selectedPayment.supplierName || 'N/A'} />
                 <DetailRow label="PO Number" value={selectedPayment.poNumber} mono />
                 <DetailRow label="GRN Number" value={selectedPayment.grnNumber} mono />
                 <DetailRow label="Due Date" value={formatDate(selectedPayment.dueDate)} />
               </div>
-              <div className="bg-muted/50 p-4 rounded-lg grid grid-cols-3 gap-4 text-center border">
+              <div className="bg-muted/50 p-4 rounded-lg grid grid-cols-1 sm:grid-cols-3 gap-4 text-center border">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase">Total</p>
                   <p className="text-lg font-bold">{formatCurrency(selectedPayment.totalAmount || 0)}</p>
@@ -276,13 +276,13 @@ const Payments = () => {
 
       {/* History Dialog */}
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent size="xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <History className="w-5 h-5 text-purple-600" /> Payment History: {selectedPayment?.grnNumber}
             </DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[400px] border rounded-md">
+          <ScrollArea className="min-h-0 max-h-[min(50dvh,400px)] border rounded-md">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">

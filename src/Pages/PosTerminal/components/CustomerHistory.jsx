@@ -51,10 +51,9 @@ const CustomerHistory = ({ customer, isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
-        {/* Header Section */}
-        <div className="p-6 pb-4 border-b">
-          <div className="flex items-center gap-3">
+      <DialogContent size="xl" className="gap-0 p-0">
+        <div className="shrink-0 p-4 sm:p-6 pb-4 border-b">
+          <div className="flex items-center gap-3 pr-8">
             <div className="bg-primary/10 p-2 rounded-full">
               <History className="w-6 h-6 text-primary" />
             </div>
@@ -70,7 +69,7 @@ const CustomerHistory = ({ customer, isOpen, onClose }) => {
           </div>
         </div>
 
-        <ScrollArea className="flex-1 p-6">
+        <ScrollArea className="min-h-0 flex-1 p-4 sm:p-6">
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900">

@@ -28,9 +28,9 @@ import { formatTransferDate } from '../utils/stockTransferHelpers'
 const TransferHistoryModal = ({ isOpen, onClose, transfers = [] }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
+      <DialogContent size="lg" className="gap-0 p-0">
+        <DialogHeader className="shrink-0 p-4 sm:p-6 pb-2">
+          <DialogTitle className="flex items-center gap-2 text-xl sm:text-2xl font-bold pr-8">
             <History className="w-6 h-6 text-primary" />
             Transfer History
           </DialogTitle>
@@ -41,7 +41,7 @@ const TransferHistoryModal = ({ isOpen, onClose, transfers = [] }) => {
 
         <Separator />
 
-        <ScrollArea className="flex-1 p-6">
+        <ScrollArea className="min-h-0 flex-1 p-4 sm:p-6">
           <div className="space-y-6">
             {transfers.length === 0 ? (
               <Card className="flex flex-col items-center justify-center py-12 border-dashed shadow-none bg-muted/30">
@@ -67,7 +67,7 @@ const TransferHistoryModal = ({ isOpen, onClose, transfers = [] }) => {
           </div>
         </ScrollArea>
         
-        <div className="p-4 border-t bg-muted/20 text-center">
+        <div className="shrink-0 p-4 border-t bg-muted/20 text-center">
           <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
             Showing {transfers.length} movement records
           </p>

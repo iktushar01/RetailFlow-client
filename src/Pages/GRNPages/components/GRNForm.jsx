@@ -129,7 +129,7 @@ const GRNForm = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !loading && onClose()}>
-      <DialogContent className="max-w-[95vw] w-full h-[90vh] flex flex-col p-0">
+      <DialogContent size="full" className="flex flex-col p-0">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             <ClipboardList className="w-6 h-6 text-primary" />

@@ -46,7 +46,7 @@ const WarehouseViewModal = ({ isOpen, onClose, warehouse }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl p-0 overflow-hidden border-none shadow-2xl">
+      <DialogContent size="lg" className="p-0 border-none shadow-2xl">
         {/* Decorative Header Banner */}
         <div className="h-24 bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b relative">
           <div className="absolute -bottom-6 left-6 p-3 bg-background rounded-xl border shadow-sm">

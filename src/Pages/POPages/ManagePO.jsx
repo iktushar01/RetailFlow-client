@@ -255,7 +255,7 @@ const ManagePO = () => {
 
       {/* View Detail Modal */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent size="lg">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-2">
               <FileText className="text-primary w-6 h-6" />

@@ -27,14 +27,14 @@ const GRNViewModal = ({ isOpen, onClose, grn, suppliers }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
-        <DialogHeader>
-          <DialogTitle className="text-xl flex items-center gap-2">
+      <DialogContent size="xl" className="gap-0 bg-card p-0">
+        <DialogHeader className="shrink-0 px-4 py-4 sm:px-6 border-b">
+          <DialogTitle className="text-xl flex items-center gap-2 pr-8">
             GRN Details: <span className="font-mono text-primary">{grn.grnNumber}</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="min-h-0 flex-1 overflow-y-auto space-y-6 px-4 py-4 sm:px-6">
           {/* Quick Info Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-muted/30 p-4 rounded-lg border">
             <div>

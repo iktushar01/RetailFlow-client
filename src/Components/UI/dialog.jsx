@@ -5,6 +5,15 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/Components/UI/button"
 import { XIcon } from "lucide-react"
 
+const dialogContentSizeClasses = {
+  sm: "sm:max-w-md",
+  md: "sm:max-w-lg",
+  lg: "sm:max-w-2xl",
+  xl: "sm:max-w-4xl",
+  "2xl": "sm:max-w-6xl",
+  full: "h-[96dvh] sm:max-w-[96vw]",
+}
+
 function Dialog({
   ...props
 }) {
@@ -48,6 +57,7 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  size = "md",
   ...props
 }) {
   return (
@@ -55,15 +65,17 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        data-size={size}
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 flex w-full max-w-[calc(100%-2rem)] max-h-[min(90dvh,calc(100%-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-xl border bg-popover p-4 text-sm text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 outline-none overflow-hidden data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          dialogContentSizeClasses[size],
           className
         )}
         {...props}>
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
-            <Button variant="ghost" className="absolute top-2 right-2" size="icon-sm">
+            <Button variant="ghost" className="absolute top-2 right-2 z-10" size="icon-sm">
               <XIcon />
               <span className="sr-only">Close</span>
             </Button>
@@ -81,7 +93,19 @@ function DialogHeader({
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("flex shrink-0 flex-col gap-2", className)}
+      {...props} />
+  );
+}
+
+function DialogBody({
+  className,
+  ...props
+}) {
+  return (
+    <div
+      data-slot="dialog-body"
+      className={cn("min-h-0 flex-1 overflow-y-auto", className)}
       {...props} />
   );
 }
@@ -96,7 +120,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "flex shrink-0 flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
         className
       )}
       {...props}>
@@ -144,9 +168,10 @@ export {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogBody,
   DialogOverlay,
   DialogPortal,
   DialogTitle,
   DialogTrigger,
+  dialogContentSizeClasses,
 }
-

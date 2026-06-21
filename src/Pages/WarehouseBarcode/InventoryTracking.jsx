@@ -249,7 +249,7 @@ const InventoryTracking = () => {
 
       {/* Edit Modal with Auto-Generate UI */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent size="md">
           <DialogHeader>
             <DialogTitle>Update Inventory Tracking</DialogTitle>
             <DialogDescription>Modify tracking codes for {selectedItem?.productName}</DialogDescription>

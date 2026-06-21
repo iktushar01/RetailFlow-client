@@ -1,15 +1,32 @@
 import React, { useState, useEffect } from 'react'
-import { X, DollarSign } from 'lucide-react'
+import { DollarSign } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/Components/UI/dialog'
 import { Button } from '../../../Components/UI/button'
+import { Input } from '@/Components/UI/input'
+import { Label } from '@/Components/UI/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/Components/UI/select'
+import { Alert, AlertDescription } from '@/Components/UI/alert'
 import { formatCurrency, calculateDueAmount } from '../utils/paymentsHelpers'
 
-const AddPaymentModal = ({ 
-  isOpen, 
-  onClose, 
-  payment, 
+const AddPaymentModal = ({
+  isOpen,
+  onClose,
+  payment,
   suppliers = [],
-  onSubmit, 
-  loading = false 
+  onSubmit,
+  loading = false
 }) => {
   const [formData, setFormData] = useState({
     paymentAmount: '',
@@ -41,7 +58,7 @@ const AddPaymentModal = ({
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    
+
     const paymentAmount = parseFloat(formData.paymentAmount)
     const totalAmount = payment.totalAmount || payment.amountDue || 0
     const dueAmount = payment.dueAmount || calculateDueAmount(totalAmount, payment.amountPaid)
@@ -62,167 +79,148 @@ const AddPaymentModal = ({
     })
   }
 
-  if (!isOpen) return null
-
   const supplier = suppliers.find(s => s._id === payment?.supplierId)
   const supplierName = payment?.supplierName || supplier?.supplierName || supplier?.name || 'N/A'
   const totalAmount = payment?.totalAmount || payment?.amountDue || 0
   const dueAmount = payment?.dueAmount || calculateDueAmount(totalAmount, payment?.amountPaid)
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={onClose} />
-
-        <div className="relative inline-block w-full max-w-2xl overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-blue-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <DollarSign className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900">Add Payment</h3>
-                <p className="text-sm text-gray-600">Record payment for GRN: {payment?.grnNumber}</p>
-              </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent size="lg" className="p-0 gap-0">
+        <DialogHeader className="px-4 py-4 sm:px-6 border-b bg-muted/30">
+          <div className="flex items-center gap-3 pr-8">
+            <div className="p-2 bg-emerald-500/10 rounded-lg">
+              <DollarSign className="w-6 h-6 text-emerald-600" />
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div>
+              <DialogTitle className="text-xl font-semibold">Add Payment</DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Record payment for GRN: {payment?.grnNumber}
+              </p>
+            </div>
           </div>
+        </DialogHeader>
 
-          {/* Payment Summary */}
-          <div className="p-6 bg-blue-50 border-b border-blue-100">
-            <div className="grid grid-cols-2 gap-4">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="px-4 py-4 sm:px-6 bg-primary/5 border-b">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Supplier</p>
-                <p className="font-semibold text-gray-900">{supplierName}</p>
+                <p className="text-sm text-muted-foreground mb-1">Supplier</p>
+                <p className="font-semibold">{supplierName}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">PO Number</p>
-                <p className="font-mono font-semibold text-gray-900">{payment?.poNumber}</p>
+                <p className="text-sm text-muted-foreground mb-1">PO Number</p>
+                <p className="font-mono font-semibold">{payment?.poNumber}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Amount</p>
-                <p className="text-lg font-bold text-gray-900">{formatCurrency(totalAmount)}</p>
+                <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
+                <p className="text-lg font-bold">{formatCurrency(totalAmount)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Already Paid</p>
-                <p className="text-lg font-bold text-green-600">{formatCurrency(payment?.amountPaid || 0)}</p>
+                <p className="text-sm text-muted-foreground mb-1">Already Paid</p>
+                <p className="text-lg font-bold text-emerald-600">{formatCurrency(payment?.amountPaid || 0)}</p>
               </div>
-              <div className="col-span-2">
-                <p className="text-sm text-gray-600 mb-1">Amount Due</p>
-                <p className="text-2xl font-bold text-red-600">{formatCurrency(dueAmount)}</p>
+              <div className="sm:col-span-2">
+                <p className="text-sm text-muted-foreground mb-1">Amount Due</p>
+                <p className="text-2xl font-bold text-destructive">{formatCurrency(dueAmount)}</p>
               </div>
             </div>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <form id="add-payment-form" onSubmit={handleSubmit} className="px-4 py-4 sm:px-6 space-y-4">
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
-              {/* Payment Amount */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Amount <span className="text-red-500">*</span>
-                </label>
-                <input
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="paymentAmount">
+                  Payment Amount <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="paymentAmount"
                   type="number"
                   step="0.01"
                   min="0"
                   max={dueAmount}
                   value={formData.paymentAmount}
                   onChange={(e) => handleChange('paymentAmount', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0.00"
                   required
                 />
               </div>
 
-              {/* Payment Method */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Method <span className="text-red-500">*</span>
-                </label>
-                <select
+              <div className="space-y-2">
+                <Label>
+                  Payment Method <span className="text-destructive">*</span>
+                </Label>
+                <Select
                   value={formData.paymentMethod}
-                  onChange={(e) => handleChange('paymentMethod', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
+                  onValueChange={(val) => handleChange('paymentMethod', val)}
                 >
-                  <option value="Cash">Cash</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Mobile Payment">Mobile Payment</option>
-                  <option value="Cheque">Cheque</option>
-                  <option value="Credit Card">Credit Card</option>
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="Mobile Payment">Mobile Payment</SelectItem>
+                    <SelectItem value="Cheque">Cheque</SelectItem>
+                    <SelectItem value="Credit Card">Credit Card</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Payment Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Date <span className="text-red-500">*</span>
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="paymentDate">
+                  Payment Date <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="paymentDate"
                   type="date"
                   value={formData.paymentDate}
                   onChange={(e) => handleChange('paymentDate', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
               </div>
 
-              {/* Transaction/Reference ID */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Transaction / Reference ID
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="transactionId">Transaction / Reference ID</Label>
+                <Input
+                  id="transactionId"
                   type="text"
                   value={formData.transactionId}
                   onChange={(e) => handleChange('transactionId', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Optional"
                 />
               </div>
             </div>
-
-            {/* Footer */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onClose}
-                disabled={loading}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                loading={loading}
-                disabled={loading}
-              >
-                <div className="flex items-center">
-                  <DollarSign className="w-4 h-4 mr-2" />
-                  <span>Record Payment</span>
-                </div>
-              </Button>
-            </div>
           </form>
         </div>
-      </div>
-    </div>
+
+        <DialogFooter className="px-4 py-4 sm:px-6 border-t bg-muted/20">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="add-payment-form"
+            disabled={loading}
+          >
+            <DollarSign className="w-4 h-4 mr-2" />
+            Record Payment
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
 export default AddPaymentModal
-

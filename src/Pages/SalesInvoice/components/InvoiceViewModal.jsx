@@ -29,9 +29,9 @@ const InvoiceViewModal = ({ isOpen, onClose, invoice, onPrint }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0">
-        <DialogHeader className="px-6 py-4 border-b">
-          <div className="flex justify-between items-center pr-6">
+      <DialogContent size="xl" className="gap-0 p-0">
+        <DialogHeader className="shrink-0 px-4 py-4 sm:px-6 border-b">
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center pr-8">
             <DialogTitle className="text-xl font-bold tracking-tight">
               Invoice <span className="text-primary">{invoice.invoiceNo}</span>
             </DialogTitle>
@@ -41,7 +41,7 @@ const InvoiceViewModal = ({ isOpen, onClose, invoice, onPrint }) => {
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-6 py-4">
+        <ScrollArea className="min-h-0 flex-1 px-4 sm:px-6 py-4">
           <div className="space-y-6">
             {/* Quick Summary Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -157,7 +157,7 @@ const InvoiceViewModal = ({ isOpen, onClose, invoice, onPrint }) => {
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-6 py-4 border-t bg-muted/20 gap-2 sm:gap-0">
+        <DialogFooter className="shrink-0 px-4 py-4 sm:px-6 border-t bg-muted/20 gap-2 sm:gap-0">
           <Button variant="outline" onClick={onClose} className="sm:flex-1">
             Close
           </Button>

@@ -67,15 +67,16 @@ const TransferModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl overflow-hidden p-0">
-        <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
+      <DialogContent size="lg" className="gap-0 p-0">
+        <DialogHeader className="shrink-0 p-4 sm:p-6 pb-0">
+          <DialogTitle className="flex items-center gap-2 text-xl sm:text-2xl font-bold pr-8">
             <ArrowRightLeft className="w-6 h-6 text-primary" />
             Stock Transfer
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 p-6">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-y-auto space-y-6 p-4 sm:p-6">
           {/* Header Stats Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="p-4 bg-muted/30 border-dashed shadow-none">
@@ -207,7 +208,9 @@ const TransferModal = ({
             </AlertDescription>
           </Alert>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          </div>
+
+          <DialogFooter className="shrink-0 gap-2 border-t bg-muted/20 p-4 sm:px-6 sm:gap-0">
             <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
             </Button>

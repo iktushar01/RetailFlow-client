@@ -195,7 +195,7 @@ export const InStockProductPages = () => {
 
       {/* Product Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent size="lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
               <Package className="w-5 h-5 text-blue-600" /> 
@@ -205,7 +205,7 @@ export const InStockProductPages = () => {
           
           {selectedItem && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <DetailItem label="SKU" value={selectedItem.sku || selectedItem.parentProduct?.sku} mono />
                 <DetailItem label="Category" value={selectedItem.category || selectedItem.parentProduct?.category} />
                 <DetailItem label="Batch #" value={selectedItem.batch} mono />

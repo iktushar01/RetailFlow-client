@@ -200,9 +200,9 @@ const SalesReturn = () => {
 
       {/* Refactored View Return Modal (Shadcn Dialog) */}
       <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
-          <DialogHeader className="px-6 py-4 border-b">
-            <div className="flex justify-between items-center pr-6">
+        <DialogContent size="lg" className="gap-0 p-0">
+          <DialogHeader className="shrink-0 px-4 py-4 sm:px-6 border-b">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center pr-8">
               <DialogTitle className="text-xl font-bold">Return Details</DialogTitle>
               {selectedReturn && (
                 <Badge className={getStatusColor(selectedReturn.status)}>
@@ -213,7 +213,7 @@ const SalesReturn = () => {
           </DialogHeader>
 
           {selectedReturn && (
-            <ScrollArea className="flex-1 px-6 py-4">
+            <ScrollArea className="min-h-0 flex-1 px-4 sm:px-6 py-4">
               <div className="space-y-6">
                 {/* Info Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -287,7 +287,7 @@ const SalesReturn = () => {
             </ScrollArea>
           )}
 
-          <DialogFooter className="px-6 py-4 border-t bg-muted/20">
+          <DialogFooter className="shrink-0 px-4 py-4 sm:px-6 border-t bg-muted/20">
             <Button variant="outline" onClick={() => setViewModalOpen(false)} className="w-full sm:w-auto">
               Close
             </Button>

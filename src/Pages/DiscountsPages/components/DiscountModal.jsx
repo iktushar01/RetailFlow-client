@@ -74,7 +74,7 @@ const DiscountModal = ({ isOpen, onClose, discount, onSave }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px] border-border bg-card">
+      <DialogContent size="md" className="border-border bg-card">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold tracking-tight">
             {discount ? 'Edit Discount' : 'Add New Discount'}
@@ -109,7 +109,7 @@ const DiscountModal = ({ isOpen, onClose, discount, onSave }) => {
           </div>
 
           {/* Type & Value Row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label>Type *</Label>
               <Select 
@@ -144,7 +144,7 @@ const DiscountModal = ({ isOpen, onClose, discount, onSave }) => {
           </div>
 
           {/* Dates Row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="validFrom" className={errors.validFrom ? "text-destructive" : ""}>
                 Valid From *

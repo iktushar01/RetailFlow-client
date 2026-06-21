@@ -160,7 +160,7 @@ const CustomersPage = () => {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent size="md">
           <DialogHeader>
             <DialogTitle>{editingId ? 'Edit Customer' : 'Add Customer'}</DialogTitle>
           </DialogHeader>

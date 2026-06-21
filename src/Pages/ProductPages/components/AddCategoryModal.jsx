@@ -61,7 +61,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px] gap-6">
+      <DialogContent size="sm" className="gap-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold leading-none tracking-tight">
             Add New Category

@@ -21,7 +21,7 @@ const GenerateAllModal = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Generate All Purchase Orders</DialogTitle>
           <DialogDescription className="text-muted-foreground">

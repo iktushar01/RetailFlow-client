@@ -28,15 +28,15 @@ export const StockInDetailsDialog = ({ isOpen, onOpenChange, grn, suppliers }) =
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent size="xl" className="gap-0 p-0">
+        <DialogHeader className="shrink-0 px-4 py-4 sm:px-6 border-b">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <FileText className="w-5 h-5 text-emerald-600" />
             GRN Details: {grn.grnNumber}
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="min-h-0 flex-1 px-4 sm:px-6">
           <div className="space-y-6 py-4">
             {/* Top Info Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -108,7 +108,7 @@ export const StockInDetailsDialog = ({ isOpen, onOpenChange, grn, suppliers }) =
           </div>
         </ScrollArea>
 
-        <DialogFooter className="border-t pt-4">
+        <DialogFooter className="shrink-0 border-t px-4 py-4 sm:px-6">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close Details
           </Button>

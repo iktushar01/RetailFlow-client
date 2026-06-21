@@ -79,15 +79,15 @@ const PaymentSection = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden gap-0">
-          <DialogHeader className="p-6 pb-0">
-            <div className="flex items-center gap-2 text-primary mb-1">
+        <DialogContent size="md" className="p-0 gap-0">
+          <DialogHeader className="shrink-0 p-4 sm:p-6 pb-0">
+            <div className="flex items-center gap-2 text-primary mb-1 pr-8">
               <Receipt className="w-5 h-5" />
-              <DialogTitle className="text-2xl font-bold">Checkout</DialogTitle>
+              <DialogTitle className="text-xl sm:text-2xl font-bold">Checkout</DialogTitle>
             </div>
           </DialogHeader>
 
-          <div className="p-6 space-y-6">
+          <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
             {/* Order Summary Card */}
             <Card className="bg-primary/[0.03] border-primary/10 shadow-none">
               <CardContent className="p-4 space-y-2">
@@ -186,7 +186,7 @@ const PaymentSection = ({
             </div>
           </div>
 
-          <DialogFooter className="p-6 pt-0 flex-col sm:flex-col gap-3">
+          <DialogFooter className="shrink-0 p-4 sm:p-6 pt-0 border-t bg-muted/20 flex-col sm:flex-col gap-3">
             <Button
               size="lg"
               className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20"
@@ -226,7 +226,7 @@ const PaymentSection = ({
 
       {/* New Customer Dialog */}
       <Dialog open={showCustomerModal} onOpenChange={setShowCustomerModal}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent size="sm">
           <DialogHeader>
             <DialogTitle>Add New Customer</DialogTitle>
           </DialogHeader>
