@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Package, Plus, Pencil, AlertTriangle, Calendar, Clock, Info, CheckCircle, XCircle, RefreshCw } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../utils/notifications'
 import { Button } from '../../Components/UI/button'
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import BatchFilter from './components/BatchFilter'
@@ -54,12 +54,7 @@ const WarehouseBatchtracking = () => {
       setInventory(normalizedInventory)
     } catch (error) {
       console.error('Error fetching data:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch data',
-        confirmButtonColor: '#3B82F6'
-      })
+      notify.error('Error', 'Failed to fetch data')
       setInventory([])
     } finally {
       setLoading(false)
@@ -101,12 +96,7 @@ const WarehouseBatchtracking = () => {
     const validation = validateBatchData(formData)
     if (!validation.isValid) {
       const firstError = Object.values(validation.errors)[0]
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: firstError,
-        confirmButtonColor: '#3B82F6'
-      })
+      notify.warning('Validation Error', firstError)
       return
     }
 
@@ -118,24 +108,13 @@ const WarehouseBatchtracking = () => {
         expiry: formData.expiry || null
       })
 
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Batch information updated successfully',
-        confirmButtonColor: '#3B82F6',
-        timer: 2000
-      })
+      notify.success('Success', 'Batch information updated successfully', { duration: 2000 })
 
       setModalOpen(false)
       fetchAllData()
     } catch (error) {
       console.error('Error updating batch:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.message || 'Failed to update batch information',
-        confirmButtonColor: '#3B82F6'
-      })
+      notify.error('Error', error.response?.data?.message || 'Failed to update batch information')
     }
   }
 

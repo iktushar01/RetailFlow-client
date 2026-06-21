@@ -12,7 +12,7 @@ import {
   Camera
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import Swal from 'sweetalert2'
+import { notify } from '../../utils/notifications'
 import { Button } from '../../Components/UI/button'
 import { cn } from "@/lib/utils"
 
@@ -37,12 +37,7 @@ const ProfilePage = () => {
     e.preventDefault()
     updateUser(formData)
     setIsEditing(false)
-    Swal.fire({
-      icon: 'success',
-      title: 'Success!',
-      text: 'Profile configuration updated.',
-      confirmButtonColor: 'oklch(var(--primary))'
-    })
+    notify.success('Success!', 'Profile configuration updated.')
   }
 
   const handleCancel = () => {

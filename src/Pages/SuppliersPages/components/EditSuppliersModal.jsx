@@ -4,7 +4,7 @@ import { EditSuppliersForm } from './EditSuppliersForm'
 import { Button } from '../../../Components/UI/button'
 import { suppliersAPI } from '../services/supplierService'
 import { FileEdit, AlertCircle, Save } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 
 const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -19,20 +19,7 @@ const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
       const supplierId = supplierData._id || supplierData.id
       await suppliersAPI.update(supplierId, values)
       
-      // Modern Toast notification for subtle feedback
-      const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 2500,
-        timerProgressBar: true,
-      })
-
-      await Toast.fire({
-        icon: 'success',
-        title: 'Registry Updated',
-        text: 'Changes synchronized successfully.'
-      })
+      notify.success('Registry Updated', 'Changes synchronized successfully.', { duration: 2500 })
       
       if (onSuccess) {
         // Construct the updated object for the parent list
@@ -47,12 +34,10 @@ const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
       onClose()
     } catch (error) {
       console.error('Update Error:', error)
-      Swal.fire({
-        title: 'Update Rejected',
-        text: error.response?.data?.message || 'The server could not process the update.',
-        icon: 'error',
-        confirmButtonColor: 'oklch(var(--destructive))'
-      })
+      notify.error(
+        'Update Rejected',
+        error.response?.data?.message || 'The server could not process the update.'
+      )
     } finally {
       setIsSubmitting(false)
     }

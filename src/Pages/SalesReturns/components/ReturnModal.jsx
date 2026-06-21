@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Button } from '../../../Components/UI/button'
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { RETURN_REASONS } from '../utils/returnsHelpers'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 
 const ReturnModal = ({ isOpen, onClose, onSave, invoices }) => {
   const [formData, setFormData] = useState({
@@ -44,26 +44,25 @@ const ReturnModal = ({ isOpen, onClose, onSave, invoices }) => {
 
   const handleSubmit = () => {
     if (!formData.invoiceNo) {
-      Swal.fire('Error', 'Please select an invoice', 'error')
+      notify.error('Error', 'Please select an invoice')
       return
     }
 
     const returningItems = formData.items.filter(item => item.returnQuantity > 0)
     
     if (returningItems.length === 0) {
-      Swal.fire('Error', 'Please select at least one item to return', 'error')
+      notify.error('Error', 'Please select at least one item to return')
       return
     }
     
-    // Check if any items are available for return
     const availableItems = formData.items.filter(item => item.maxQuantity > 0)
     if (availableItems.length === 0) {
-      Swal.fire('Error', 'No items are available for return from this invoice', 'error')
+      notify.error('Error', 'No items are available for return from this invoice')
       return
     }
 
     if (!formData.reason) {
-      Swal.fire('Error', 'Please provide a return reason', 'error')
+      notify.error('Error', 'Please provide a return reason')
       return
     }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { QrCode, Barcode, Plus, RefreshCw, Download, AlertCircle, Package, CheckCircle2, XCircle, Info } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../utils/notifications'
 import { Button } from '../../Components/UI/button'
 import StatsCard from '../../Shared/StatsCard/StatsCard'
 import BarcodeFilter from './components/BarcodeFilter'
@@ -59,12 +59,7 @@ const WarehouseBarcode = () => {
       setProducts(productsData || [])
     } catch (error) {
       console.error('Error fetching data:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch inventory data',
-        confirmButtonColor: '#3B82F6'
-      })
+      notify.error('Error', 'Failed to fetch inventory data')
       setInventory([])
       setProducts([])
     } finally {
@@ -114,12 +109,7 @@ const WarehouseBarcode = () => {
 
     // Validation
     if (!formData.barcode && !formData.qrCode) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Information',
-        text: 'Please enter at least a barcode or QR code',
-        confirmButtonColor: '#3B82F6'
-      })
+      notify.warning('Missing Information', 'Please enter at least a barcode or QR code')
       return
     }
 
@@ -144,24 +134,13 @@ const WarehouseBarcode = () => {
         }
       }
 
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Barcode/QR code assigned successfully',
-        confirmButtonColor: '#3B82F6',
-        timer: 2000
-      })
+      notify.success('Success', 'Barcode/QR code assigned successfully', { duration: 2000 })
 
       setModalOpen(false)
       fetchInventory()
     } catch (error) {
       console.error('Error assigning barcode:', error)
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.message || 'Failed to assign barcode/QR code',
-        confirmButtonColor: '#3B82F6'
-      })
+      notify.error('Error', error.response?.data?.message || 'Failed to assign barcode/QR code')
     }
   }
 

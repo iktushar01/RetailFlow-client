@@ -4,7 +4,7 @@ import { AddSuppliersFrom } from './AddSuppliersFrom'
 import { Button } from '../../../Components/UI/button'
 import { suppliersAPI } from '../services/supplierService'
 import { X, UserPlus, AlertCircle } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 
 const AddSuppliersModal = ({ isOpen, onClose, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -15,31 +15,16 @@ const AddSuppliersModal = ({ isOpen, onClose, onSuccess }) => {
     try {
       const response = await suppliersAPI.create(values);
       
-      // We use a toast-style success for a more modern dashboard feel
-      const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-      });
-
-      await Toast.fire({
-        icon: 'success',
-        title: 'Entity Registered',
-        text: `${values.supplierName} added to system.`
-      });
+      notify.success('Entity Registered', `${values.supplierName} added to system.`, { duration: 3000 })
       
       if (onSuccess) onSuccess(response)
       onClose()
     } catch (error) {
       console.error('Supplier Creation Error:', error)
-      Swal.fire({
-        title: 'Registration Failed',
-        text: error.response?.data?.message || 'Database rejected the entry.',
-        icon: 'error',
-        confirmButtonColor: 'oklch(var(--destructive))',
-      })
+      notify.error(
+        'Registration Failed',
+        error.response?.data?.message || 'Database rejected the entry.'
+      )
     } finally {
       setIsSubmitting(false)
     }

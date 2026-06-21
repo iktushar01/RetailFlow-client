@@ -5,7 +5,8 @@ import { Z_INDEX } from '../../constants/zIndex'
 import { dashboardAPI } from '../../Pages/HomePage/services/dashboardService'
 import { useAuth } from '../../contexts/AuthContext'
 import { retailApi } from '../../services/api'
-import Swal from 'sweetalert2'
+import { notify } from '@/utils/notifications'
+import { confirmDialog } from '@/utils/confirmDialog'
 import { ModeToggle } from '@/Shared/ModeToggle'
 
 const Header = ({ onMenuClick }) => {
@@ -49,23 +50,16 @@ const Header = ({ onMenuClick }) => {
     }
   }
 
-  const handleLogout = () => {
-    Swal.fire({
+  const handleLogout = async () => {
+    const confirmed = await confirmDialog({
       title: 'Sign out',
-      text: 'Are you sure you want to sign out?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#6366f1',
-      cancelButtonColor: '#334155',
-      confirmButtonText: 'Yes, sign out',
-      background: 'var(--popover)',
-      color: 'var(--popover-foreground)',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        logout()
-        navigate('/login')
-      }
+      description: 'Are you sure you want to sign out?',
+      confirmText: 'Yes, sign out',
     })
+    if (confirmed) {
+      logout()
+      navigate('/login')
+    }
   }
 
   const getPageTitle = () => {
@@ -97,9 +91,9 @@ const Header = ({ onMenuClick }) => {
       setSearchLoading(true)
       const res = await retailApi.ai.query(searchQuery.trim())
       const answer = res?.answer || 'No answer available.'
-      Swal.fire({ title: 'RetailFlow Assistant', text: answer, icon: 'info' })
+      notify.info('RetailFlow Assistant', answer)
     } catch {
-      Swal.fire('Search unavailable', 'Could not run the query assistant.', 'warning')
+      notify.warning('Search unavailable', 'Could not run the query assistant.')
     } finally {
       setSearchLoading(false)
     }

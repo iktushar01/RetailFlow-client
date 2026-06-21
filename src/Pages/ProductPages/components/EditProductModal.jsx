@@ -29,7 +29,7 @@ import {
 } from "lucide-react"
 import { productsAPI, suppliersAPI, imageAPI } from '../services/productService'
 import { generateQRCode, validateImageFile, DEFAULT_CATEGORIES } from '../utils/productHelpers'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 import { cn } from "@/lib/utils"
 
 const EditProductModal = ({ isOpen, onClose, product, onSuccess }) => {
@@ -103,7 +103,7 @@ const EditProductModal = ({ isOpen, onClose, product, onSuccess }) => {
 
     const validation = validateImageFile(file)
     if (!validation.isValid) {
-      Swal.fire({ title: 'Invalid File', text: validation.error, icon: 'error' })
+      notify.error('Invalid File', validation.error)
       return
     }
 
@@ -145,14 +145,12 @@ const EditProductModal = ({ isOpen, onClose, product, onSuccess }) => {
         try {
           imageUrl = await imageAPI.upload(imageFile)
         } catch (uploadError) {
-          Swal.fire({
-            title: 'Image Upload Failed',
-            text:
-              uploadError.response?.data?.message ||
+          notify.error(
+            'Image Upload Failed',
+            uploadError.response?.data?.message ||
               uploadError.message ||
-              'Could not upload image',
-            icon: 'error'
-          })
+              'Could not upload image'
+          )
           setIsSubmitting(false)
           return
         }
@@ -166,10 +164,10 @@ const EditProductModal = ({ isOpen, onClose, product, onSuccess }) => {
         supplierId: selectedSupplier?._id || null
       })
 
-      Swal.fire({ title: 'Updated!', icon: 'success', timer: 1500, showConfirmButton: false })
+      notify.success('Updated!', undefined, { duration: 1500 })
       onSuccess()
     } catch {
-      Swal.fire({ title: 'Error', text: 'Failed to update product', icon: 'error' })
+      notify.error('Error', 'Failed to update product')
     } finally {
       setIsSubmitting(false)
     }

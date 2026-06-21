@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Clock, Play, Trash2, RefreshCw, ChevronDown } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '@/utils/notifications'
+import { confirmDialog } from '@/utils/confirmDialog'
 import { Button } from '@/Components/UI/button'
 import { Badge } from '@/Components/UI/badge'
 import { ScrollArea } from '@/Components/UI/scroll-area'
@@ -30,21 +31,20 @@ const HeldSalesPanel = ({ onResume, onRefresh }) => {
   }, [fetchHeld, onRefresh])
 
   const handleDelete = async (sale) => {
-    const result = await Swal.fire({
+    const confirmed = await confirmDialog({
       title: 'Delete held sale?',
-      text: `Remove ${sale.invoiceNo}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
+      description: `Remove ${sale.invoiceNo}?`,
+      confirmText: 'Delete',
+      variant: 'destructive',
     })
-    if (!result.isConfirmed) return
+    if (!confirmed) return
 
     try {
       await salesAPI.delete(sale._id)
       await fetchHeld()
-      Swal.fire({ title: 'Deleted', icon: 'success', timer: 1200, showConfirmButton: false })
+      notify.success('Deleted', undefined, { duration: 1200 })
     } catch (error) {
-      Swal.fire('Error', error.message || 'Failed to delete held sale', 'error')
+      notify.error('Error', error.message || 'Failed to delete held sale')
     }
   }
 

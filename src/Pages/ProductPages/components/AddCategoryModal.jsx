@@ -11,7 +11,7 @@ import { Button } from '../../../Components/UI/button'
 import { Input } from "../../../Components/UI/input"
 import { Label } from "../../../Components/UI/label"
 import { Loader2 } from "lucide-react"
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 
 const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
   const [categoryName, setCategoryName] = useState('')
@@ -35,14 +35,7 @@ const AddCategoryModal = ({ isOpen, onClose, onCategoryAdded }) => {
         onCategoryAdded(categoryName)
       }
 
-      await Swal.fire({
-        title: 'Success!',
-        text: `Category "${categoryName}" added successfully!`,
-        icon: 'success',
-        confirmButtonColor: 'hsl(var(--primary))',
-        timer: 1500,
-        showConfirmButton: false
-      })
+      notify.success('Success!', `Category "${categoryName}" added successfully!`, { duration: 1500 })
 
       handleClose()
     } catch (err) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { User, CreditCard, CheckCircle, Clock, Plus, History, Receipt } from 'lucide-react'
 import CustomerHistory from './CustomerHistory'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 
 // Shadcn UI Components
 import {
@@ -48,12 +48,7 @@ const PaymentSection = ({
       if (cartItems.length > 0) {
         setIsOpen(true)
       } else {
-        Swal.fire({
-          title: 'Empty Cart',
-          text: 'Please add items to cart before checkout',
-          icon: 'warning',
-          confirmButtonColor: 'hsl(var(--primary))'
-        })
+        notify.warning('Empty Cart', 'Please add items to cart before checkout')
       }
     }
 
@@ -63,7 +58,7 @@ const PaymentSection = ({
 
   const handleCreateCustomer = async () => {
     if (!newCustomer.name.trim()) {
-      Swal.fire('Error', 'Customer name is required', 'error')
+      notify.error('Error', 'Customer name is required')
       return
     }
 
@@ -72,7 +67,7 @@ const PaymentSection = ({
       setShowCustomerModal(false)
       setNewCustomer({ name: '', phone: '', email: '' })
     } catch {
-      Swal.fire('Error', 'Failed to create customer', 'error')
+      notify.error('Error', 'Failed to create customer')
     }
   }
 

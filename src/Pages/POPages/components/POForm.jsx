@@ -18,7 +18,7 @@ import POItemsTable from './POItemsTable'
 import POSummary from './POSummary'
 import { validatePOForm, MAX_NOTES_LENGTH } from '../utils/poHelpers'
 import { getSupplierProducts } from '../../SuppliersPages/utils/supplierHelpers'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 import { cn } from "@/lib/utils"
 
 const POForm = ({
@@ -88,12 +88,12 @@ const POForm = ({
   const handleFormSubmit = () => {
     setHasAttemptedSubmit(true)
     if (!formData.items?.length) {
-      Swal.fire({ icon: 'warning', title: 'No Items Added', text: 'Add at least one product.', confirmButtonColor: '#3B82F6' })
+      notify.warning('No Items Added', 'Add at least one product.')
       return
     }
     const validation = validatePOForm(formData)
     if (!validation.isValid) {
-      Swal.fire({ icon: 'warning', title: 'Validation Error', html: validation.errors.map(err => `• ${err}`).join('<br>'), confirmButtonColor: '#3B82F6' })
+      notify.warning('Validation Error', validation.errors.join('\n• '))
       return
     }
     onSubmit({ subtotal, taxAmount, total })

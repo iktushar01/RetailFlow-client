@@ -1,118 +1,86 @@
-import Swal from 'sweetalert2'
+import { toast } from 'sonner'
+import { confirmDialog } from './confirmDialog'
 
 /**
- * Centralized Notification Utility
- * Consistent notification handling across the app
+ * Centralized notification utility using shadcn/sonner toasts and AlertDialog confirms.
  */
+export const notify = {
+  success: (title, message, options = {}) => {
+    toast.success(title, {
+      description: message,
+      duration: options.timer || 2000,
+      ...options,
+    })
+  },
 
-const defaultConfig = {
-  confirmButtonColor: '#3B82F6',
-  cancelButtonColor: '#6B7280'
+  error: (title, message, options = {}) => {
+    toast.error(title, {
+      description: message,
+      ...options,
+    })
+  },
+
+  warning: (title, message, options = {}) => {
+    toast.warning(title, {
+      description: message,
+      ...options,
+    })
+  },
+
+  info: (title, message, options = {}) => {
+    toast.info(title, {
+      description: message,
+      duration: options.timer || 3000,
+      ...options,
+    })
+  },
+
+  confirm: async (title, message, options = {}) => {
+    return confirmDialog({
+      title,
+      description: message,
+      confirmText: options.confirmText || 'Yes, confirm',
+      cancelText: options.cancelText || 'Cancel',
+      variant: options.variant,
+    })
+  },
+
+  confirmDelete: async (itemName) => {
+    return confirmDialog({
+      title: 'Are you sure?',
+      description: `You are about to delete ${itemName}. This action cannot be undone.`,
+      confirmText: 'Yes, delete it',
+      cancelText: 'Cancel',
+      variant: 'destructive',
+    })
+  },
+
+  loading: (title = 'Processing...', message = 'Please wait') => {
+    return toast.loading(title, { description: message })
+  },
+
+  close: (toastId) => {
+    if (toastId) toast.dismiss(toastId)
+    else toast.dismiss()
+  },
 }
 
-export const notify = {
-  // Success notification
-  success: (title, message, options = {}) => {
-    return Swal.fire({
-      icon: 'success',
-      title,
-      text: message,
-      timer: options.timer || 2000,
-      ...defaultConfig,
-      ...options
-    })
-  },
-
-  // Error notification
-  error: (title, message, options = {}) => {
-    return Swal.fire({
-      icon: 'error',
-      title,
-      text: message,
-      ...defaultConfig,
-      ...options
-    })
-  },
-
-  // Warning notification
-  warning: (title, message, options = {}) => {
-    return Swal.fire({
-      icon: 'warning',
-      title,
-      text: message,
-      ...defaultConfig,
-      ...options
-    })
-  },
-
-  // Info notification
-  info: (title, message, options = {}) => {
-    return Swal.fire({
-      icon: 'info',
-      title,
-      text: message,
-      ...defaultConfig,
-      ...options
-    })
-  },
-
-  // Confirmation dialog
-  confirm: async (title, message, options = {}) => {
-    const result = await Swal.fire({
-      title,
-      text: message,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: options.confirmText || 'Yes, confirm',
-      cancelButtonText: options.cancelText || 'Cancel',
-      ...defaultConfig,
-      ...options
-    })
-    return result.isConfirmed
-  },
-
-  // Custom HTML dialog
-  custom: (options = {}) => {
-    return Swal.fire({
-      ...defaultConfig,
-      ...options
-    })
-  },
-
-  // Delete confirmation
-  confirmDelete: async (itemName) => {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      html: `You are about to delete <strong>${itemName}</strong>. This action cannot be undone.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#EF4444',
-      ...defaultConfig
-    })
-    return result.isConfirmed
-  },
-
-  // Loading/Processing
-  loading: (title = 'Processing...', message = 'Please wait') => {
-    return Swal.fire({
-      title,
-      text: message,
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading()
-      }
-    })
-  },
-
-  // Close any open notification
-  close: () => {
-    Swal.close()
+/** Shorthand for Swal.fire('Title', 'text', 'icon') migration */
+export const alertToast = (title, text, icon = 'info') => {
+  const opts = { description: text }
+  switch (icon) {
+    case 'success':
+      toast.success(title, opts)
+      break
+    case 'error':
+      toast.error(title, opts)
+      break
+    case 'warning':
+      toast.warning(title, opts)
+      break
+    default:
+      toast.info(title, opts)
   }
 }
 
 export default notify
-

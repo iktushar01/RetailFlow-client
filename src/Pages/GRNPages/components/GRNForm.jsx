@@ -25,7 +25,7 @@ import { ScrollArea } from "@/Components/UI/scroll-area"
 import GRNItemsTable from './GRNItemsTable'
 import { validateGRNForm, generateGRNNumber, MAX_NOTES_LENGTH } from '../utils/grnHelpers'
 import { grnAPI } from '../services/grnService'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 import { apiClient } from '../../../config/apiConfig'
 
 const GRNForm = ({
@@ -51,7 +51,7 @@ const GRNForm = ({
         } catch (error) {
           console.error('Error fetching warehouses:', error)
           setWarehouses([])
-          Swal.fire('Warehouse Error', 'Failed to load warehouses. Please try again.', 'error')
+          notify.error('Warehouse Error', 'Failed to load warehouses. Please try again.')
         } finally {
           setWarehousesLoading(false)
         }
@@ -111,12 +111,7 @@ const GRNForm = ({
   const handleFormSubmit = () => {
     const validation = validateGRNForm(formData)
     if (!validation.isValid) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        html: validation.errors.map(err => `• ${err}`).join('<br>'),
-        confirmButtonColor: 'var(--primary)'
-      })
+      notify.warning('Validation Error', validation.errors.join('\n• '))
       return
     }
     onSubmit(formData)

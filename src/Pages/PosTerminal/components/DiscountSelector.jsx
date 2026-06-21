@@ -11,7 +11,7 @@ import { ScrollArea } from "@/Components/UI/scroll-area"
 import { Separator } from "@/Components/UI/separator"
 import { discountsAPI } from '../services/posService'
 import { getApplicableDiscounts, isDiscountApplicable } from '../utils/posHelpers'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 
 const DiscountSelector = ({ cartItems, appliedDiscounts, onApplyDiscount, onRemoveDiscount }) => {
   const [availableDiscounts, setAvailableDiscounts] = useState([])
@@ -29,7 +29,7 @@ const DiscountSelector = ({ cartItems, appliedDiscounts, onApplyDiscount, onRemo
       setAvailableDiscounts(discounts)
     } catch (error) {
       console.error('Error fetching discounts:', error)
-      Swal.fire('Error', 'Failed to load discounts', 'error')
+      notify.error('Error', 'Failed to load discounts')
     } finally {
       setLoading(false)
     }
@@ -39,24 +39,18 @@ const DiscountSelector = ({ cartItems, appliedDiscounts, onApplyDiscount, onRemo
 
   const handleApplyDiscount = (discount) => {
     if (appliedDiscounts.some(applied => applied._id === discount._id)) {
-      Swal.fire('Already Applied', 'This discount is already applied', 'info')
+      notify.info('Already Applied', 'This discount is already applied')
       return
     }
 
     if (!isDiscountApplicable(discount, cartItems)) {
-      Swal.fire('Not Applicable', 'Criteria not met for this discount', 'warning')
+      notify.warning('Not Applicable', 'Criteria not met for this discount')
       return
     }
 
     onApplyDiscount(discount)
     setOpen(false)
-    Swal.fire({
-      title: 'Applied!',
-      text: `"${discount.offerName}" applied`,
-      icon: 'success',
-      timer: 1500,
-      showConfirmButton: false
-    })
+    notify.success('Applied!', `"${discount.offerName}" applied`, { duration: 1500 })
   }
 
   const getDiscountValue = (discount) => {

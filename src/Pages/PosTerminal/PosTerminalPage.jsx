@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { RefreshCw, Calendar, Percent, ShoppingCart, Package, Receipt } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../utils/notifications'
+import { confirmDialog } from '../../utils/confirmDialog'
 
 import ProductList from './components/ProductList'
 import Cart from './components/Cart'
@@ -76,11 +77,11 @@ const PosTerminalPage = () => {
       setSelectedCustomer((prev) => prev || pickWalkInCustomer(customerList))
 
       if (isSilent && isSilent !== "auto") {
-        Swal.fire({ title: 'Synced', icon: 'success', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false })
+        notify.success('Synced')
       }
     } catch (error) {
       console.error('Fetch error:', error)
-      Swal.fire('Sync Error', 'Failed to update store data', 'error')
+      notify.error('Sync Error', 'Failed to update store data')
     } finally {
       setLoading(false)
     }
@@ -106,7 +107,7 @@ const PosTerminalPage = () => {
     const currentStock = inventoryItems.reduce((sum, item) => sum + (parseFloat(item.stockQty) || 0), 0)
 
     if (currentStock <= 0) {
-      Swal.fire('Out of Stock', 'This product is currently unavailable', 'warning')
+      notify.warning('Out of Stock', 'This product is currently unavailable')
       return
     }
 
@@ -118,7 +119,7 @@ const PosTerminalPage = () => {
           newItems[idx].quantity += 1
           return newItems
         }
-        Swal.fire('Limit Reached', `Only ${currentStock} units in stock`, 'info')
+        notify.info('Limit Reached', `Only ${currentStock} units in stock`)
         return prev
       }
       return [...prev, {
@@ -136,7 +137,7 @@ const PosTerminalPage = () => {
   const handleCompleteSale = async (paymentMethod) => {
     const validation = validateSaleData(cartItems, selectedCustomer, paymentMethod, inventory)
     if (!validation.isValid) {
-      Swal.fire('Checkout Blocked', validation.errors[0], 'error')
+      notify.error('Checkout Blocked', validation.errors[0])
       return
     }
 
@@ -151,13 +152,13 @@ const PosTerminalPage = () => {
         status: 'Completed'
       })
 
-      Swal.fire({
+      const shouldPrint = await confirmDialog({
         title: 'Sale Successful',
-        text: `Invoice ${saleData.invoiceNo} generated`,
-        icon: 'success',
-        showCancelButton: true,
-        confirmButtonText: 'Print Receipt'
-      }).then(res => res.isConfirmed && printInvoice(saleData))
+        description: `Invoice ${saleData.invoiceNo} generated`,
+        confirmText: 'Print Receipt',
+        cancelText: 'Close',
+      })
+      if (shouldPrint) printInvoice(saleData)
 
       setCartItems([])
       setSelectedCustomer(pickWalkInCustomer(customers))
@@ -166,7 +167,7 @@ const PosTerminalPage = () => {
       setMobileTab('products')
       fetchData(true)
     } catch (err) {
-      Swal.fire('Sale Failed', err.message, 'error')
+      notify.error('Sale Failed', err.message)
     }
   }
 
@@ -196,7 +197,7 @@ const PosTerminalPage = () => {
     )
     setSelectedCustomer(customer)
     setMobileTab('cart')
-    Swal.fire({ title: 'Sale resumed', text: sale.invoiceNo, icon: 'info', timer: 1500, showConfirmButton: false })
+    notify.info('Sale resumed', sale.invoiceNo, { duration: 1500 })
   }
 
   const openCheckout = () => {

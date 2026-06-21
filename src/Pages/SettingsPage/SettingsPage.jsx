@@ -14,7 +14,7 @@ import {
   Clock,
   Eye
 } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../utils/notifications'
 import { Button } from '../../Components/UI/button'
 import { cn } from "@/lib/utils"
 
@@ -55,21 +55,16 @@ const SettingsPage = () => {
 
   const handleSaveSettings = () => {
     localStorage.setItem('appSettings', JSON.stringify(settings))
-    Swal.fire({
-      icon: 'success',
-      title: 'Configuration Updated',
-      text: 'Global preferences have been synchronized.',
-      confirmButtonColor: 'oklch(var(--primary))'
-    })
+    notify.success('Configuration Updated', 'Global preferences have been synchronized.')
   }
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault()
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      Swal.fire({ icon: 'error', title: 'Mismatch', text: 'Passwords do not match.' })
+      notify.error('Mismatch', 'Passwords do not match.')
       return
     }
-    Swal.fire({ icon: 'success', title: 'Secure', text: 'Password updated successfully.' })
+    notify.success('Secure', 'Password updated successfully.')
     setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
   }
 

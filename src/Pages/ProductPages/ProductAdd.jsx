@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, List, Info, PackagePlus, ArrowLeft, ShieldCheck } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../utils/notifications'
+import { confirmDialog } from '../../utils/confirmDialog'
 import { Button } from '../../Components/UI/button'
 import ProductForm from './components/ProductForm'
 import { productsAPI, suppliersAPI, imageAPI } from './services/productService'
@@ -82,12 +83,7 @@ const ProductAdd = () => {
 
     const validation = validateImageFile(file)
     if (!validation.isValid) {
-      Swal.fire({
-        title: 'Invalid File',
-        text: validation.error,
-        icon: 'error',
-        confirmButtonColor: 'oklch(var(--destructive))'
-      })
+      notify.error('Invalid File', validation.error)
       return
     }
 
@@ -102,12 +98,7 @@ const ProductAdd = () => {
     const validation = validateProductForm(formData, allProducts, { imageFile, imagePreview })
     if (!validation.isValid) {
       setErrors(validation.errors)
-      Swal.fire({
-        title: 'Validation Error',
-        text: 'Please check the required fields',
-        icon: 'error',
-        confirmButtonColor: 'oklch(var(--destructive))'
-      })
+      notify.error('Validation Error', 'Please check the required fields')
       return
     }
 
@@ -124,15 +115,12 @@ const ProductAdd = () => {
             uploadError.response?.data?.message ||
             uploadError.message ||
             'Could not upload image to server'
-          const result = await Swal.fire({
+          const continueWithoutImage = await confirmDialog({
             title: 'Image Upload Failed',
-            text: `${message}. Add product without an image?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, continue',
-            confirmButtonColor: 'oklch(var(--primary))'
+            description: `${message}. Add product without an image?`,
+            confirmText: 'Yes, continue',
           })
-          if (!result.isConfirmed) {
+          if (!continueWithoutImage) {
             setIsSubmitting(false)
             return
           }
@@ -142,23 +130,13 @@ const ProductAdd = () => {
       const productData = prepareProductData(formData, imageUrl, suppliers)
       await productsAPI.create(productData)
 
-      await Swal.fire({
-        title: 'Success!',
-        text: 'Product archived successfully',
-        icon: 'success',
-        timer: 2000,
-        showConfirmButton: false
-      })
+      notify.success('Success!', 'Product archived successfully', { duration: 2000 })
 
       resetForm()
       fetchAllProducts() // Refresh the unique check list
 
     } catch (error) {
-      Swal.fire({
-        title: 'Error!',
-        text: error.response?.data?.message || 'Failed to create product',
-        icon: 'error'
-      })
+      notify.error('Error!', error.response?.data?.message || 'Failed to create product')
     } finally {
       setIsSubmitting(false)
     }
@@ -172,17 +150,14 @@ const ProductAdd = () => {
     handleGenerateQRCode()
   }
 
-  const handleCancel = () => {
-    Swal.fire({
+  const handleCancel = async () => {
+    const confirmed = await confirmDialog({
       title: 'Discard changes?',
-      text: 'You will lose all data entered in this form',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Discard',
-      confirmButtonColor: 'oklch(var(--destructive))'
-    }).then((result) => {
-      if (result.isConfirmed) navigate('/products/manage')
+      description: 'You will lose all data entered in this form',
+      confirmText: 'Discard',
+      variant: 'destructive',
     })
+    if (confirmed) navigate('/products/manage')
   }
 
   const handleCategoryAdded = (newCategory) => {

@@ -21,7 +21,7 @@ import {
   suppliersAPI, 
   purchaseOrdersAPI 
 } from '../services/inventoryService'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 
 const LowStockAlerts = () => {
   const [lowStockItems, setLowStockItems] = useState([])
@@ -114,7 +114,7 @@ const LowStockAlerts = () => {
     let supplier = suppliers.find(s => s._id === product?.supplierId)
     
     if (!supplier) {
-      Swal.fire('Error', 'No supplier assigned to this product.', 'error')
+      notify.error('Error', 'No supplier assigned to this product.')
       return
     }
 
@@ -134,9 +134,9 @@ const LowStockAlerts = () => {
         status: 'Draft',
         notes: `Auto-generated for low stock - ${product.productName}`
       })
-      Swal.fire('Success', 'PO created successfully', 'success')
+      notify.success('Success', 'PO created successfully')
       fetchData()
-    } catch (e) { Swal.fire('Error', 'Failed to create PO', 'error') }
+    } catch (e) { notify.error('Error', 'Failed to create PO') }
   }
 
   if (loading) {
@@ -266,7 +266,7 @@ const LowStockAlerts = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowReorderModal(false)}>Cancel</Button>
-            <Button onClick={() => Swal.fire('Wait', 'Processing bulk orders...', 'info')}>Create Orders</Button>
+            <Button onClick={() => notify.info('Wait', 'Processing bulk orders...')}>Create Orders</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

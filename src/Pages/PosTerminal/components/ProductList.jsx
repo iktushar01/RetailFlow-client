@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Search, Package, Plus, Edit3, Check, X, AlertTriangle } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 
 import { Button } from "@/Components/UI/button"
 import { Input } from "@/Components/UI/input"
@@ -27,19 +27,19 @@ const ProductList = ({ products, inventory, onAddToCart, onUpdateProductPrice, f
   const handlePriceSave = async (product) => {
     const newPrice = parseFloat(tempPrice)
     if (isNaN(newPrice) || newPrice < 0) {
-      Swal.fire('Invalid Price', 'Please enter a valid price', 'error')
+      notify.error('Invalid Price', 'Please enter a valid price')
       return
     }
 
     try {
       if (onUpdateProductPrice) {
         await onUpdateProductPrice(product._id, newPrice)
-        Swal.fire({ title: 'Updated', icon: 'success', timer: 1000, showConfirmButton: false })
+        notify.success('Updated', undefined, { duration: 1000 })
       }
       setEditingPrice(null)
       setTempPrice('')
     } catch (error) {
-      Swal.fire('Error', error.message, 'error')
+      notify.error('Error', error.message)
     }
   }
 

@@ -12,7 +12,8 @@ import {
   getPaymentTermsDisplay,
   formatDate 
 } from "../utils/supplierHelpers";
-import Swal from 'sweetalert2';
+import { notify } from '../../../utils/notifications';
+import { confirmDialog } from '../../../utils/confirmDialog';
 
 const SuppliersList = () => {
   const [suppliersData, setSuppliersData] = useState([]);
@@ -129,38 +130,20 @@ const SuppliersList = () => {
   };
 
   const handleDelete = async (supplier) => {
-    const result = await Swal.fire({
+    const confirmed = await confirmDialog({
       title: 'CONFIRM REMOVAL',
-      text: `Terminate supplier record for "${supplier.supplierName}"?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: 'oklch(var(--destructive))',
-      cancelButtonColor: 'oklch(var(--muted))',
-      confirmButtonText: 'CONFIRM DELETE',
-      customClass: {
-        popup: 'rounded-3xl border shadow-2xl',
-        confirmButton: 'rounded-xl uppercase tracking-widest text-xs font-bold',
-        cancelButton: 'rounded-xl uppercase tracking-widest text-xs font-bold'
-      }
+      description: `Terminate supplier record for "${supplier.supplierName}"?`,
+      confirmText: 'CONFIRM DELETE',
+      variant: 'destructive',
     });
 
-    if (result.isConfirmed) {
+    if (confirmed) {
       try {
         await suppliersAPI.delete(supplier._id);
-        // Optimized: Update local state instead of refetching the whole API
         setSuppliersData(prev => prev.filter(s => s._id !== supplier._id));
-        
-        Swal.fire({
-          title: 'DELETED',
-          text: 'Entity removed from secure registry.',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
-        });
+        notify.success('DELETED', 'Entity removed from secure registry.', { duration: 2000 });
       } catch {
-        Swal.fire('Error', 'Deletion protocol failed.', 'error');
+        notify.error('Error', 'Deletion protocol failed.');
       }
     }
   };

@@ -6,7 +6,7 @@ import { ScrollArea } from "@/Components/UI/scroll-area"
 import { Separator } from "@/Components/UI/separator"
 import { Badge } from "@/Components/UI/badge"
 import DiscountSelector from './DiscountSelector'
-import Swal from 'sweetalert2'
+import { notify } from '../../../utils/notifications'
 
 const Cart = ({
   cartItems,
@@ -32,7 +32,7 @@ const Cart = ({
   const handlePriceSave = (index) => {
     const newPrice = parseFloat(tempPrice)
     if (isNaN(newPrice) || newPrice < 0) {
-      Swal.fire('Invalid Price', 'Please enter a valid price', 'error')
+      notify.error('Invalid Price', 'Please enter a valid price')
       return
     }
     onUpdatePrice(index, newPrice)

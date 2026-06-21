@@ -3,7 +3,7 @@ import {
   Package, Pencil, AlertTriangle, Calendar, RefreshCw, 
   Info, CheckCircle, XCircle, QrCode, Barcode, Search, Sparkles 
 } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../utils/notifications'
 
 // shadcn/ui components
 import { Button } from "@/Components/UI/button"
@@ -101,7 +101,7 @@ const InventoryTracking = () => {
     e.preventDefault()
     const validation = validateInventoryTracking(formData)
     if (!validation.isValid) {
-      Swal.fire({ icon: 'warning', title: 'Validation Error', text: validation.errors[0] })
+      notify.warning('Validation Error', validation.errors[0])
       return
     }
 
@@ -113,8 +113,8 @@ const InventoryTracking = () => {
         expiry: formData.expiry || null
       })
       setModalOpen(false); fetchAllData()
-      Swal.fire({ icon: 'success', title: 'Success', timer: 1500, showConfirmButton: false })
-    } catch (error) { Swal.fire({ icon: 'error', title: 'Update Failed' }) }
+      notify.success('Success', undefined, { duration: 1500 })
+    } catch (error) { notify.error('Update Failed') }
   }
 
   const stats = useMemo(() => calculateInventoryStats(inventory, products), [inventory, products])

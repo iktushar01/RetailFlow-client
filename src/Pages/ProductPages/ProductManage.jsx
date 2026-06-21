@@ -13,7 +13,8 @@ import {
   Search,
   ArrowRight
 } from 'lucide-react'
-import Swal from 'sweetalert2'
+import { notify } from '../../utils/notifications'
+import { confirmDialog } from '../../utils/confirmDialog'
 import { Button } from '../../Components/UI/button'
 import { Badge } from "../../Components/UI/badge"
 import { Card } from '../../Components/UI/card'
@@ -50,12 +51,7 @@ const ProductManage = () => {
       setProducts(data)
     } catch (error) {
       console.error('Error fetching products:', error)
-      Swal.fire({
-        title: 'System Error',
-        text: 'Failed to synchronize product vault',
-        icon: 'error',
-        confirmButtonColor: 'oklch(var(--destructive))'
-      })
+      notify.error('System Error', 'Failed to synchronize product vault')
     } finally {
       setLoading(false)
     }
@@ -85,23 +81,20 @@ const ProductManage = () => {
   }
 
   const handleDelete = async (product) => {
-    const result = await Swal.fire({
+    const confirmed = await confirmDialog({
       title: 'De-list Product?',
-      text: `Are you sure you want to remove ${product.productName}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, Delete',
-      confirmButtonColor: 'oklch(var(--destructive))',
-      cancelButtonColor: 'oklch(var(--muted))',
+      description: `Are you sure you want to remove ${product.productName}?`,
+      confirmText: 'Yes, Delete',
+      variant: 'destructive',
     })
 
-    if (result.isConfirmed) {
+    if (confirmed) {
       try {
         await productsAPI.delete(product._id)
-        Swal.fire({ title: 'Deleted', icon: 'success', timer: 1500, showConfirmButton: false })
+        notify.success('Deleted', undefined, { duration: 1500 })
         fetchProducts()
       } catch {
-        Swal.fire({ title: 'Error', text: 'Deletion failed', icon: 'error' })
+        notify.error('Error', 'Deletion failed')
       }
     }
   }
