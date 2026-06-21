@@ -10,6 +10,26 @@ export const apiClient = axios.create({
   timeout: 30000,
 })
 
+const AUTH_SKIP_REFRESH = [
+  '/api/v1/auth/login',
+  '/api/v1/auth/refresh-token',
+  '/api/v1/auth/register',
+]
+
+let isRefreshing = false
+let refreshWaitQueue = []
+
+const flushRefreshQueue = (error) => {
+  refreshWaitQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error)
+    else resolve()
+  })
+  refreshWaitQueue = []
+}
+
+const shouldSkipRefresh = (url = '') =>
+  AUTH_SKIP_REFRESH.some((path) => url.includes(path))
+
 // Default JSON for API calls; strip Content-Type for FormData so multipart boundary is set correctly
 apiClient.interceptors.request.use((config) => {
   if (config.data instanceof FormData) {
@@ -23,4 +43,44 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
+/** On 401, refresh access token via httpOnly cookie and retry the original request once. */
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+    const status = error.response?.status
+
+    if (
+      status !== 401 ||
+      !originalRequest ||
+      originalRequest._retry ||
+      shouldSkipRefresh(originalRequest.url)
+    ) {
+      return Promise.reject(error)
+    }
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        refreshWaitQueue.push({ resolve, reject })
+      }).then(() => apiClient(originalRequest))
+    }
+
+    originalRequest._retry = true
+    isRefreshing = true
+
+    try {
+      await apiClient.post('/api/v1/auth/refresh-token')
+      flushRefreshQueue(null)
+      return apiClient(originalRequest)
+    } catch (refreshError) {
+      flushRefreshQueue(refreshError)
+      localStorage.removeItem('retailflow_user')
+      return Promise.reject(refreshError)
+    } finally {
+      isRefreshing = false
+    }
+  }
+)
+
 export default apiClient
+

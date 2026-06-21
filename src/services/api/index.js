@@ -69,6 +69,7 @@ export const authApi = {
     return res.data
   },
   logout: () => apiClient.post('/api/v1/auth/logout').catch(() => null),
+  refreshToken: () => apiClient.post('/api/v1/auth/refresh-token'),
   getMe: async () => {
     const res = await apiClient.get('/api/v1/auth/me')
     return res.data

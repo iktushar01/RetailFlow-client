@@ -52,8 +52,12 @@ export const AuthProvider = ({ children }) => {
       if (mapped) {
         setUser(mapped)
         localStorage.setItem('retailflow_user', JSON.stringify(mapped))
+      } else {
+        setUser(null)
+        localStorage.removeItem('retailflow_user')
       }
     } catch {
+      // Interceptor already attempted refresh; session is fully expired
       setUser(null)
       localStorage.removeItem('retailflow_user')
     }
