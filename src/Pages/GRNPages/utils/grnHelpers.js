@@ -1,4 +1,11 @@
 // Format currency
+export const getRecordId = (record) => record?._id ?? record?.id ?? ''
+
+export const GRN_ELIGIBLE_PO_STATUSES = ['Sent', 'Partially Received']
+
+export const filterEligiblePurchaseOrders = (orders) =>
+  (orders || []).filter((po) => GRN_ELIGIBLE_PO_STATUSES.includes(po.status))
+
 export const formatCurrency = (amount) => {
   if (!amount && amount !== 0) return 'BDT 0.00'
   return new Intl.NumberFormat('en-BD', {

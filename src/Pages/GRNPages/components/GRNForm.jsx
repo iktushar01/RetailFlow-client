@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { X, Save, Info, MessageSquare, ClipboardList } from 'lucide-react'
+import { X, Save, Info, MessageSquare } from 'lucide-react'
 import { Button } from "@/Components/UI/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/Components/UI/dialog"
 import {
   Select,
   SelectContent,
@@ -20,10 +13,15 @@ import { Textarea } from "@/Components/UI/textarea"
 import { Progress } from "@/Components/UI/progress"
 import { Label } from "@/Components/UI/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/UI/card"
-import { ScrollArea } from "@/Components/UI/scroll-area"
+import SharedModal from '../../../Shared/SharedModal/SharedModal'
 
 import GRNItemsTable from './GRNItemsTable'
-import { validateGRNForm, generateGRNNumber, MAX_NOTES_LENGTH } from '../utils/grnHelpers'
+import {
+  validateGRNForm,
+  generateGRNNumber,
+  MAX_NOTES_LENGTH,
+  getRecordId,
+} from '../utils/grnHelpers'
 import { grnAPI } from '../services/grnService'
 import { notify } from '../../../utils/notifications'
 import { apiClient } from '../../../config/apiConfig'
@@ -34,6 +32,7 @@ const GRNForm = ({
   formData,
   setFormData,
   purchaseOrders = [],
+  purchaseOrdersLoading = false,
   loading,
   onSubmit,
   isEditing
@@ -43,18 +42,17 @@ const GRNForm = ({
 
   useEffect(() => {
     const fetchWarehouses = async () => {
-      if (isOpen) {
-        setWarehousesLoading(true)
-        try {
-          const response = await apiClient.get('/warehouses')
-          setWarehouses(response.data || [])
-        } catch (error) {
-          console.error('Error fetching warehouses:', error)
-          setWarehouses([])
-          notify.error('Warehouse Error', 'Failed to load warehouses. Please try again.')
-        } finally {
-          setWarehousesLoading(false)
-        }
+      if (!isOpen) return
+      setWarehousesLoading(true)
+      try {
+        const response = await apiClient.get('/warehouses')
+        setWarehouses(response.data || [])
+      } catch (error) {
+        console.error('Error fetching warehouses:', error)
+        setWarehouses([])
+        notify.error('Warehouse Error', 'Failed to load warehouses. Please try again.')
+      } finally {
+        setWarehousesLoading(false)
       }
     }
     fetchWarehouses()
@@ -68,43 +66,44 @@ const GRNForm = ({
   }, [isOpen, isEditing, formData.grnNumber, setFormData])
 
   const handlePOChange = async (poId) => {
-    const selectedPO = purchaseOrders.find(po => po._id === poId)
-    if (selectedPO) {
-      try {
-        const cumulativeReceived = await grnAPI.getCumulativeReceivedByPO(poId)
-        const receivedMap = {}
-        cumulativeReceived.forEach(item => {
-          receivedMap[item.productId] = item.totalReceived
-        })
+    const selectedPO = purchaseOrders.find(po => getRecordId(po) === poId)
+    if (!selectedPO) return
 
-        const grnItems = selectedPO.items?.map(item => {
-          const productId = item.product || item.productId
-          const orderedQty = item.quantity || item.orderedQty
-          const alreadyReceived = receivedMap[productId] || 0
-          return {
-            id: item.id || Date.now() + Math.random(),
-            productId,
-            productName: item.productName,
-            orderedQty,
-            alreadyReceived,
-            remainingQty: orderedQty - alreadyReceived,
-            receivedQty: 0,
-            batch: '',
-            expiry: '',
-            unitPrice: item.unitPrice || 0
-          }
-        }) || []
+    try {
+      const cumulativeReceived = await grnAPI.getCumulativeReceivedByPO(poId)
+      const receivedMap = {}
+      cumulativeReceived.forEach(item => {
+        receivedMap[item.productId] = item.totalReceived
+      })
 
-        setFormData(prev => ({
-          ...prev,
-          poId,
-          poNumber: selectedPO.poNumber,
-          supplierId: selectedPO.supplier,
-          items: grnItems
-        }))
-      } catch (error) {
-        console.error('Error mapping items:', error)
-      }
+      const grnItems = selectedPO.items?.map(item => {
+        const productId = item.product || item.productId
+        const orderedQty = item.quantity || item.orderedQty
+        const alreadyReceived = receivedMap[productId] || 0
+        return {
+          id: item.id || Date.now() + Math.random(),
+          productId,
+          productName: item.productName,
+          orderedQty,
+          alreadyReceived,
+          remainingQty: orderedQty - alreadyReceived,
+          receivedQty: 0,
+          batch: '',
+          expiry: '',
+          unitPrice: item.unitPrice || 0
+        }
+      }) || []
+
+      setFormData(prev => ({
+        ...prev,
+        poId,
+        poNumber: selectedPO.poNumber,
+        supplierId: selectedPO.supplier,
+        items: grnItems
+      }))
+    } catch (error) {
+      console.error('Error mapping items:', error)
+      notify.error('PO Error', error.response?.data?.message || 'Failed to load PO items.')
     }
   }
 
@@ -122,180 +121,181 @@ const GRNForm = ({
   const completionPercentage = totalOrdered > 0 ? Math.round((totalReceived / totalOrdered) * 100) : 0
   const remainingChars = MAX_NOTES_LENGTH - (formData.notes?.length || 0)
 
+  const modalFooter = (
+    <div className="flex gap-3 w-full sm:w-auto sm:ml-auto">
+      <Button variant="outline" onClick={onClose} disabled={loading}>
+        <X className="w-4 h-4 mr-2" /> Cancel
+      </Button>
+      <Button
+        onClick={handleFormSubmit}
+        disabled={loading || !formData.poId || formData.items?.length === 0}
+      >
+        <Save className="w-4 h-4 mr-2" />
+        {loading ? 'Saving...' : isEditing ? 'Update GRN' : 'Create GRN'}
+      </Button>
+    </div>
+  )
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && !loading && onClose()}>
-      <DialogContent size="full" className="flex flex-col p-0">
-        <DialogHeader className="px-6 py-4 border-b">
-          <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-            <ClipboardList className="w-6 h-6 text-primary" />
-            {isEditing ? 'Edit Goods Receive Note' : 'Create New GRN'}
-          </DialogTitle>
-        </DialogHeader>
-
-        <ScrollArea className="flex-1 px-6 py-6">
-          <div className="space-y-6 pb-4">
-            {/* Basic Information Card */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-md font-semibold flex items-center gap-2">
-                  <Info className="w-4 h-4 text-primary" />
-                  Basic Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label>GRN Number</Label>
-                  <Input 
-                    value={formData.grnNumber || ''} 
-                    readOnly 
-                    className="bg-muted font-mono" 
-                  />
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Auto-generated identifier</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Purchase Order <span className="text-destructive">*</span></Label>
-                  <Select 
-                    disabled={isEditing} 
-                    value={formData.poId} 
-                    onValueChange={handlePOChange}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select PO" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {purchaseOrders.map(po => (
-                        <SelectItem key={po._id} value={po._id}>
-                          {po.poNumber} ({po.items?.length || 0} items)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Received Date <span className="text-destructive">*</span></Label>
-                  <Input 
-                    type="date" 
-                    value={formData.receivedDate || ''} 
-                    max={new Date().toISOString().split('T')[0]}
-                    onChange={(e) => setFormData({ ...formData, receivedDate: e.target.value })}
-                  />
-                </div>
-
-                <div className="md:col-span-3 space-y-2">
-                  <Label>Destination Warehouse <span className="text-destructive">*</span></Label>
-                  <Select 
-                    value={formData.destinationWarehouse} 
-                    onValueChange={(val) => setFormData({ ...formData, destinationWarehouse: val })}
-                    disabled={warehousesLoading}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={warehousesLoading ? "Loading..." : "Select warehouse"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {warehouses.map(w => (
-                        <SelectItem key={w._id} value={w.name}>{w.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Summary Statistics */}
-            {formData.items?.length > 0 && (
-              <Card className="bg-accent/50 border-primary/20">
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase font-bold">Total Items</p>
-                      <p className="text-2xl font-black">{formData.items.length}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase font-bold">Ordered</p>
-                      <p className="text-2xl font-black">{totalOrdered}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase font-bold">Received</p>
-                      <p className="text-2xl font-black text-primary">{totalReceived}</p>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-xs text-muted-foreground uppercase font-bold">Completion</p>
-                      <div className="flex items-center gap-2">
-                        <span className="font-black text-primary">{completionPercentage}%</span>
-                        <Progress value={completionPercentage} className="h-2" />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Items Table */}
-            <div className="rounded-xl border bg-card overflow-hidden">
-              <GRNItemsTable
-                items={formData.items || []}
-                onItemChange={(id, field, value) => {
-                  setFormData(prev => ({
-                    ...prev,
-                    items: prev.items.map(item => item.id === id ? { ...item, [field]: value } : item)
-                  }))
-                }}
-                readOnly={false}
+    <SharedModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? 'Edit Goods Receive Note' : 'Create New GRN'}
+      size="full"
+      closeOnOverlayClick={false}
+      footer={modalFooter}
+      className="max-h-[96dvh]"
+    >
+      <div className="space-y-6 pb-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-md font-semibold flex items-center gap-2">
+              <Info className="w-4 h-4 text-primary" />
+              Basic Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label>GRN Number</Label>
+              <Input
+                value={formData.grnNumber || ''}
+                readOnly
+                className="bg-muted font-mono"
               />
             </div>
 
-            {/* Notes Section */}
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-md font-semibold flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-primary" />
-                    Notes (Optional)
-                  </CardTitle>
-                  <span className={`text-[10px] font-bold ${remainingChars < 50 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                    {remainingChars} CHARS LEFT
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Textarea 
-                  value={formData.notes || ''}
-                  placeholder="Add any additional notes or discrepancies..."
-                  maxLength={MAX_NOTES_LENGTH}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="min-h-[100px] resize-none"
-                />
-              </CardContent>
-            </Card>
-          </div>
-        </ScrollArea>
+            <div className="space-y-2">
+              <Label>Purchase Order <span className="text-destructive">*</span></Label>
+              <Select
+                disabled={isEditing || purchaseOrdersLoading}
+                value={formData.poId || undefined}
+                onValueChange={handlePOChange}
+              >
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue
+                    placeholder={
+                      purchaseOrdersLoading
+                        ? 'Loading purchase orders...'
+                        : purchaseOrders.length === 0
+                          ? 'No sent POs available'
+                          : 'Select PO'
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="z-[100]" position="popper">
+                  {purchaseOrders.map(po => {
+                    const poId = getRecordId(po)
+                    return (
+                      <SelectItem key={poId} value={poId}>
+                        {po.poNumber} ({po.items?.length || 0} items)
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+              {!purchaseOrdersLoading && purchaseOrders.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Send a purchase order first, then create a GRN against it.
+                </p>
+              )}
+            </div>
 
-        <DialogFooter className="px-6 py-4 border-t bg-background sticky bottom-0">
-          <div className="flex gap-3 w-full sm:w-auto">
-            <Button 
-              variant="outline" 
-              onClick={onClose} 
-              disabled={loading}
-              className="flex-1 sm:flex-none"
-            >
-              <X className="w-4 h-4 mr-2" /> Cancel
-            </Button>
-            <Button 
-              onClick={handleFormSubmit} 
-              disabled={loading || !formData.poId || formData.items?.length === 0}
-              className="flex-1 sm:flex-none"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              {isEditing ? 'Update GRN' : 'Create GRN'}
-            </Button>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <div className="space-y-2">
+              <Label>Received Date <span className="text-destructive">*</span></Label>
+              <Input
+                type="date"
+                value={formData.receivedDate || ''}
+                max={new Date().toISOString().split('T')[0]}
+                onChange={(e) => setFormData({ ...formData, receivedDate: e.target.value })}
+              />
+            </div>
+
+            <div className="md:col-span-3 space-y-2">
+              <Label>Destination Warehouse <span className="text-destructive">*</span></Label>
+              <Select
+                value={formData.destinationWarehouse || undefined}
+                onValueChange={(val) => setFormData({ ...formData, destinationWarehouse: val })}
+                disabled={warehousesLoading}
+              >
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue placeholder={warehousesLoading ? 'Loading...' : 'Select warehouse'} />
+                </SelectTrigger>
+                <SelectContent className="z-[100]" position="popper">
+                  {warehouses.map(w => (
+                    <SelectItem key={getRecordId(w)} value={w.name}>{w.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {formData.items?.length > 0 && (
+          <Card className="bg-accent/50 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <p className="text-xs text-muted-foreground">Total Items</p>
+                  <p className="text-2xl font-semibold">{formData.items.length}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Ordered</p>
+                  <p className="text-2xl font-semibold">{totalOrdered}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Received</p>
+                  <p className="text-2xl font-semibold text-primary">{totalReceived}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Completion</p>
+                  <div className="flex items-center gap-2 justify-center">
+                    <span className="font-semibold text-primary">{completionPercentage}%</span>
+                    <Progress value={completionPercentage} className="h-2 flex-1 max-w-[120px]" />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="rounded-xl border bg-card overflow-hidden">
+          <GRNItemsTable
+            items={formData.items || []}
+            onItemChange={(id, field, value) => {
+              setFormData(prev => ({
+                ...prev,
+                items: prev.items.map(item => item.id === id ? { ...item, [field]: value } : item)
+              }))
+            }}
+            readOnly={false}
+          />
+        </div>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-md font-semibold flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-primary" />
+                Notes (Optional)
+              </CardTitle>
+              <span className={`text-[10px] ${remainingChars < 50 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {remainingChars} chars left
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Textarea
+              value={formData.notes || ''}
+              placeholder="Add any additional notes or discrepancies..."
+              maxLength={MAX_NOTES_LENGTH}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              className="min-h-[100px] resize-none"
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </SharedModal>
   )
 }
 
 export default GRNForm
-

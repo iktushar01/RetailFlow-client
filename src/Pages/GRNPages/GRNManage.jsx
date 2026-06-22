@@ -30,7 +30,7 @@ import GRNViewModal from './components/GRNViewModal' // New: Separated View logi
 
 // Services & Utils
 import { grnAPI, purchaseOrdersAPI, suppliersAPI } from './services/grnService'
-import { determineGRNStatus } from './utils/grnHelpers'
+import { determineGRNStatus, filterEligiblePurchaseOrders } from './utils/grnHelpers'
 
 const GRNManage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -61,16 +61,21 @@ const GRNManage = () => {
     search: ''
   })
 
-  const [formData, setFormData] = useState({
+  const [poLoading, setPoLoading] = useState(false)
+
+  const initialFormState = {
     grnNumber: '',
     poId: '',
     poNumber: '',
     supplierId: '',
     receivedDate: new Date().toISOString().split('T')[0],
+    destinationWarehouse: '',
     items: [],
     notes: '',
     status: 'Pending'
-  })
+  }
+
+  const [formData, setFormData] = useState(initialFormState)
 
   const notify = (title, message, type = "default") => {
     setNotification({ title, message, type })
@@ -81,6 +86,18 @@ const GRNManage = () => {
     fetchAllData()
   }, [])
 
+  const fetchAvailablePOs = async () => {
+    setPoLoading(true)
+    try {
+      const poData = await purchaseOrdersAPI.getAll()
+      setPurchaseOrders(filterEligiblePurchaseOrders(poData))
+    } catch (error) {
+      notify('Error', 'Could not load purchase orders.', 'destructive')
+    } finally {
+      setPoLoading(false)
+    }
+  }
+
   const fetchAllData = async () => {
     setFetchLoading(true)
     try {
@@ -90,13 +107,20 @@ const GRNManage = () => {
         grnAPI.getAll()
       ])
       setSuppliers(sData || [])
-      setPurchaseOrders(poData?.filter(po => po.status === 'Sent' || po.status === 'Partially Received') || [])
+      setPurchaseOrders(filterEligiblePurchaseOrders(poData))
       setGrns(grnData || [])
     } catch (error) {
       notify("Error", "Could not synchronize data.", "destructive")
     } finally {
       setFetchLoading(false)
     }
+  }
+
+  const openNewGrnModal = async () => {
+    setIsEditing(false)
+    setFormData({ ...initialFormState, receivedDate: new Date().toISOString().split('T')[0] })
+    setIsModalOpen(true)
+    await fetchAvailablePOs()
   }
 
   const filteredGRNs = useMemo(() => {
@@ -180,7 +204,7 @@ const GRNManage = () => {
             <RefreshCw className={`w-4 h-4 mr-2 ${fetchLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button onClick={() => { setIsEditing(false); setIsModalOpen(true); setFormData({ ...formData, receivedDate: new Date().toISOString().split('T')[0] }); }}>
+          <Button onClick={openNewGrnModal}>
             <Plus className="w-4 h-4 mr-2" />
             New GRN
           </Button>
@@ -210,13 +234,29 @@ const GRNManage = () => {
         suppliers={suppliers}
         loading={fetchLoading}
         onView={(grn) => { setSelectedGRN(grn); setIsViewOpen(true); }}
-        onEdit={(grn) => { setGrnToProcess(grn); setIsEditing(true); setFormData(grn); setIsModalOpen(true); }}
+        onEdit={async (grn) => {
+          setGrnToProcess(grn)
+          setIsEditing(true)
+          setFormData(grn)
+          setIsModalOpen(true)
+          await fetchAvailablePOs()
+        }}
         onDelete={(grn) => { setGrnToProcess(grn); setDeleteDialogOpen(true); }}
         onApprove={(grn) => { setGrnToProcess(grn); setApproveDialogOpen(true); }}
       />
 
       {/* Modals & Dialogs */}
-      <GRNForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} formData={formData} setFormData={setFormData} purchaseOrders={purchaseOrders} loading={loading} onSubmit={handleSubmit} isEditing={isEditing} />
+      <GRNForm
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        formData={formData}
+        setFormData={setFormData}
+        purchaseOrders={purchaseOrders}
+        purchaseOrdersLoading={poLoading}
+        loading={loading}
+        onSubmit={handleSubmit}
+        isEditing={isEditing}
+      />
 
       {/* Separated View Component for cleaner logic */}
       <GRNViewModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} grn={selectedGRN} suppliers={suppliers} />
