@@ -99,7 +99,8 @@ export const getStockStatusColor = (status) => {
  * @returns {string} Display text
  */
 export const getStockStatusDisplay = (status) => {
-  return status === 'Approved' ? '✅ In Warehouse' : status
+  if (status === 'Approved') return 'In Warehouse'
+  return status || 'N/A'
 }
 
 /**
@@ -185,10 +186,6 @@ export const downloadCSV = (csvContent, filename = 'stock-in-export.csv') => {
  * @returns {Array} Approved GRNs
  */
 export const getApprovedGRNs = (grns) => {
-  return grns.filter(grn => 
-    grn.status === 'Approved' || 
-    grn.status === 'Partially Received' || 
-    grn.status === 'Fully Received'
-  )
+  return grns.filter((grn) => grn.status === 'Approved')
 }
 

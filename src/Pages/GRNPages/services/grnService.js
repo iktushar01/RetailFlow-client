@@ -51,6 +51,13 @@ export const grnAPI = {
     })
     return response.data
   },
+
+  reject: async (id) => {
+    const response = await api.patch(`/grn/${id}/reject`, {
+      status: 'Rejected'
+    })
+    return response.data
+  },
   
   getCumulativeReceivedByPO: async (poId) => {
     const response = await api.get(`/grn/po/${poId}/received`)

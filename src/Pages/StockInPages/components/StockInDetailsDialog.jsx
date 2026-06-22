@@ -84,12 +84,12 @@ export const StockInDetailsDialog = ({ isOpen, onOpenChange, grn, suppliers }) =
                       <TableRow key={idx}>
                         <TableCell className="font-medium">{item.productName}</TableCell>
                         <TableCell className="font-mono text-xs">{item.batch || 'N/A'}</TableCell>
-                        <TableCell className="text-center">{item.orderQty || 0}</TableCell>
-                        <TableCell className="text-center font-bold text-emerald-600">
+                        <TableCell className="text-center">{item.orderedQty || 0}</TableCell>
+                        <TableCell className="text-center font-medium text-emerald-600">
                           {item.receivedQty || 0}
                         </TableCell>
                         <TableCell className="text-right text-xs text-muted-foreground">
-                          {item.expiryDate ? formatDate(item.expiryDate).split(',')[0] : 'N/A'}
+                          {item.expiry ? formatDate(item.expiry).split(',')[0] : 'N/A'}
                         </TableCell>
                       </TableRow>
                     ))}

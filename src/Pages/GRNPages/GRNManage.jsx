@@ -30,7 +30,7 @@ import GRNViewModal from './components/GRNViewModal' // New: Separated View logi
 
 // Services & Utils
 import { grnAPI, purchaseOrdersAPI, suppliersAPI } from './services/grnService'
-import { determineGRNStatus, filterEligiblePurchaseOrders } from './utils/grnHelpers'
+import { determineGRNStatus, filterEligiblePurchaseOrders, getRecordId } from './utils/grnHelpers'
 
 const GRNManage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -50,6 +50,7 @@ const GRNManage = () => {
   // Dialog States
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [approveDialogOpen, setApproveDialogOpen] = useState(false)
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [grnToProcess, setGrnToProcess] = useState(null)
 
   const [filters, setFilters] = useState({
@@ -141,7 +142,7 @@ const GRNManage = () => {
       const finalData = { ...grnData, status }
 
       if (isEditing) {
-        await grnAPI.update(grnToProcess._id, finalData)
+        await grnAPI.update(getRecordId(grnToProcess), finalData)
         notify("Success", "GRN updated successfully.")
       } else {
         await grnAPI.create(finalData)
@@ -158,11 +159,11 @@ const GRNManage = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      await grnAPI.delete(grnToProcess._id)
+      await grnAPI.delete(getRecordId(grnToProcess))
       notify("Deleted", "GRN record removed.")
       fetchAllData()
     } catch (error) {
-      notify("Error", "Failed to delete record.", "destructive")
+      notify("Error", error.response?.data?.message || "Failed to delete record.", "destructive")
     } finally {
       setDeleteDialogOpen(false)
     }
@@ -170,13 +171,25 @@ const GRNManage = () => {
 
   const handleConfirmApprove = async () => {
     try {
-      await grnAPI.approve(grnToProcess._id)
+      await grnAPI.approve(getRecordId(grnToProcess))
       notify("Approved", "GRN record is now locked and finalized.")
       fetchAllData()
     } catch (error) {
-      notify("Error", "Approval failed.", "destructive")
+      notify("Error", error.response?.data?.message || "Approval failed.", "destructive")
     } finally {
       setApproveDialogOpen(false)
+    }
+  }
+
+  const handleConfirmReject = async () => {
+    try {
+      await grnAPI.reject(getRecordId(grnToProcess))
+      notify("Rejected", "GRN rejected. Inventory and PO status were reverted.")
+      fetchAllData()
+    } catch (error) {
+      notify("Error", error.response?.data?.message || "Rejection failed.", "destructive")
+    } finally {
+      setRejectDialogOpen(false)
     }
   }
 
@@ -243,6 +256,7 @@ const GRNManage = () => {
         }}
         onDelete={(grn) => { setGrnToProcess(grn); setDeleteDialogOpen(true); }}
         onApprove={(grn) => { setGrnToProcess(grn); setApproveDialogOpen(true); }}
+        onReject={(grn) => { setGrnToProcess(grn); setRejectDialogOpen(true); }}
       />
 
       {/* Modals & Dialogs */}
@@ -289,6 +303,24 @@ const GRNManage = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Go Back</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmApprove}>Finalize Approval</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Reject Dialog */}
+      <AlertDialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reject this GRN?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Rejecting <span className="font-bold text-foreground">{grnToProcess?.grnNumber}</span> will remove the receipt and revert inventory changes for this GRN.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmReject} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Reject GRN
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

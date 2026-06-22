@@ -25,9 +25,7 @@ const StockInFilter = ({
       placeholder: 'All Statuses',
       options: [
         { value: '', label: 'All Status' },
-        { value: 'Approved', label: '✅ Approved' },
-        { value: 'Fully Received', label: '🟢 Fully Received' },
-        { value: 'Partially Received', label: '🟡 Partially Received' }
+        { value: 'Approved', label: 'Approved' },
       ]
     },
     {
