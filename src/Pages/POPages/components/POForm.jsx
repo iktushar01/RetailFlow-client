@@ -16,7 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/Components/UI/alert"
 import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import POItemsTable from './POItemsTable'
 import POSummary from './POSummary'
-import { validatePOForm, MAX_NOTES_LENGTH } from '../utils/poHelpers'
+import { validatePOForm, MAX_NOTES_LENGTH, generatePONumber } from '../utils/poHelpers'
 import { getSupplierProducts } from '../../SuppliersPages/utils/supplierHelpers'
 import { notify } from '../../../utils/notifications'
 import { cn } from "@/lib/utils"
@@ -36,7 +36,7 @@ const POForm = ({
 
   useEffect(() => {
     if (isOpen && !isEditing && !formData.poNumber) {
-      const poNumber = `PO-${Date.now()}`
+      const poNumber = generatePONumber()
       setFormData(prev => ({ ...prev, poNumber }))
     }
   }, [isOpen, isEditing, formData.poNumber, setFormData])

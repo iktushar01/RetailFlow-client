@@ -31,6 +31,7 @@ import POFilter from './components/POFilter'
 // Services & Helpers
 import { suppliersAPI, productsAPI, purchaseOrdersAPI } from './services/poService'
 import { getStatusColor, formatCurrency, formatDate } from './utils/poHelpers'
+import { notify } from '../../utils/notifications'
 
 const ManagePO = () => {
   
@@ -87,11 +88,7 @@ const ManagePO = () => {
       setProducts(productsRes || [])
       setPurchaseOrders(poRes || [])
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Fetch Error",
-        description: "Failed to sync dashboard data."
-      })
+      notify.error('Fetch Error', 'Failed to sync dashboard data.')
     } finally {
       setFetchLoading(false)
     }
@@ -139,16 +136,9 @@ const ManagePO = () => {
     try {
       await purchaseOrdersAPI.delete(actionTarget.id)
       setPurchaseOrders(prev => prev.filter(p => p.id !== actionTarget.id))
-      toast({
-        title: "Order Deleted",
-        description: `${actionTarget.poNumber} has been removed.`,
-      })
+      notify.success('Order Deleted', `${actionTarget.poNumber} has been removed.`)
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Delete Failed",
-        description: "Could not remove purchase order."
-      })
+      notify.error('Delete Failed', 'Could not remove purchase order.')
     }
   }
 
@@ -163,16 +153,9 @@ const ManagePO = () => {
       setPurchaseOrders(prev => prev.map(p => 
         p.id === actionTarget.id ? { ...p, status: 'Sent' } : p
       ))
-      toast({
-        title: "PO Sent",
-        description: `Order successfully dispatched to supplier.`,
-      })
+      notify.success('PO Sent', 'Order successfully dispatched to supplier.')
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Send Error",
-        description: "Failed to dispatch purchase order."
-      })
+      notify.error('Send Error', 'Failed to dispatch purchase order.')
     }
   }
 
@@ -181,19 +164,28 @@ const ManagePO = () => {
     try {
       if (isEditing && editingPO) {
         await purchaseOrdersAPI.update(editingPO.id, values)
-        toast({ title: "Updated!", description: "Order changes saved." })
+        notify.success('Updated!', 'Order changes saved.')
       } else {
         await purchaseOrdersAPI.create(values)
-        toast({ title: "Created!", description: "New purchase order added." })
+        notify.success('Created!', 'New purchase order added.')
       }
       fetchAllData()
       setIsModalOpen(false)
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Save Error",
-        description: error.message || "Could not save the order."
-      })
+      const status = error.response?.status
+      const serverMessage = error.response?.data?.message
+
+      if (status === 409 && !isEditing) {
+        await fetchAllData()
+        setIsModalOpen(false)
+        notify.warning(
+          'PO Number Already Used',
+          serverMessage || 'This PO may already exist. Check the list — your order might have been created.'
+        )
+        return
+      }
+
+      notify.error('Save Error', serverMessage || error.message || 'Could not save the order.')
     } finally {
       setLoading(false)
     }
