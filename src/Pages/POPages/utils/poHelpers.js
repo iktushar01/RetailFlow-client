@@ -1,6 +1,13 @@
 // PO Helper Functions
 
-export const getStatusColor = (status) => {
+/** API records use Mongo-style `_id`; support both shapes. */
+export const getRecordId = (record) => record?._id ?? record?.id ?? ''
+
+export const formatDateForInput = (date) => {
+  if (!date) return ''
+  if (typeof date === 'string') return date.slice(0, 10)
+  return new Date(date).toISOString().split('T')[0]
+}
   const colors = {
     Pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     Sent: 'bg-blue-100 text-blue-800 border-blue-200',

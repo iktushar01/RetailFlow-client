@@ -30,7 +30,7 @@ import POFilter from './components/POFilter'
 
 // Services & Helpers
 import { suppliersAPI, productsAPI, purchaseOrdersAPI } from './services/poService'
-import { getStatusColor, formatCurrency, formatDate } from './utils/poHelpers'
+import { getStatusColor, formatCurrency, formatDate, getRecordId, formatDateForInput } from './utils/poHelpers'
 import { notify } from '../../utils/notifications'
 
 const ManagePO = () => {
@@ -117,8 +117,8 @@ const ManagePO = () => {
     setFormData({
       supplier: po.supplier,
       poNumber: po.poNumber,
-      poDate: po.poDate,
-      expectedDeliveryDate: po.expectedDeliveryDate,
+      poDate: formatDateForInput(po.poDate),
+      expectedDeliveryDate: formatDateForInput(po.expectedDeliveryDate),
       items: po.items || [],
       notes: po.notes || '',
       tax: po.tax || 0
@@ -133,12 +133,13 @@ const ManagePO = () => {
   }
 
   const confirmDelete = async () => {
+    const poId = getRecordId(actionTarget)
     try {
-      await purchaseOrdersAPI.delete(actionTarget.id)
-      setPurchaseOrders(prev => prev.filter(p => p.id !== actionTarget.id))
+      await purchaseOrdersAPI.delete(poId)
+      setPurchaseOrders(prev => prev.filter(p => getRecordId(p) !== poId))
       notify.success('Order Deleted', `${actionTarget.poNumber} has been removed.`)
     } catch (error) {
-      notify.error('Delete Failed', 'Could not remove purchase order.')
+      notify.error('Delete Failed', error.response?.data?.message || 'Could not remove purchase order.')
     }
   }
 
@@ -148,14 +149,15 @@ const ManagePO = () => {
   }
 
   const confirmSend = async () => {
+    const poId = getRecordId(actionTarget)
     try {
-      await purchaseOrdersAPI.send(actionTarget.id)
-      setPurchaseOrders(prev => prev.map(p => 
-        p.id === actionTarget.id ? { ...p, status: 'Sent' } : p
+      await purchaseOrdersAPI.send(poId)
+      setPurchaseOrders(prev => prev.map(p =>
+        getRecordId(p) === poId ? { ...p, status: 'Sent' } : p
       ))
       notify.success('PO Sent', 'Order successfully dispatched to supplier.')
     } catch (error) {
-      notify.error('Send Error', 'Failed to dispatch purchase order.')
+      notify.error('Send Error', error.response?.data?.message || 'Failed to dispatch purchase order.')
     }
   }
 
@@ -163,7 +165,7 @@ const ManagePO = () => {
     setLoading(true)
     try {
       if (isEditing && editingPO) {
-        await purchaseOrdersAPI.update(editingPO.id, values)
+        await purchaseOrdersAPI.update(getRecordId(editingPO), values)
         notify.success('Updated!', 'Order changes saved.')
       } else {
         await purchaseOrdersAPI.create(values)
