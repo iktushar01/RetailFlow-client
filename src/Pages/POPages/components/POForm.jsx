@@ -96,7 +96,7 @@ const POForm = ({
       notify.warning('Validation Error', validation.errors.join('\n• '))
       return
     }
-    onSubmit({ subtotal, taxAmount, total })
+    onSubmit({ ...formData, subtotal, taxAmount, total })
   }
 
   const remainingChars = MAX_NOTES_LENGTH - (formData.notes?.length || 0)
