@@ -102,7 +102,7 @@ const SuggestionsTable = ({
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">units</div>
                     </TableCell>
                     <TableCell className="text-center font-medium text-sm">
-                      {supplier?.name || 'Unknown'}
+                      {supplier?.supplierName || 'Unassigned'}
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge 

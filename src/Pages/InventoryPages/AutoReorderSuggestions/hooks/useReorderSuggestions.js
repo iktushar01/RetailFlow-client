@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { retailApi } from '@/services/api'
 import { toast } from 'sonner'
+import { buildPoPayloadFromReorderItems } from '@/Pages/POPages/utils/poHelpers'
 
 export const useReorderSuggestions = () => {
   const [suggestions, setSuggestions] = useState([])
@@ -61,33 +62,25 @@ export const useReorderSuggestions = () => {
   }, [])
 
   const handleAddToPO = async (item) => {
-    const supplier = suppliers.find(s => s._id === item.supplierId)
-    
-    if (!supplier) {
-      toast.error("No supplier found for this product")
+    const supplier = suppliers.find((s) => s._id === item.supplierId)
+
+    if (!item.supplierId || !supplier) {
+      toast.error('No supplier linked to this product. Assign a supplier on the product first.')
       return
     }
 
     try {
-      const poData = {
-        supplierId: supplier._id,
-        supplierName: supplier.name,
-        items: [{
-          productId: item.productId,
-          productName: item.productName,
-          quantity: item.suggestedQty,
-          unitPrice: item.costPrice,
-          totalPrice: item.totalValue
-        }],
-        status: 'Draft',
-        notes: `Auto-generated PO from reorder suggestion - ${item.productName}`
-      }
+      const poData = buildPoPayloadFromReorderItems({
+        supplier,
+        items: [item],
+        notes: `Auto-generated PO from reorder suggestion — ${item.productName}`,
+      })
 
       await retailApi.purchaseOrders.create(poData)
       toast.success(`Purchase order created for ${item.productName}`)
-      fetchData() 
+      fetchData()
     } catch (error) {
-      toast.error("Failed to create purchase order")
+      toast.error(error.response?.data?.message || 'Failed to create purchase order')
     }
   }
 
@@ -96,39 +89,40 @@ export const useReorderSuggestions = () => {
 
     try {
       const supplierGroups = selectedItems.reduce((acc, item) => {
+        if (!item.supplierId) return acc
         acc[item.supplierId] = acc[item.supplierId] || []
         acc[item.supplierId].push(item)
         return acc
       }, {})
 
-      const creationPromises = Object.entries(supplierGroups).map(([supplierId, items]) => {
-        const supplier = suppliers.find(s => s._id === supplierId)
+      const groupEntries = Object.entries(supplierGroups)
+      if (groupEntries.length === 0) {
+        toast.error('Selected items have no supplier assigned.')
+        return
+      }
+
+      const creationPromises = groupEntries.map(([supplierId, items]) => {
+        const supplier = suppliers.find((s) => s._id === supplierId)
         if (!supplier) return null
 
-        return retailApi.purchaseOrders.create({
-          supplierId: supplier._id,
-          supplierName: supplier.name,
-          items: items.map(item => ({
-            productId: item.productId,
-            productName: item.productName,
-            quantity: item.suggestedQty,
-            unitPrice: item.costPrice,
-            totalPrice: item.totalValue
-          })),
-          status: 'Draft',
-          notes: `Auto-generated bulk PO for ${items.length} items`
-        })
+        return retailApi.purchaseOrders.create(
+          buildPoPayloadFromReorderItems({
+            supplier,
+            items,
+            notes: `Auto-generated bulk PO for ${items.length} reorder item(s)`,
+          })
+        )
       }).filter(Boolean)
 
       await Promise.all(creationPromises)
-      
-      toast.success(`Generated ${Object.keys(supplierGroups).length} purchase orders successfully`)
-      
+
+      toast.success(`Generated ${creationPromises.length} purchase order(s) successfully`)
+
       setShowGenerateModal(false)
       setSelectedItems([])
       fetchData()
     } catch (error) {
-      toast.error("An error occurred while generating bulk orders")
+      toast.error(error.response?.data?.message || 'An error occurred while generating bulk orders')
     }
   }
 

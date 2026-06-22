@@ -111,6 +111,49 @@ export const generatePONumber = () => {
   return `PO-${timestamp}-${random}`
 }
 
+/** Build a valid POST /purchase-orders body from reorder suggestion item(s). */
+export const buildPoPayloadFromReorderItems = ({
+  supplier,
+  items,
+  notes = '',
+  deliveryDays = 7,
+}) => {
+  const supplierId = getRecordId(supplier)
+  const poDate = new Date().toISOString().split('T')[0]
+  const delivery = new Date()
+  delivery.setDate(delivery.getDate() + deliveryDays)
+
+  const poItems = (items || []).map((item) => {
+    const quantity = Math.max(1, Math.ceil(Number(item.suggestedQty ?? item.quantity ?? 1)))
+    const unitPrice = Number(item.costPrice ?? item.unitPrice ?? 0)
+    const productId = item.productId || item.product || getRecordId(item)
+    return {
+      product: productId,
+      productId,
+      productName: item.productName || 'Product',
+      quantity,
+      unitPrice,
+      subtotal: quantity * unitPrice,
+    }
+  })
+
+  const subtotal = poItems.reduce((sum, line) => sum + line.subtotal, 0)
+
+  return {
+    supplier: supplierId,
+    poNumber: generatePONumber(),
+    poDate,
+    expectedDeliveryDate: delivery.toISOString().split('T')[0],
+    items: poItems,
+    notes,
+    tax: 0,
+    subtotal,
+    taxAmount: 0,
+    total: subtotal,
+    status: 'Draft',
+  }
+}
+
 export const MAX_NOTES_LENGTH = 500
 
 export const validateItem = (item) => {
