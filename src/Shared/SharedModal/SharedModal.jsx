@@ -6,6 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from "../../Components/UI/dialog"
 import { cn } from "@/lib/utils"
 
@@ -40,7 +41,8 @@ const SharedModal = ({
           if (!closeOnOverlayClick) e.preventDefault();
         }}
         className={cn(
-          "bg-background border-border shadow-2xl p-0 gap-0",
+          "bg-background border-border shadow-2xl p-0 gap-0 flex flex-col overflow-hidden",
+          size === 'full' && "h-[96dvh] max-h-[96dvh]",
           className
         )}
       >
@@ -57,9 +59,9 @@ const SharedModal = ({
           </DialogHeader>
         )}
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+        <DialogBody className="p-4 sm:p-6">
           {children}
-        </div>
+        </DialogBody>
 
         {footer && (
           <DialogFooter className="shrink-0 px-4 py-4 sm:px-6 border-t border-border bg-muted/20">

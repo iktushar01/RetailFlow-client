@@ -144,7 +144,6 @@ const GRNForm = ({
       size="full"
       closeOnOverlayClick={false}
       footer={modalFooter}
-      className="max-h-[96dvh]"
     >
       <div className="space-y-6 pb-4">
         <Card>
