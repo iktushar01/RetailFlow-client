@@ -3,6 +3,7 @@ import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { AddSuppliersFrom } from './AddSuppliersFrom'
 import { Button } from '../../../Components/UI/button'
 import { suppliersAPI } from '../services/supplierService'
+import { toSupplierApiPayload } from '../utils/supplierHelpers'
 import { X, UserPlus, AlertCircle } from 'lucide-react'
 import { notify } from '../../../utils/notifications'
 
@@ -13,9 +14,9 @@ const AddSuppliersModal = ({ isOpen, onClose, onSuccess }) => {
   const handleFormSubmit = async (values) => {
     setIsSubmitting(true)
     try {
-      const response = await suppliersAPI.create(values);
-      
-      notify.success('Entity Registered', `${values.supplierName} added to system.`, { duration: 3000 })
+      const response = await suppliersAPI.create(toSupplierApiPayload(values));
+
+      notify.success('Supplier added', `${values.supplierName} was added successfully.`)
       
       if (onSuccess) onSuccess(response)
       onClose()

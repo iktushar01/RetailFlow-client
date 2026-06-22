@@ -3,6 +3,7 @@ import SharedModal from '../../../Shared/SharedModal/SharedModal'
 import { EditSuppliersForm } from './EditSuppliersForm'
 import { Button } from '../../../Components/UI/button'
 import { suppliersAPI } from '../services/supplierService'
+import { toSupplierApiPayload } from '../utils/supplierHelpers'
 import { FileEdit, AlertCircle, Save } from 'lucide-react'
 import { notify } from '../../../utils/notifications'
 
@@ -17,18 +18,13 @@ const EditSuppliersModal = ({ isOpen, onClose, onSuccess, supplierData }) => {
     setIsSubmitting(true)
     try {
       const supplierId = supplierData._id || supplierData.id
-      await suppliersAPI.update(supplierId, values)
-      
-      notify.success('Registry Updated', 'Changes synchronized successfully.', { duration: 2500 })
-      
+      const payload = toSupplierApiPayload(values)
+      const updated = await suppliersAPI.update(supplierId, payload)
+
+      notify.success('Updated', 'Supplier saved successfully.')
+
       if (onSuccess) {
-        // Construct the updated object for the parent list
-        const updatedData = {
-          ...supplierData,
-          ...values,
-          _id: supplierId,
-        }
-        onSuccess(updatedData)
+        onSuccess(updated?._id ? updated : { ...supplierData, ...payload, _id: supplierId })
       }
       
       onClose()

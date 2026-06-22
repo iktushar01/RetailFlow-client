@@ -91,21 +91,26 @@ export const validateSupplierForm = (formData) => {
  * @param {Object} formData - Form data
  * @returns {Object} Supplier data ready for API submission
  */
+/** Fields accepted by the suppliers API */
+export const toSupplierApiPayload = (formData) => ({
+  supplierName: formData.supplierName?.trim() || '',
+  contactPerson: formData.contactPerson?.trim() || '',
+  email: formData.email?.trim() || '',
+  phone: formData.phone?.trim() || '',
+  address: formData.address?.trim() || '',
+  notes: formData.notes?.trim() || undefined,
+  status: formData.status || 'Active',
+})
+
 export const prepareSupplierData = (formData) => {
   return {
-    supplierName: formData.supplierName.trim(),
-    contactPerson: formData.contactPerson?.trim() || '',
-    email: formData.email?.trim() || '',
-    phone: formData.phone?.trim() || '',
-    address: formData.address?.trim() || '',
+    ...toSupplierApiPayload(formData),
     city: formData.city?.trim() || '',
     state: formData.state?.trim() || '',
     zipCode: formData.zipCode?.trim() || '',
     country: formData.country?.trim() || '',
     paymentTerms: formData.paymentTerms || 'Net 30',
-    status: formData.status || 'Active',
-    notes: formData.notes?.trim() || '',
-    categories: formData.categories || [], // Add categories they specialize in
+    categories: formData.categories || [],
     createdAt: formData.createdAt || new Date().toISOString()
   }
 }
