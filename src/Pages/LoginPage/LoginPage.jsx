@@ -163,6 +163,16 @@ const LoginPage = () => {
                   </>
                 )}
               </Button>
+              {loading && (
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-center animate-in fade-in slide-in-from-top-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    First load may take up to 45 seconds
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    The server is waking up. On the free Render plan this can take up to 45 seconds on the first visit after idle time. Please wait and do not refresh.
+                  </p>
+                </div>
+              )}
             </form>
           </CardContent>
           

@@ -324,6 +324,14 @@ export function AuthPageSkeleton({ className }) {
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
         </div>
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-center">
+          <p className="text-sm font-semibold text-foreground">
+            First load may take up to 45 seconds
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            The server is waking up. On the free Render plan this can take up to 45 seconds on the first visit after idle time. Please wait and do not refresh.
+          </p>
+        </div>
       </div>
     </div>
   )
